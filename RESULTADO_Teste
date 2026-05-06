@@ -1,0 +1,56 @@
+
+graham:
+
+python3 -c "
+from valuation.graham import calcular_graham
+
+# Dados aproximados da PETR4
+resultado = calcular_graham(lpa=5.20, vpa=40.30, preco_atual=38.50)
+
+print(f'Preço Justo:        R$ {resultado[\"preco_justo\"]}')
+print(f'Preço Atual:        R$ {resultado[\"preco_atual\"]}')
+print(f'Margem de Segurança: {resultado[\"margem_seguranca\"]}%')
+print(f'Classificação:      {resultado[\"classificacao\"]}')
+"
+
+----------------------------------------------------
+bazin:
+
+python3 -c "
+from valuation.bazin import calcular_bazin
+
+# Dados reais da PETR4 (Maio/2026)
+resultado = calcular_bazin(dividendo_anual=2.89, preco_atual=47.09)
+
+print(f'Preço Justo:         R$ {resultado[\"preco_justo\"]}')
+print(f'Preço Atual:         R$ {resultado[\"preco_atual\"]}')
+print(f'Dividend Yield:      {resultado[\"dividend_yield\"]}%')
+print(f'Margem de Segurança: {resultado[\"margem_seguranca\"]}%')
+print(f'Classificação:       {resultado[\"classificacao\"]}')
+"
+
+----------------------------------------------------
+multiplos:
+
+python3 -c "
+from valuation.multiplos import calcular_multiplos
+
+# Dados da PETR4 (Valores hipotéticos/históricos para teste)
+resultado = calcular_multiplos(
+    pl_atual=4.20, 
+    pvp_atual=1.15,
+    pl_medio_historico=6.50, 
+    pvp_medio_historico=1.30,
+    preco_atual=38.50
+)
+
+print(f'Preço Atual:       R$ {resultado[\"preco_atual\"]}')
+
+print(f'P/L Atual:         {resultado[\"pl\"][\"valor\"]}')
+print(f'Desconto P/L:      {resultado[\"pl\"][\"desconto\"]}%')
+print(f'Classif. P/L:      {resultado[\"pl\"][\"classificacao\"]}')
+
+print(f'P/VP Atual:        {resultado[\"pvp\"][\"valor\"]}')
+print(f'Desconto P/VP:     {resultado[\"pvp\"][\"desconto\"]}%')
+print(f'Classif. P/VP:     {resultado[\"pvp\"][\"classificacao\"]}')
+"
