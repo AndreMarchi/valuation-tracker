@@ -5,6 +5,7 @@ from valuation.bazin    import calcular_bazin
 from valuation.multiplos import calcular_multiplos
 from valuation.dcf      import calcular_dcf
 from valuation.score    import calcular_score
+from valuation.risco import analisar_risco
 
 app = FastAPI(
     title="Valuation Tracker API",
@@ -70,6 +71,11 @@ async def valuation(ticker: str):
         }
 
     score = calcular_score(graham, bazin, multiplos, dcf)
+    risco = analisar_risco(
+        ticker=dados["ticker"],
+        setor=dados["setor"],
+        score_atual=score["score"],
+    )
 
     return {
         "ticker":    dados["ticker"],
@@ -80,4 +86,5 @@ async def valuation(ticker: str):
         "multiplos": multiplos,
         "dcf":       dcf,
         "score":     score,
+        "risco":       risco,
     }

@@ -24,7 +24,7 @@ async def buscar_dados_acao(ticker: str) -> dict:
     async with httpx.AsyncClient() as client:
         response = await client.get(url, params=params, timeout=10.0)
         response.raise_for_status()
-        data = await response.json()
+        data = response.json()
 
     if not data.get("results"):
         raise ValueError(f"Ticker '{ticker}' não encontrado na B3")

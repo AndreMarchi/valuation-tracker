@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
+from unittest.mock import patch, MagicMock, AsyncMock
 from dados.brapi import buscar_dados_acao
 
 MOCK_BRAPI_RESPONSE = {
@@ -32,21 +32,24 @@ MOCK_BRAPI_RESPONSE = {
 }
 
 
-def make_mock_response(json_data):
-    """Cria um mock de resposta HTTP com json() assíncrono."""
-    mock_response = MagicMock()
-    mock_response.json = AsyncMock(return_value=json_data)
-    mock_response.raise_for_status = MagicMock()
-    return mock_response
+async def mock_get(*args, **kwargs):
+    response = MagicMock()
+    response.raise_for_status = MagicMock()
+    response.json = MagicMock(return_value=MOCK_BRAPI_RESPONSE)  # SEM AsyncMock
+    return response
+
+
+async def mock_get_empty(*args, **kwargs):
+    response = MagicMock()
+    response.raise_for_status = MagicMock()
+    response.json = MagicMock(return_value={"results": []})  # SEM AsyncMock
+    return response
 
 
 @pytest.mark.asyncio
 async def test_buscar_dados_retorna_campos_obrigatorios():
-    """Todos os campos necessários para o valuation devem estar presentes."""
     with patch("dados.brapi.httpx.AsyncClient") as mock_client:
-        mock_client.return_value.__aenter__.return_value.get = AsyncMock(
-            return_value=make_mock_response(MOCK_BRAPI_RESPONSE)
-        )
+        mock_client.return_value.__aenter__.return_value.get = mock_get
         resultado = await buscar_dados_acao("PETR4")
 
     campos = ["ticker", "nome", "preco_atual", "lpa", "vpa",
@@ -57,11 +60,8 @@ async def test_buscar_dados_retorna_campos_obrigatorios():
 
 @pytest.mark.asyncio
 async def test_buscar_dados_lpa_correto():
-    """LPA deve ser mapeado corretamente do campo trailingEps."""
     with patch("dados.brapi.httpx.AsyncClient") as mock_client:
-        mock_client.return_value.__aenter__.return_value.get = AsyncMock(
-            return_value=make_mock_response(MOCK_BRAPI_RESPONSE)
-        )
+        mock_client.return_value.__aenter__.return_value.get = mock_get
         resultado = await buscar_dados_acao("PETR4")
 
     assert resultado["lpa"] == 8.581526
@@ -69,11 +69,8 @@ async def test_buscar_dados_lpa_correto():
 
 @pytest.mark.asyncio
 async def test_buscar_dados_dividendo_calculado():
-    """Dividendo anual deve ser calculado como yield × preço."""
     with patch("dados.brapi.httpx.AsyncClient") as mock_client:
-        mock_client.return_value.__aenter__.return_value.get = AsyncMock(
-            return_value=make_mock_response(MOCK_BRAPI_RESPONSE)
-        )
+        mock_client.return_value.__aenter__.return_value.get = mock_get
         resultado = await buscar_dados_acao("PETR4")
 
     esperado = round(48.66 * 0.05, 2)
@@ -82,10 +79,7 @@ async def test_buscar_dados_dividendo_calculado():
 
 @pytest.mark.asyncio
 async def test_ticker_invalido_lanca_excecao():
-    """Ticker inválido deve lançar ValueError."""
     with patch("dados.brapi.httpx.AsyncClient") as mock_client:
-        mock_client.return_value.__aenter__.return_value.get = AsyncMock(
-            return_value=make_mock_response({"results": []})
-        )
+        mock_client.return_value.__aenter__.return_value.get = mock_get_empty
         with pytest.raises(ValueError, match="não encontrado"):
             await buscar_dados_acao("XYZINVALIDO")
