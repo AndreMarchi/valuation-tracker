@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException
-from dados.brapi import buscar_dados_acao
+from dados.provider import buscar_dados
 from valuation.graham   import calcular_graham
 from valuation.bazin    import calcular_bazin
 from valuation.multiplos import calcular_multiplos
@@ -12,7 +12,6 @@ app = FastAPI(
     description="API de análise fundamentalista de ações da B3",
     version="1.0.0",
 )
-
 
 @app.get("/")
 async def root():
@@ -27,7 +26,7 @@ async def valuation(ticker: str):
     """
 
     try:
-        dados = await buscar_dados_acao(ticker.upper())
+        dados = buscar_dados(ticker.upper())
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
@@ -39,8 +38,10 @@ async def valuation(ticker: str):
     pl      = dados["pl"]
     pvp     = dados["pvp"]
     div     = dados["dividendo_anual"]
-    fcl     = dados["fluxo_caixa"] / 1_000_000  # converte para milhões
-    acoes   = dados["num_acoes"]  / 1_000_000
+    fcl   = (dados["fluxo_caixa"] or 0) / 1_000_000
+    acoes = (dados["num_acoes"]   or 0) / 1_000_000
+    #fcl     = dados["fluxo_caixa"] / 1_000_000  # converte para milhões brapi
+    #acoes   = dados["num_acoes"]  / 1_000_000
 
     # Médias históricas — por enquanto fixas, virão do banco futuramente
     pl_historico  = pl  * 1.2 if pl  else 10.0
