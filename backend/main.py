@@ -6,6 +6,8 @@ from valuation.multiplos import calcular_multiplos
 from valuation.dcf      import calcular_dcf
 from valuation.score    import calcular_score
 from valuation.risco import analisar_risco
+from dados.historico import buscar_historico_5a, gerar_alertas_historicos
+from valuation.setor import aplicar_restricoes_setor
 
 app = FastAPI(
     title="Valuation Tracker API",
@@ -17,6 +19,12 @@ app = FastAPI(
 async def root():
     return {"status": "ok", "mensagem": "Valuation Tracker API funcionando!"}
 
+@app.get("/cache/clear")
+def clear_cache():
+    """Limpa o cache em memória."""
+    from dados.provider import _cache
+    _cache.clear()
+    return {"mensagem": "Cache limpo com sucesso"}
 
 @app.get("/valuation/{ticker}")
 async def valuation(ticker: str):
@@ -47,6 +55,12 @@ async def valuation(ticker: str):
     pl_historico  = pl  * 1.2 if pl  else 10.0
     pvp_historico = pvp * 1.2 if pvp else 1.5
 
+    # Log de debug
+    print(f"DEBUG {ticker.upper()}:")
+    print(f"  lpa={lpa} vpa={vpa} pl={pl} pvp={pvp}")
+    print(f"  pl_historico={pl_historico} pvp_historico={pvp_historico}")
+    print(f"  fcl={fcl} acoes={acoes}")
+
     graham    = calcular_graham(lpa, vpa, preco)
     bazin     = calcular_bazin(div, preco)
     multiplos = calcular_multiplos(pl, pvp, pl_historico, pvp_historico, preco)
@@ -71,12 +85,25 @@ async def valuation(ticker: str):
             "cenarios": None,
         }
 
+    # Aplica restrições por setor
+    graham, bazin, multiplos, dcf, config_setor = aplicar_restricoes_setor(
+        setor=dados["setor"],
+        graham=graham,
+        bazin=bazin,
+        multiplos=multiplos,
+        dcf=dcf,
+        ticker=dados["ticker"], 
+    )
+
     score = calcular_score(graham, bazin, multiplos, dcf)
     risco = analisar_risco(
         ticker=dados["ticker"],
         setor=dados["setor"],
         score_atual=score["score"],
     )
+    # Histórico e alertas contextuais
+    historico = buscar_historico_5a(dados["ticker"])
+    alertas_historicos = gerar_alertas_historicos(historico, dcf, graham, bazin)
 
     return {
         "ticker":    dados["ticker"],
@@ -88,4 +115,11 @@ async def valuation(ticker: str):
         "dcf":       dcf,
         "score":     score,
         "risco":       risco,
+        "historico_5a":       historico,
+        "alertas_historicos": alertas_historicos,
+        "setor_info": {
+            "setor":          dados["setor"],
+            "metodos_validos": config_setor["metodos_validos"],
+            "metricas_ideais": config_setor["metricas_ideais"],
+        },
     }
