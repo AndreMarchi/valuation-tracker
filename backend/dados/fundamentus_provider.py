@@ -68,4 +68,7 @@ def buscar_dados_acao_fundamentus(ticker: str) -> dict:
         "divida_ebitda":    divida_ebitda,
         "margem_lucro":     round(parse_pct(dados.get('Marg_Liquida', 0)) * 100, 2),
         "crescimento_receita_5a": parse_pct(dados.get('Cres_Rec_5a', 0)),
+        "ev_ebitda":              parse_float(dados.get('EV_EBITDA', 0)) / 100,
+        "ebit_12m":               parse_float(dados.get('EBIT_12m', 0)),
+        "div_liquida":            parse_float(dados.get('Div_Liquida', 0)),
     }

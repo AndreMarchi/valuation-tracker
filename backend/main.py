@@ -8,6 +8,7 @@ from valuation.score    import calcular_score
 from valuation.risco import analisar_risco
 from dados.historico import buscar_historico_5a, gerar_alertas_historicos
 from valuation.setor import aplicar_restricoes_setor
+from valuation.endividamento import analisar_endividamento
 
 app = FastAPI(
     title="Valuation Tracker API",
@@ -30,46 +31,70 @@ def clear_cache():
 async def valuation(ticker: str):
     """
     Retorna o valuation completo de uma ação pelo ticker.
-    Exemplo: /valuation/PETR4
     """
+    ticker_upper = ticker.upper()
 
     try:
-        dados = buscar_dados(ticker.upper())
+        dados = buscar_dados(ticker_upper)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Erro ao buscar dados: {str(e)}")
 
+    # Extração de dados básicos
     preco   = dados["preco_atual"]
     lpa     = dados["lpa"]
     vpa     = dados["vpa"]
     pl      = dados["pl"]
     pvp     = dados["pvp"]
     div     = dados["dividendo_anual"]
-    fcl   = (dados["fluxo_caixa"] or 0) / 1_000_000
-    acoes = (dados["num_acoes"]   or 0) / 1_000_000
-    #fcl     = dados["fluxo_caixa"] / 1_000_000  # converte para milhões brapi
-    #acoes   = dados["num_acoes"]  / 1_000_000
+    fcl     = (dados["fluxo_caixa"] or 0) / 1_000_000
+    acoes   = (dados["num_acoes"]   or 0) / 1_000_000
+    setor   = dados["setor"]
 
-    # Médias históricas — por enquanto fixas, virão do banco futuramente
+    # --- 1. PREPARAÇÃO DE TAXAS E INDICADORES ---
+    
+    # Médias históricas — por enquanto dinâmicas simplificadas
     pl_historico  = pl  * 1.2 if pl  else 10.0
     pvp_historico = pvp * 1.2 if pvp else 1.5
 
-    # Log de debug
-    print(f"DEBUG {ticker.upper()}:")
-    print(f"  lpa={lpa} vpa={vpa} pl={pl} pvp={pvp}")
-    print(f"  pl_historico={pl_historico} pvp_historico={pvp_historico}")
-    print(f"  fcl={fcl} acoes={acoes}")
+    # Cálculo da Taxa de Crescimento (Necessário definir antes do DCF)
+    crescimento_historico = dados.get("crescimento_receita_5a", 0) or 0
+    # Limites de segurança: entre -5% e 15%
+    taxa_crescimento = max(-0.05, min(crescimento_historico, 0.15))
+    if taxa_crescimento == 0:
+        taxa_crescimento = 0.05
 
+    # --- 2. AJUSTE DE FCL POR SETOR (Capex/Dívida) ---
+    FATOR_FCL_POR_SETOR = {
+        "Alimentos":                       0.4,
+        "Petróleo, Gás e Biocombustíveis": 0.3,
+        "Energia Elétrica":                0.5,
+        "Construção Civil":                0.6,
+        "Siderurgia e Metalurgia":         0.4,
+        "Mineração":                       0.4,
+        "Tecnologia":                      0.9,
+        "Varejo":                          0.8,
+        "Intermediários Financeiros":      0.0,
+    }
+    
+    fator_fcl = FATOR_FCL_POR_SETOR.get(setor, 0.7)
+    fcl_ajustado = fcl * fator_fcl
+
+    # Log de debug para acompanhamento no terminal
+    print(f"DEBUG {ticker_upper}: setor={setor} | fator_fcl={fator_fcl}")
+    print(f"  lpa={lpa} | vpa={vpa} | fcl_original={fcl:.2f} | fcl_ajustado={fcl_ajustado:.2f}")
+
+    # --- 3. EXECUÇÃO DOS MÉTODOS DE VALUATION ---
+    
     graham    = calcular_graham(lpa, vpa, preco)
     bazin     = calcular_bazin(div, preco)
     multiplos = calcular_multiplos(pl, pvp, pl_historico, pvp_historico, preco)
 
-    # DCF requer fluxo de caixa e número de ações válidos
-    if fcl > 0 and acoes > 0:
+    if fcl_ajustado > 0 and acoes > 0:
         dcf = calcular_dcf(
-            fluxo_caixa_atual=fcl,
-            taxa_crescimento=0.08,
+            fluxo_caixa_atual=fcl_ajustado,
+            taxa_crescimento=taxa_crescimento,
             taxa_desconto=0.12,
             anos_projecao=5,
             taxa_crescimento_perpetuidade=0.03,
@@ -78,35 +103,46 @@ async def valuation(ticker: str):
         )
     else:
         dcf = {
-            "erro": "DCF não aplicável — fluxo de caixa ou número de ações indisponível",
+            "erro": "DCF não aplicável — fluxo de caixa insuficiente ou setor financeiro",
             "valor_intrinseco": None,
             "margem_seguranca": None,
             "classificacao": "Não aplicável",
             "cenarios": None,
         }
 
-    # Aplica restrições por setor
+    # --- 4. FILTROS E SCORE FINAL ---
+
+    # Aplica restrições específicas por setor (ex: ignora Bazin para Growth)
     graham, bazin, multiplos, dcf, config_setor = aplicar_restricoes_setor(
-        setor=dados["setor"],
+        setor=setor,
         graham=graham,
         bazin=bazin,
         multiplos=multiplos,
         dcf=dcf,
-        ticker=dados["ticker"], 
+        ticker=ticker_upper, 
     )
 
     score = calcular_score(graham, bazin, multiplos, dcf)
+    
     risco = analisar_risco(
-        ticker=dados["ticker"],
-        setor=dados["setor"],
+        ticker=ticker_upper,
+        setor=setor,
         score_atual=score["score"],
     )
+    
+    endividamento = analisar_endividamento(
+        div_liquida = dados.get("div_liquida", 0) or 0,
+        ebit_12m    = dados.get("ebit_12m", 0) or 0,
+        patrim_liq  = dados.get("fluxo_caixa", 0) or 0, # Usando proxy disponível
+        score_atual = score["score"],
+    )
+
     # Histórico e alertas contextuais
-    historico = buscar_historico_5a(dados["ticker"])
+    historico = buscar_historico_5a(ticker_upper)
     alertas_historicos = gerar_alertas_historicos(historico, dcf, graham, bazin)
 
     return {
-        "ticker":    dados["ticker"],
+        "ticker":    ticker_upper,
         "nome":      dados["nome"],
         "preco_atual": preco,
         "graham":    graham,
@@ -114,12 +150,13 @@ async def valuation(ticker: str):
         "multiplos": multiplos,
         "dcf":       dcf,
         "score":     score,
-        "risco":       risco,
+        "risco":     risco,
         "historico_5a":       historico,
         "alertas_historicos": alertas_historicos,
         "setor_info": {
-            "setor":          dados["setor"],
+            "setor":          setor,
             "metodos_validos": config_setor["metodos_validos"],
             "metricas_ideais": config_setor["metricas_ideais"],
         },
+        "endividamento": endividamento,
     }
