@@ -29,6 +29,16 @@ def clear_cache():
     _cache.clear()
     return {"mensagem": "Cache limpo com sucesso"}
 
+@app.get("/selic")
+def selic_atual():
+    """Retorna a taxa Selic atual via BACEN."""
+    from dados.selic import buscar_selic_atual
+    selic = buscar_selic_atual()
+    return {
+        "selic_decimal": selic,
+        "selic_pct":     round(selic * 100, 2),
+    }
+
 @app.get("/valuation/{ticker}")
 async def valuation(ticker: str):
     """
@@ -76,6 +86,12 @@ async def valuation(ticker: str):
         taxa_crescimento = min(taxa_crescimento, 0.08)
         print(f"  setor cíclico — crescimento limitado a {taxa_crescimento}")
 
+    # Se empresa é muito lucrativa mas com crescimento negativo,
+    # usa mínimo de 2% (crescimento conservador)
+    if taxa_crescimento < 0 and lpa > 0 and vpa > 0:
+        taxa_crescimento = 0.02
+        print(f"  crescimento negativo mas empresa lucrativa → usando 2% conservador")
+
     # Taxa de desconto pelo CAPM
     capm = calcular_capm(setor=dados["setor"])
     taxa_desconto = capm["taxa_desconto"]
@@ -93,7 +109,7 @@ async def valuation(ticker: str):
     FATOR_FCL_POR_SETOR = {
         "Alimentos":                       0.4,
         "Alimentos Processados":           0.4,
-        "Petróleo, Gás e Biocombustíveis": 0.3,
+        "Petróleo, Gás e Biocombustíveis": 0.7,
         "Energia Elétrica":                0.5,
         "Construção Civil":                0.6,
         "Siderurgia e Metalurgia":         0.4,

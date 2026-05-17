@@ -218,6 +218,65 @@ export default function App() {
                 </div>
               </div>
             )}
+            
+            {/* EV/EBITDA */}
+            {resultado.ev_ebitda && resultado.ev_ebitda.classificacao !== "Não aplicável" && (
+              <div>
+                <h3 className="text-sm font-semibold text-gray-400 uppercase mb-3">
+                  EV/EBITDA — Método Kobori
+                </h3>
+                <div className="grid grid-cols-3 gap-2 text-center mb-2">
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <p className="text-xs text-gray-400">EV/EBITDA Atual</p>
+                    <p className="font-bold text-gray-700">{resultado.ev_ebitda.ev_ebitda_atual}x</p>
+                  </div>
+                  <div className="bg-blue-50 rounded-lg p-3">
+                    <p className="text-xs text-gray-400">Média Setorial</p>
+                    <p className="font-bold text-blue-600">{resultado.ev_ebitda.ev_ebitda_medio}x</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <p className="text-xs text-gray-400">Preço Justo</p>
+                    <p className="font-bold text-gray-700">
+                      {resultado.ev_ebitda.preco_justo
+                        ? `R$ ${resultado.ev_ebitda.preco_justo.toFixed(2)}`
+                        : '—'}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <span className="font-medium text-gray-700">Classificação EV/EBITDA</span>
+                  <span className={`text-sm font-semibold ${
+                    resultado.ev_ebitda.classificacao === 'Descontada' ? 'text-green-600' :
+                    resultado.ev_ebitda.classificacao === 'Cara' ? 'text-red-600' : 'text-gray-500'
+                  }`}>
+                    {classificacaoIcon[resultado.ev_ebitda.classificacao] ?? '⚠️'} {resultado.ev_ebitda.classificacao}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* CAPM */}
+            {resultado.capm && (
+              <div>
+                <h3 className="text-sm font-semibold text-gray-400 uppercase mb-3">
+                  Taxa de Desconto — CAPM
+                </h3>
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <p className="text-xs text-gray-400">Selic</p>
+                    <p className="font-bold text-gray-700">{(resultado.capm.selic * 100).toFixed(2)}%</p>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <p className="text-xs text-gray-400">Beta</p>
+                    <p className="font-bold text-gray-700">{resultado.capm.beta}</p>
+                  </div>
+                  <div className="bg-blue-50 rounded-lg p-3">
+                    <p className="text-xs text-gray-400">Taxa Final</p>
+                    <p className="font-bold text-blue-600">{resultado.capm.taxa_desconto_pct}%</p>
+                  </div>
+                </div>
+              </div>
+            )} 
             {/* Análise de Risco */}
             {resultado.risco && resultado.risco.alertas.length > 0 && (
               <div>
