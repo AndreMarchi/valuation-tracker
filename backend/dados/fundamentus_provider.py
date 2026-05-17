@@ -71,4 +71,9 @@ def buscar_dados_acao_fundamentus(ticker: str) -> dict:
         "ev_ebitda":              parse_float(dados.get('EV_EBITDA', 0)) / 100,
         "ebit_12m":               parse_float(dados.get('EBIT_12m', 0)),
         "div_liquida":            parse_float(dados.get('Div_Liquida', 0)),
+        "ev_ebitda":            parse_float(dados.get('EV_EBITDA', 0)) / 100,
+        "psr":                  parse_float(dados.get('PSR', 0)) / 100,
+        "receita_liquida_12m":  parse_float(dados.get('Receita_Liquida_12m', 0)),
+        "valor_firma":          parse_float(dados.get('Valor_da_firma', 0)),
+        "valor_mercado":        parse_float(dados.get('Valor_de_mercado', 0)),
     }

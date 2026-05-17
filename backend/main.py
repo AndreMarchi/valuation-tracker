@@ -9,6 +9,8 @@ from valuation.risco import analisar_risco
 from dados.historico import buscar_historico_5a, gerar_alertas_historicos
 from valuation.setor import aplicar_restricoes_setor
 from valuation.endividamento import analisar_endividamento
+from valuation.capm     import calcular_capm
+from valuation.ev_ebitda import calcular_ev_ebitda
 
 app = FastAPI(
     title="Valuation Tracker API",
@@ -74,16 +76,18 @@ async def valuation(ticker: str):
         taxa_crescimento = min(taxa_crescimento, 0.08)
         print(f"  setor cíclico — crescimento limitado a {taxa_crescimento}")
 
-    # Taxa de desconto ajustada pelo endividamento  ← ADICIONE AQUI
+    # Taxa de desconto pelo CAPM
+    capm = calcular_capm(setor=dados["setor"])
+    taxa_desconto = capm["taxa_desconto"]
+
+    # Ajuste extra para endividamento alto
     div_ebit = (dados.get("div_liquida", 0) or 0) / (dados.get("ebit_12m", 1) or 1)
     if div_ebit > 5:
-        taxa_desconto = 0.15
+        taxa_desconto = min(taxa_desconto + 0.03, 0.20)
     elif div_ebit > 3:
-        taxa_desconto = 0.13
-    else:
-        taxa_desconto = 0.12
+        taxa_desconto = min(taxa_desconto + 0.01, 0.18)
 
-    print(f"  div_ebit={div_ebit:.1f} | taxa_desconto={taxa_desconto}")
+    print(f"  capm={capm['taxa_desconto_pct']}% | div_ebit={div_ebit:.1f} | taxa_final={taxa_desconto:.2%}")
 
     # --- 2. AJUSTE DE FCL POR SETOR (Capex/Dívida) ---
     FATOR_FCL_POR_SETOR = {
@@ -147,6 +151,14 @@ async def valuation(ticker: str):
 
     score = calcular_score(graham, bazin, multiplos, dcf)
     
+    ev_ebitda = calcular_ev_ebitda(
+        ev_ebitda_atual = dados.get("ev_ebitda", 0) or 0,
+        setor           = dados["setor"],
+        ebit_12m        = dados.get("ebit_12m", 0) or 0,
+        num_acoes       = dados.get("num_acoes", 0) or 0,
+        div_liquida     = dados.get("div_liquida", 0) or 0,
+    )
+
     risco = analisar_risco(
         ticker=ticker_upper,
         setor=setor,
@@ -182,4 +194,6 @@ async def valuation(ticker: str):
             "metricas_ideais": config_setor["metricas_ideais"],
         },
         "endividamento": endividamento,
+        "capm":      capm,
+        "ev_ebitda": ev_ebitda,
     }
