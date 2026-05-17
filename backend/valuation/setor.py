@@ -120,6 +120,23 @@ CONFIGURACAO_SETORES = {
         },
         "metricas_ideais": ["P/VP", "Dividend Yield", "Desconto sobre NAV"],
     },
+    "Transporte Aéreo": {
+    "metodos_validos":   ["pl", "pvp", "dcf"],
+    "metodos_invalidos": ["graham", "bazin"],
+    "justificativas": {
+        "graham": "Graham não se aplica a aéreas — VPA frequentemente negativo por arrendamento de aeronaves.",
+        "bazin":  "Empresas aéreas raramente pagam dividendos — Bazin não se aplica.",
+    },
+    "metricas_ideais": ["EV/EBITDA", "P/L", "DCF", "Dívida Líquida/EBITDA"],
+    },
+    "Transporte": {
+        "metodos_validos":   ["pl", "pvp", "dcf", "bazin"],
+        "metodos_invalidos": ["graham"],
+        "justificativas": {
+            "graham": "Setor de transporte tem ativos físicos intensivos que distorcem o VPA.",
+        },
+        "metricas_ideais": ["EV/EBITDA", "P/L", "DCF"],
+    },
 }
 
 TICKERS_HOLDINGS = {

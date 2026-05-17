@@ -65,9 +65,30 @@ async def valuation(ticker: str):
     if taxa_crescimento == 0:
         taxa_crescimento = 0.05
 
+    # Setores cíclicos — limitar crescimento a 8% máximo
+    SETORES_CICLICOS = {
+        "Transporte Aéreo", "Transporte",
+        "Alimentos", "Mineração", "Siderurgia e Metalurgia",
+    }
+    if dados["setor"] in SETORES_CICLICOS:
+        taxa_crescimento = min(taxa_crescimento, 0.08)
+        print(f"  setor cíclico — crescimento limitado a {taxa_crescimento}")
+
+    # Taxa de desconto ajustada pelo endividamento  ← ADICIONE AQUI
+    div_ebit = (dados.get("div_liquida", 0) or 0) / (dados.get("ebit_12m", 1) or 1)
+    if div_ebit > 5:
+        taxa_desconto = 0.15
+    elif div_ebit > 3:
+        taxa_desconto = 0.13
+    else:
+        taxa_desconto = 0.12
+
+    print(f"  div_ebit={div_ebit:.1f} | taxa_desconto={taxa_desconto}")
+
     # --- 2. AJUSTE DE FCL POR SETOR (Capex/Dívida) ---
     FATOR_FCL_POR_SETOR = {
         "Alimentos":                       0.4,
+        "Alimentos Processados":           0.4,
         "Petróleo, Gás e Biocombustíveis": 0.3,
         "Energia Elétrica":                0.5,
         "Construção Civil":                0.6,
@@ -76,6 +97,8 @@ async def valuation(ticker: str):
         "Tecnologia":                      0.9,
         "Varejo":                          0.8,
         "Intermediários Financeiros":      0.0,
+        "Transporte Aéreo": 0.15,  # capex muito alto + dívida estrutural
+        "Transporte":       0.30,
     }
     
     fator_fcl = FATOR_FCL_POR_SETOR.get(setor, 0.7)
@@ -95,7 +118,7 @@ async def valuation(ticker: str):
         dcf = calcular_dcf(
             fluxo_caixa_atual=fcl_ajustado,
             taxa_crescimento=taxa_crescimento,
-            taxa_desconto=0.12,
+            taxa_desconto=taxa_desconto,
             anos_projecao=5,
             taxa_crescimento_perpetuidade=0.03,
             num_acoes=acoes,
