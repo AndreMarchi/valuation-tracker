@@ -10,7 +10,15 @@ from dados.historico import buscar_historico_5a, gerar_alertas_historicos
 from valuation.setor import aplicar_restricoes_setor
 from valuation.endividamento import analisar_endividamento
 from valuation.capm     import calcular_capm
+from valuation.wacc     import calcular_wacc
 from valuation.ev_ebitda import calcular_ev_ebitda
+from valuation.crescimento import (
+    detectar_fase_crescimento,
+    calcular_peg_ratio,
+    calcular_ev_receita,
+    calcular_rule_of_40,
+    calcular_dcf_duas_fases,
+)
 
 app = FastAPI(
     title="Valuation Tracker API",
@@ -103,31 +111,27 @@ async def valuation(ticker: str):
     elif div_ebit > 3:
         taxa_desconto = min(taxa_desconto + 0.01, 0.18)
 
-    print(f"  capm={capm['taxa_desconto_pct']}% | div_ebit={div_ebit:.1f} | taxa_final={taxa_desconto:.2%}")
+    # print(f"  capm={capm['taxa_desconto_pct']}% | div_ebit={div_ebit:.1f} | taxa_final={taxa_desconto:.2%}")
 
-    # --- 2. AJUSTE DE FCL POR SETOR (Capex/Dívida) ---
-    FATOR_FCL_POR_SETOR = {
-        "Alimentos":                       0.4,
-        "Alimentos Processados":           0.4,
-        "Petróleo, Gás e Biocombustíveis": 0.7,
-        "Energia Elétrica":                0.5,
-        "Construção Civil":                0.6,
-        "Siderurgia e Metalurgia":         0.4,
-        "Mineração":                       0.4,
-        "Tecnologia":                      0.9,
-        "Varejo":                          0.8,
-        "Intermediários Financeiros":      0.0,
-        "Transporte Aéreo": 0.15,  # capex muito alto + dívida estrutural
-        "Transporte":       0.30,
-    }
+    # Taxa de desconto pelo CAPM
+    capm = calcular_capm(setor=dados["setor"])
+    taxa_capm = capm["taxa_desconto"]
+
+    # --- CALCULO DO WACC DINÂMICO ---
+    # Substitui o ajuste manual antigo por uma ponderação real de balanço
+    taxa_desconto = calcular_wacc(dados, taxa_capm)
+
+    print(f"  capm={capm['taxa_desconto_pct']}% | wacc_final={taxa_desconto:.2%}")
+
+    # --- 2. CÁLCULO DO FCL REAL VIA NOPAT ---
+    from valuation.nopat import calcular_fcl_via_nopat
     
-    fator_fcl = FATOR_FCL_POR_SETOR.get(setor, 0.7)
-    fcl_ajustado = fcl * fator_fcl
+    fcl_ajustado = calcular_fcl_via_nopat(dados)
 
-    # Log de debug para acompanhamento no terminal
-    print(f"DEBUG {ticker_upper}: setor={setor} | fator_fcl={fator_fcl}")
-    print(f"  lpa={lpa} | vpa={vpa} | fcl_original={fcl:.2f} | fcl_ajustado={fcl_ajustado:.2f}")
-
+    print(f"DEBUG {ticker_upper}: setor={setor}")
+    print(f"  ebit_12m={dados.get('ebit_12m', 0)/1_000_000:.2f}M | fcl_via_nopat={fcl_ajustado:.2f}M")
+    
+    
     # --- 3. EXECUÇÃO DOS MÉTODOS DE VALUATION ---
     
     graham    = calcular_graham(lpa, vpa, preco)
@@ -188,6 +192,78 @@ async def valuation(ticker: str):
         score_atual = score["score"],
     )
 
+    # Análise de crescimento
+    crescimento_5a = dados.get("crescimento_receita_5a", 0) or 0
+    fase_crescimento = detectar_fase_crescimento(crescimento_5a)
+
+    peg = calcular_peg_ratio(
+        pl=pl,
+        crescimento_lucro=crescimento_5a,
+    )
+
+    ev_receita = calcular_ev_receita(
+        psr_atual=dados.get("psr", 0) or 0,
+        setor=dados["setor"],
+        receita_12m=dados.get("receita_liquida_12m", 0) or 0,
+        num_acoes=dados.get("num_acoes", 0) or 0,
+        div_liquida=dados.get("div_liquida", 0) or 0,
+        valor_mercado=dados.get("valor_mercado", 0) or 0,
+    )
+
+    rule_of_40 = calcular_rule_of_40(
+        crescimento_receita=crescimento_5a,
+        margem_ebit=dados.get("marg_ebit", 0) or 0,
+    )
+
+    dcf_duas_fases = calcular_dcf_duas_fases(
+        lucro_por_acao=lpa,
+        crescimento_fase1=min(crescimento_5a, 0.30),
+        anos_fase1=5,
+        crescimento_fase2=0.04,
+        taxa_desconto=taxa_desconto,
+        preco_atual=preco,
+    )
+
+    crescimento_info = {
+        "fase":          fase_crescimento,
+        "crescimento_5a": round(crescimento_5a * 100, 1),
+        "peg":           peg,
+        "ev_receita":    ev_receita,
+        "rule_of_40":    rule_of_40,
+        "dcf_duas_fases": dcf_duas_fases,
+    }
+    # --- 5. MATRIZ DE CONSENSO (MÉTODO AGREGADO) ---
+    metodos_descontados = 0
+    total_metodos_ativos = 0
+    
+    # Avalia os 3 pilares independentes
+    pilares = {
+        "patrimonial_multiplos": multiplos.get("classificacao"),
+        "operacional_ebitda":    ev_ebitda.get("classificacao"),
+        "fluxo_de_caixa":        dcf.get("classificacao")
+    }
+    
+    for pilar, classif in pilares.items():
+        if classif != "Não aplicável" and classif is not None:
+            total_metodos_ativos += 1
+            if classif == "Descontada":
+                metodos_descontados += 1
+                
+    # Geração do parecer de consenso do analista
+    if metodos_descontados == total_metodos_ativos and total_metodos_ativos > 0:
+        parecer = "Alinhamento total de compra. Ativo descontado em todas as janelas de análise."
+    elif metodos_descontados >= 1 and pilares["fluxo_de_caixa"] == "Cara":
+        parecer = "Divergência estrutural. Operação barata no presente, mas pressionada por endividamento no longo prazo."
+    elif pilares["fluxo_de_caixa"] == "Descontada" and pilares["operacional_ebitda"] == "Cara":
+        parecer = "Ativo com projeção futura promissora, mas múltiplos operacionais atuais esticados."
+    else:
+        parecer = "Ativo em região de neutralidade. Preço de tela reflete de forma justa os fundamentos atuais."
+
+    consenso_info = {
+        "pilares_status": pilares,
+        "grau_concordancia": f"{metodos_descontados}/{total_metodos_ativos}",
+        "parecer_analista": parecer
+    }
     # Histórico e alertas contextuais
     historico = buscar_historico_5a(ticker_upper)
     alertas_historicos = gerar_alertas_historicos(historico, dcf, graham, bazin)
@@ -212,4 +288,5 @@ async def valuation(ticker: str):
         "endividamento": endividamento,
         "capm":      capm,
         "ev_ebitda": ev_ebitda,
+        "crescimento": crescimento_info,
     }

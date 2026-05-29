@@ -262,6 +262,16 @@ export default function App() {
                   Taxa de Desconto — CAPM
                 </h3>
                 <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="bg-green-50 rounded-lg p-1">  </div>
+                  <div className="bg-blue-50 rounded-lg">
+                    <p>Beta - 1 menos volátil</p>
+                    <p>Beta 1 acompanha a B3</p>
+                    <p>Beta + 1 mais volátil</p>
+                  </div>
+                  <div className="bg-red-50 rounded-lg p-1"></div>
+                  
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-center">
                   <div className="bg-gray-50 rounded-lg p-3">
                     <p className="text-xs text-gray-400">Selic</p>
                     <p className="font-bold text-gray-700">{(resultado.capm.selic * 100).toFixed(2)}%</p>
