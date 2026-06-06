@@ -1,4 +1,6 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from dados.provider import buscar_dados
 from valuation.graham   import calcular_graham
 from valuation.bazin    import calcular_bazin
@@ -19,6 +21,7 @@ from valuation.crescimento import (
     calcular_rule_of_40,
     calcular_dcf_duas_fases,
 )
+import os
 
 app = FastAPI(
     title="Valuation Tracker API",
@@ -28,6 +31,10 @@ app = FastAPI(
 
 @app.get("/")
 async def root():
+    # Em produção, serve o index.html do frontend buildado
+    static_index = os.path.join(os.path.dirname(__file__), "static", "index.html")
+    if os.path.exists(static_index):
+        return FileResponse(static_index)
     return {"status": "ok", "mensagem": "Valuation Tracker API funcionando!"}
 
 @app.get("/cache/clear")
@@ -212,7 +219,6 @@ async def valuation(ticker: str):
     metodos_descontados = 0
     total_metodos_ativos = 0
     
-    # Sanitização com .strip().capitalize() para garantir match perfeito ("Descontada")
     p_multiplos = multiplos.get("classificacao", "").strip().capitalize() if multiplos.get("classificacao") else "Não aplicável"
     p_ebitda    = ev_ebitda.get("classificacao", "").strip().capitalize() if ev_ebitda.get("classificacao") else "Não aplicável"
     p_dcf       = dcf.get("classificacao", "").strip().capitalize() if dcf.get("classificacao") else "Não aplicável"
@@ -229,9 +235,8 @@ async def valuation(ticker: str):
             if classif == "Descontada":
                 metodos_descontados += 1
                 
-    # Geração dinâmica do parecer do analista
     if metodos_descontados == total_metodos_ativos and total_metodos_ativos > 0:
-        parecer = "Alinhamento total de compra. Ativo descontado em todas as janelas de análise." [cite: 109]
+        parecer = "Alinhamento total de compra. Ativo descontado em todas as janelas de análise."
     elif metodos_descontados >= 1 and pilares["fluxo_de_caixa"] == "Cara":
         parecer = "Divergência estrutural. Operação barata no presente, mas pressionada por endividamento no longo prazo."
     elif pilares["fluxo_de_caixa"] == "Descontada" and pilares["operacional_ebitda"] == "Cara":
@@ -272,3 +277,10 @@ async def valuation(ticker: str):
         "crescimento": crescimento_info,
         "consenso":  consenso_info,
     }
+
+
+# ── Servir frontend estático em produção ────────────────────────────────────
+# Montado DEPOIS de todas as rotas da API para não interceptá-las
+_static_dir = os.path.join(os.path.dirname(__file__), "static")
+if os.path.isdir(_static_dir):
+    app.mount("/", StaticFiles(directory=_static_dir, html=True), name="static")
