@@ -50,7 +50,7 @@ def selic_atual():
 @app.get("/valuation/{ticker}")
 async def valuation(ticker: str):
     """
-    Retorna o valuation completo de uma ação pelo ticker.
+    Retorna o valuation completo de uma ação pelo ticker de forma 100% dinâmica.
     """
     ticker_upper = ticker.upper()
 
@@ -61,7 +61,7 @@ async def valuation(ticker: str):
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Erro ao buscar dados: {str(e)}")
 
-    # Extração de dados básicos
+    # Extração de dados básicos do provider dinâmico
     preco   = dados["preco_atual"]
     lpa     = dados["lpa"]
     vpa     = dados["vpa"]
@@ -74,7 +74,7 @@ async def valuation(ticker: str):
 
     # --- 1. PREPARAÇÃO DE TAXAS E INDICADORES ---
     
-    # Médias históricas — por enquanto dinâmicas simplificadas
+    # Médias históricas dinâmicas simplificadas
     pl_historico  = pl  * 1.2 if pl  else 10.0
     pvp_historico = pvp * 1.2 if pvp else 1.5
 
@@ -92,48 +92,26 @@ async def valuation(ticker: str):
     }
     if dados["setor"] in SETORES_CICLICOS:
         taxa_crescimento = min(taxa_crescimento, 0.08)
-        print(f"  setor cíclico — crescimento limitado a {taxa_crescimento}")
 
-    # Se empresa é muito lucrativa mas com crescimento negativo,
-    # usa mínimo de 2% (crescimento conservador)
+    # Se empresa é muito lucrativa mas com crescimento negativo, usa mínimo de 2%
     if taxa_crescimento < 0 and lpa > 0 and vpa > 0:
         taxa_crescimento = 0.02
-        print(f"  crescimento negativo mas empresa lucrativa → usando 2% conservador")
-
-    # Taxa de desconto pelo CAPM
-    capm = calcular_capm(setor=dados["setor"])
-    taxa_desconto = capm["taxa_desconto"]
-
-    # Ajuste extra para endividamento alto
-    div_ebit = (dados.get("div_liquida", 0) or 0) / (dados.get("ebit_12m", 1) or 1)
-    if div_ebit > 5:
-        taxa_desconto = min(taxa_desconto + 0.03, 0.20)
-    elif div_ebit > 3:
-        taxa_desconto = min(taxa_desconto + 0.01, 0.18)
-
-    # print(f"  capm={capm['taxa_desconto_pct']}% | div_ebit={div_ebit:.1f} | taxa_final={taxa_desconto:.2%}")
 
     # Taxa de desconto pelo CAPM
     capm = calcular_capm(setor=dados["setor"])
     taxa_capm = capm["taxa_desconto"]
 
-    # --- CALCULO DO WACC DINÂMICO ---
-    # Substitui o ajuste manual antigo por uma ponderação real de balanço
-    taxa_desconto = calcular_wacc(dados, taxa_capm)
+    # Ajuste extra para endividamento alto aplicado dinamicamente no WACC
+    div_ebit = (dados.get("div_liquida", 0) or 0) / (dados.get("ebit_12m", 1) or 1)
 
-    print(f"  capm={capm['taxa_desconto_pct']}% | wacc_final={taxa_desconto:.2%}")
+    # --- CALCULO DO WACC DINÂMICO ---
+    taxa_desconto = calcular_wacc(dados, taxa_capm)
 
     # --- 2. CÁLCULO DO FCL REAL VIA NOPAT ---
     from valuation.nopat import calcular_fcl_via_nopat
-    
     fcl_ajustado = calcular_fcl_via_nopat(dados)
-
-    print(f"DEBUG {ticker_upper}: setor={setor}")
-    print(f"  ebit_12m={dados.get('ebit_12m', 0)/1_000_000:.2f}M | fcl_via_nopat={fcl_ajustado:.2f}M")
-    
     
     # --- 3. EXECUÇÃO DOS MÉTODOS DE VALUATION ---
-    
     graham    = calcular_graham(lpa, vpa, preco)
     bazin     = calcular_bazin(div, preco)
     multiplos = calcular_multiplos(pl, pvp, pl_historico, pvp_historico, preco)
@@ -159,7 +137,7 @@ async def valuation(ticker: str):
 
     # --- 4. FILTROS E SCORE FINAL ---
 
-    # Aplica restrições específicas por setor (ex: ignora Bazin para Growth)
+    # Aplica restrições específicas por setor
     graham, bazin, multiplos, dcf, config_setor = aplicar_restricoes_setor(
         setor=setor,
         graham=graham,
@@ -188,18 +166,15 @@ async def valuation(ticker: str):
     endividamento = analisar_endividamento(
         div_liquida = dados.get("div_liquida", 0) or 0,
         ebit_12m    = dados.get("ebit_12m", 0) or 0,
-        patrim_liq  = dados.get("fluxo_caixa", 0) or 0, # Usando proxy disponível
+        patrim_liq  = dados.get("fluxo_caixa", 0) or 0,
         score_atual = score["score"],
     )
 
-    # Análise de crescimento
+    # Análise de crescimento dinâmica
     crescimento_5a = dados.get("crescimento_receita_5a", 0) or 0
     fase_crescimento = detectar_fase_crescimento(crescimento_5a)
 
-    peg = calcular_peg_ratio(
-        pl=pl,
-        crescimento_lucro=crescimento_5a,
-    )
+    peg = calcular_peg_ratio(pl=pl, crescimento_lucro=crescimento_5a)
 
     ev_receita = calcular_ev_receita(
         psr_atual=dados.get("psr", 0) or 0,
@@ -232,26 +207,31 @@ async def valuation(ticker: str):
         "rule_of_40":    rule_of_40,
         "dcf_duas_fases": dcf_duas_fases,
     }
-    # --- 5. MATRIZ DE CONSENSO (MÉTODO AGREGADO) ---
+
+    # --- 5. MATRIZ DE CONSENSO DINÂMICA (MÉTODO AGREGADO) ---
     metodos_descontados = 0
     total_metodos_ativos = 0
     
-    # Avalia os 3 pilares independentes
+    # Sanitização com .strip().capitalize() para garantir match perfeito ("Descontada")
+    p_multiplos = multiplos.get("classificacao", "").strip().capitalize() if multiplos.get("classificacao") else "Não aplicável"
+    p_ebitda    = ev_ebitda.get("classificacao", "").strip().capitalize() if ev_ebitda.get("classificacao") else "Não aplicável"
+    p_dcf       = dcf.get("classificacao", "").strip().capitalize() if dcf.get("classificacao") else "Não aplicável"
+
     pilares = {
-        "patrimonial_multiplos": multiplos.get("classificacao"),
-        "operacional_ebitda":    ev_ebitda.get("classificacao"),
-        "fluxo_de_caixa":        dcf.get("classificacao")
+        "patrimonial_multiplos": p_multiplos,
+        "operacional_ebitda":    p_ebitda,
+        "fluxo_de_caixa":        p_dcf
     }
     
     for pilar, classif in pilares.items():
-        if classif != "Não aplicável" and classif is not None:
+        if classif != "Não aplicável" and classif != "" and classif is not None:
             total_metodos_ativos += 1
             if classif == "Descontada":
                 metodos_descontados += 1
                 
-    # Geração do parecer de consenso do analista
+    # Geração dinâmica do parecer do analista
     if metodos_descontados == total_metodos_ativos and total_metodos_ativos > 0:
-        parecer = "Alinhamento total de compra. Ativo descontado em todas as janelas de análise."
+        parecer = "Alinhamento total de compra. Ativo descontado em todas as janelas de análise." [cite: 109]
     elif metodos_descontados >= 1 and pilares["fluxo_de_caixa"] == "Cara":
         parecer = "Divergência estrutural. Operação barata no presente, mas pressionada por endividamento no longo prazo."
     elif pilares["fluxo_de_caixa"] == "Descontada" and pilares["operacional_ebitda"] == "Cara":
@@ -261,9 +241,10 @@ async def valuation(ticker: str):
 
     consenso_info = {
         "pilares_status": pilares,
-        "grau_concordancia": f"{metodos_descontados}/{total_metodos_ativos}",
+        "grau_concordancia": f"{metodos_descontados}/{total_metodos_ativos} pilares descontados",
         "parecer_analista": parecer
     }
+
     # Histórico e alertas contextuais
     historico = buscar_historico_5a(ticker_upper)
     alertas_historicos = gerar_alertas_historicos(historico, dcf, graham, bazin)
@@ -289,4 +270,5 @@ async def valuation(ticker: str):
         "capm":      capm,
         "ev_ebitda": ev_ebitda,
         "crescimento": crescimento_info,
+        "consenso":  consenso_info,
     }

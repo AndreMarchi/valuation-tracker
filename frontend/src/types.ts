@@ -53,6 +53,73 @@ export interface Risco {
   alertas: Alerta[]
 }
 
+export interface PegRatio {
+  peg: number | null
+  pl: number | null
+  crescimento_pct: number | null
+  classificacao: string
+  observacao?: string
+}
+
+export interface EvReceita {
+  psr_atual: number | null
+  psr_referencia: number | null
+  margem_seguranca: number | null
+  classificacao: string
+  observacao?: string
+}
+
+export interface RuleOf40 {
+  score: number | null
+  crescimento_pct: number | null
+  margem_ebit_pct: number | null
+  classificacao: string
+  observacao?: string
+}
+
+export interface DcfDuasFases {
+  valor_intrinseco: number | null
+  margem_seguranca: number | null
+  classificacao: string
+  crescimento_fase1_pct: number | null
+  crescimento_fase2_pct: number | null
+  observacao?: string
+}
+
+export interface CrescimentoInfo {
+  fase: string
+  crescimento_5a: number
+  peg: PegRatio
+  ev_receita: EvReceita
+  rule_of_40: RuleOf40
+  dcf_duas_fases: DcfDuasFases
+}
+
+export interface Endividamento {
+  div_ebit: number | null
+  div_patrimonio: number | null
+  classificacao: string
+  alertas: string[]
+  score_penalizacao: number
+}
+
+export interface ConsensoInfo {
+  pilares_status: {
+    patrimonial_multiplos: string | null
+    operacional_ebitda: string | null
+    fluxo_de_caixa: string | null
+  }
+  grau_concordancia: string
+  parecer_analista: string
+}
+
+export interface AlertaHistorico {
+  tipo: string
+  nivel: string
+  titulo: string
+  descricao: string
+}
+
 export interface ValuationResult {
   ticker: string
   nome: string
@@ -65,4 +132,14 @@ export interface ValuationResult {
   risco: Risco
   ev_ebitda: EvEbitda
   capm: Capm
+  crescimento: CrescimentoInfo
+  endividamento: Endividamento
+  consenso: ConsensoInfo
+  historico_5a: any
+  alertas_historicos: AlertaHistorico[]
+  setor_info: {
+    setor: string
+    metodos_validos: string[]
+    metricas_ideais: Record<string, any>
+  }
 }
