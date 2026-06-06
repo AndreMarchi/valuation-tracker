@@ -37,6 +37,7 @@ async def root():
         return FileResponse(static_index)
     return {"status": "ok", "mensagem": "Valuation Tracker API funcionando!"}
 
+@app.get("/api/cache/clear")
 @app.get("/cache/clear")
 def clear_cache():
     """Limpa o cache em memória."""
@@ -44,6 +45,7 @@ def clear_cache():
     _cache.clear()
     return {"mensagem": "Cache limpo com sucesso"}
 
+@app.get("/api/selic")
 @app.get("/selic")
 def selic_atual():
     """Retorna a taxa Selic atual via BACEN."""
@@ -54,6 +56,7 @@ def selic_atual():
         "selic_pct":     round(selic * 100, 2),
     }
 
+@app.get("/api/valuation/{ticker}")
 @app.get("/valuation/{ticker}")
 async def valuation(ticker: str):
     """
