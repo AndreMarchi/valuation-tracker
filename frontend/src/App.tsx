@@ -2,12 +2,10 @@ import { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 import type {
   ValuationResult,
-  MetodoValuation,
   ConsensoInfo,
   CrescimentoInfo,
   Endividamento,
   Risco,
-  AlertaHistorico,
 } from './types'
 
 // ─── tipos watchlist ────────────────────────────────────────────────────────
