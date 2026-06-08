@@ -138,10 +138,10 @@ const BarChart = ({ data, color }: { data: TrimestralItem[]; color: string }) =>
         const neg = d.valor < 0
         return (
           <div key={i} className="flex-1 flex flex-col items-center gap-0.5">
+            <span className="text-[9px] text-gray-500 font-medium">{Math.abs(d.valor) >= 1000 ? `${(d.valor/1000).toFixed(1)}B` : `${d.valor.toFixed(0)}M`}</span>
             <div
               className={`w-full rounded-t ${neg ? 'bg-red-400' : color}`}
               style={{ height: `${Math.max(pct, 4)}%` }}
-              title={`${d.periodo}: R$ ${d.valor.toFixed(0)}M`}
             />
             <span className="text-[9px] text-gray-400 truncate w-full text-center">{d.periodo.replace(/^(\d{4})(T\d)$/, (_, y, t) => `${t}'${y.slice(2)}`)}</span>
           </div>
