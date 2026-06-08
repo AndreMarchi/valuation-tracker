@@ -63,7 +63,7 @@ backend/
     cad_cia_aberta.csv
     itr_dre_YYYY.csv / itr_dfc_YYYY.csv / itr_bpp_YYYY.csv
     dfp_dre_YYYY.csv / dfp_dfc_YYYY.csv / dfp_bpp_YYYY.csv
-  tests/                 ← 100+ testes passando
+  tests/                 ← 118 testes passando
 frontend/
   src/
     App.tsx
@@ -77,7 +77,7 @@ railway.toml             ← deploy automático via GitHub push
 
 - Backend FastAPI rodando na porta 8000
 - Frontend React/Vite rodando na porta 5173
-- 100+ testes automatizados passando
+- 118 testes automatizados passando
 - Fundamentus como fonte primária (mais rápido e rico)
 - Fallback automático: Fundamentus → Brapi → yfinance
 - Selic automática via API BACEN
