@@ -143,7 +143,7 @@ const BarChart = ({ data, color }: { data: TrimestralItem[]; color: string }) =>
               style={{ height: `${Math.max(pct, 4)}%` }}
               title={`${d.periodo}: R$ ${d.valor.toFixed(0)}M`}
             />
-            <span className="text-[9px] text-gray-400 truncate w-full text-center">{d.periodo.slice(-5)}</span>
+            <span className="text-[9px] text-gray-400 truncate w-full text-center">{d.periodo.replace(/^(\d{4})(T\d)$/, (_, y, t) => `${t}'${y.slice(2)}`)}</span>
           </div>
         )
       })}
