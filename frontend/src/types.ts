@@ -120,6 +120,29 @@ export interface AlertaHistorico {
   descricao: string
 }
 
+// ── Saúde Financeira (Fase 2.5 — dados CVM) ─────────────────────────────────
+
+export interface TrimestralItem {
+  periodo: string
+  valor: number  // em milhões R$
+}
+
+export interface SaudeFinanceira {
+  disponivel: boolean
+  erro?: string
+  score?: number
+  classificacao?: string
+  tendencia_receita?: 'crescendo' | 'estável' | 'caindo'
+  qualidade_lucro?: number | null
+  margens_pct?: number[]
+  receita_trimestral?: TrimestralItem[]
+  lucro_trimestral?: TrimestralItem[]
+  fco_trimestral?: TrimestralItem[]
+  alertas?: string[]
+  destaques?: string[]
+  cd_cvm?: number
+}
+
 export interface ValuationResult {
   ticker: string
   nome: string
@@ -142,4 +165,5 @@ export interface ValuationResult {
     metodos_validos: string[]
     metricas_ideais: Record<string, any>
   }
+  saude_financeira?: SaudeFinanceira
 }

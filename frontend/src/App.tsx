@@ -6,6 +6,8 @@ import type {
   CrescimentoInfo,
   Endividamento,
   Risco,
+  SaudeFinanceira,
+  TrimestralItem,
 } from './types'
 
 // ─── tipos watchlist ────────────────────────────────────────────────────────
@@ -117,6 +119,127 @@ const MethodRow = ({
 )
 
 // ─── section components ─────────────────────────────────────────────────────
+
+
+const scoreColorSaude = (s: number) => {
+  if (s >= 8) return 'text-green-700'
+  if (s >= 6) return 'text-blue-700'
+  if (s >= 4) return 'text-yellow-600'
+  return 'text-red-600'
+}
+
+const BarChart = ({ data, color }: { data: TrimestralItem[]; color: string }) => {
+  if (!data || data.length === 0) return <p className="text-xs text-gray-400">Sem dados</p>
+  const max = Math.max(...data.map(d => Math.abs(d.valor)))
+  return (
+    <div className="flex items-end gap-1 h-16">
+      {data.map((d, i) => {
+        const pct = max > 0 ? (Math.abs(d.valor) / max) * 100 : 0
+        const neg = d.valor < 0
+        return (
+          <div key={i} className="flex-1 flex flex-col items-center gap-0.5">
+            <div
+              className={`w-full rounded-t ${neg ? 'bg-red-400' : color}`}
+              style={{ height: `${Math.max(pct, 4)}%` }}
+              title={`${d.periodo}: R$ ${d.valor.toFixed(0)}M`}
+            />
+            <span className="text-[9px] text-gray-400 truncate w-full text-center">{d.periodo.slice(-5)}</span>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+const SecaoSaudeFinanceira = ({ s }: { s: SaudeFinanceira | undefined }) => {
+  if (!s) return null
+  if (!s.disponivel) {
+    return (
+      <div>
+        <SectionLabel>Saúde Financeira — dados CVM</SectionLabel>
+        <p className="text-xs text-gray-400 bg-gray-50 rounded-lg px-3 py-2">
+          {s.erro ?? 'Dados trimestrais da CVM não disponíveis para este ticker.'}
+        </p>
+      </div>
+    )
+  }
+
+  const tendenciaBadge =
+    s.tendencia_receita === 'crescendo' ? 'bg-green-100 text-green-700' :
+    s.tendencia_receita === 'caindo'    ? 'bg-red-100 text-red-700' :
+    'bg-gray-100 text-gray-500'
+
+  const qualidadeLabel =
+    s.qualidade_lucro == null ? '—' :
+    s.qualidade_lucro >= 1.2  ? `${s.qualidade_lucro.toFixed(1)}x ✅` :
+    s.qualidade_lucro >= 0.8  ? `${s.qualidade_lucro.toFixed(1)}x ⚠️` :
+    `${s.qualidade_lucro.toFixed(1)}x ❌`
+
+  return (
+    <div>
+      <SectionLabel>Saúde Financeira — dados CVM</SectionLabel>
+
+      {/* score + métricas rápidas */}
+      <div className="grid grid-cols-3 gap-2 mb-3">
+        <div className="bg-gray-50 rounded-lg p-3 text-center">
+          <p className="text-xs text-gray-400 mb-1">Score CVM</p>
+          <p className={`text-2xl font-bold ${scoreColorSaude(s.score ?? 0)}`}>
+            {s.score}<span className="text-sm text-gray-400">/10</span>
+          </p>
+          <p className="text-xs text-gray-400">{s.classificacao}</p>
+        </div>
+        <div className="bg-gray-50 rounded-lg p-3 text-center">
+          <p className="text-xs text-gray-400 mb-1">Receita</p>
+          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${tendenciaBadge}`}>
+            {s.tendencia_receita}
+          </span>
+        </div>
+        <div className="bg-gray-50 rounded-lg p-3 text-center">
+          <p className="text-xs text-gray-400 mb-1">FCO / Lucro</p>
+          <p className="text-sm font-semibold text-gray-700">{qualidadeLabel}</p>
+        </div>
+      </div>
+
+      {/* gráficos trimestrais */}
+      {s.receita_trimestral && s.receita_trimestral.length > 0 && (
+        <div className="mb-3">
+          <p className="text-xs text-gray-400 mb-1">Receita Líquida (R$ milhões)</p>
+          <BarChart data={s.receita_trimestral} color="bg-blue-400" />
+        </div>
+      )}
+
+      {s.lucro_trimestral && s.lucro_trimestral.length > 0 && (
+        <div className="mb-3">
+          <p className="text-xs text-gray-400 mb-1">Lucro Líquido (R$ milhões)</p>
+          <BarChart data={s.lucro_trimestral} color="bg-green-400" />
+        </div>
+      )}
+
+      {s.fco_trimestral && s.fco_trimestral.length > 0 && (
+        <div className="mb-3">
+          <p className="text-xs text-gray-400 mb-1">Fluxo de Caixa Operacional (R$ milhões)</p>
+          <BarChart data={s.fco_trimestral} color="bg-purple-400" />
+        </div>
+      )}
+
+      {/* destaques e alertas */}
+      {s.destaques && s.destaques.length > 0 && (
+        <div className="space-y-1 mb-2">
+          {s.destaques.map((d, i) => (
+            <div key={i} className="text-xs text-green-700 bg-green-50 rounded px-3 py-1.5">✅ {d}</div>
+          ))}
+        </div>
+      )}
+      {s.alertas && s.alertas.length > 0 && (
+        <div className="space-y-1">
+          {s.alertas.map((a, i) => (
+            <div key={i} className="text-xs text-yellow-700 bg-yellow-50 rounded px-3 py-1.5">⚠️ {a}</div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
 
 const SecaoMetodos = ({ r }: { r: ValuationResult }) => (
   <div>
@@ -582,6 +705,7 @@ const ResultadoCompleto = ({
     {resultado.endividamento && <SecaoEndividamento e={resultado.endividamento} />}
     {resultado.consenso && <SecaoConsenso c={resultado.consenso} />}
     <SecaoRisco r={resultado.risco} />
+    <SecaoSaudeFinanceira s={resultado.saude_financeira} />
   </div>
 )
 

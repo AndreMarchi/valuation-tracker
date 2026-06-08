@@ -22,6 +22,8 @@ from valuation.crescimento import (
     calcular_dcf_duas_fases,
 )
 import os
+from dados.cvm_provider import buscar_saude_financeira_cvm
+from valuation.saude_financeira import calcular_saude_financeira, extrair_crescimento_cvm
 
 app = FastAPI(
     title="Valuation Tracker API",
@@ -89,7 +91,17 @@ async def valuation(ticker: str):
     pvp_historico = pvp * 1.2 if pvp else 1.5
 
     # Cálculo da Taxa de Crescimento (Necessário definir antes do DCF)
-    crescimento_historico = dados.get("crescimento_receita_5a", 0) or 0
+    # ── Saúde Financeira via CVM (não bloqueia se falhar) ──────────────────
+    try:
+        dados_cvm = buscar_saude_financeira_cvm(dados["nome"])
+        saude_financeira = calcular_saude_financeira(dados_cvm)
+        crescimento_cvm = extrair_crescimento_cvm(dados_cvm)
+    except Exception:
+        saude_financeira = {"disponivel": False}
+        crescimento_cvm = None
+
+    # Usa dados CVM quando disponível (mais preciso que Fundamentus 5a)
+    crescimento_historico = crescimento_cvm if crescimento_cvm is not None else (dados.get("crescimento_receita_5a", 0) or 0)
     # Limites de segurança: entre -5% e 15%
     taxa_crescimento = max(-0.05, min(crescimento_historico, 0.15))
     if taxa_crescimento == 0:
@@ -279,6 +291,7 @@ async def valuation(ticker: str):
         "ev_ebitda": ev_ebitda,
         "crescimento": crescimento_info,
         "consenso":  consenso_info,
+        "saude_financeira": saude_financeira,
     }
 
 
