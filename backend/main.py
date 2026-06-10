@@ -1,3 +1,4 @@
+# backend/main.py
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -9,7 +10,7 @@ from valuation.dcf      import calcular_dcf
 from valuation.score    import calcular_score
 from valuation.risco import analisar_risco
 from dados.historico import buscar_historico_5a, gerar_alertas_historicos
-from valuation.setor import aplicar_restricoes_setor
+from valuation.setor import aplicar_restricoes_setor, buscar_concorrentes_por_subsetor
 from valuation.endividamento import analisar_endividamento
 from valuation.capm     import calcular_capm
 from valuation.wacc     import calcular_wacc
@@ -83,6 +84,7 @@ async def valuation(ticker: str):
     fcl     = (dados["fluxo_caixa"] or 0) / 1_000_000
     acoes   = (dados["num_acoes"]   or 0) / 1_000_000
     setor   = dados["setor"]
+    subsetor = dados.get("industria", "Geral")
 
     # --- 1. PREPARAÇÃO DE TAXAS E INDICADORES ---
     
@@ -90,12 +92,25 @@ async def valuation(ticker: str):
     pl_historico  = pl  * 1.2 if pl  else 10.0
     pvp_historico = pvp * 1.2 if pvp else 1.5
 
-    # Cálculo da Taxa de Crescimento (Necessário definir antes do DCF)
+    # Inicialização de variáveis de segurança para a trava de risco
+    score_cvm_valor = 5.0  # Neutro por padrão se não houver CVM
+    lucro_recente_valor = lpa if lpa is not None else 1.0
+    fco_recente_valor = fcl
+
     # ── Saúde Financeira via CVM (não bloqueia se falhar) ──────────────────
     try:
         dados_cvm = buscar_saude_financeira_cvm(dados["nome"])
         saude_financeira = calcular_saude_financeira(dados_cvm)
         crescimento_cvm = extrair_crescimento_cvm(dados_cvm)
+        
+        # Coleta das métricas reais para alimentar as novas travas do score.py
+        if saude_financeira and "score" in saude_financeira:
+            score_cvm_valor = saude_financeira["score"]
+            
+        # Tenta extrair valores brutos mais recentes se mapeados in dados_cvm
+        if dados_cvm and isinstance(dados_cvm, dict):
+            lucro_recente_valor = dados_cvm.get("lucro_liquido_recente", lucro_recente_valor)
+            fco_recente_valor = dados_cvm.get("fco_recente", fco_recente_valor)
     except Exception:
         saude_financeira = {"disponivel": False}
         crescimento_cvm = None
@@ -110,7 +125,7 @@ async def valuation(ticker: str):
     # Setores cíclicos — limitar crescimento a 8% máximo
     SETORES_CICLICOS = {
         "Transporte Aéreo", "Transporte",
-        "Alimentos", "Mineração", "Siderurgia e Metalurgia",
+        "Alimentos", "Mineração", "Siderurgia e Siderurgia e Metalurgia",
     }
     if dados["setor"] in SETORES_CICLICOS:
         taxa_crescimento = min(taxa_crescimento, 0.08)
@@ -169,7 +184,17 @@ async def valuation(ticker: str):
         ticker=ticker_upper, 
     )
 
-    score = calcular_score(graham, bazin, multiplos, dcf)
+    # CHAMADA ATUALIZADA: Agora passa o subsetor para aplicar os pesos setoriais dinâmicos
+    score = calcular_score(
+        graham=graham,
+        bazin=bazin,
+        multiplos=multiplos,
+        dcf=dcf,
+        score_cvm=score_cvm_valor,
+        lucro_liquido_recente=lucro_recente_valor,
+        fco_recente=fco_recente_valor,
+        subsetor=subsetor
+    )
     
     ev_ebitda = calcular_ev_ebitda(
         ev_ebitda_atual = dados.get("ev_ebitda", 0) or 0,
@@ -249,8 +274,11 @@ async def valuation(ticker: str):
             total_metodos_ativos += 1
             if classif == "Descontada":
                 metodos_descontados += 1
-                
-    if metodos_descontados == total_metodos_ativos and total_metodos_ativos > 0:
+
+    # Substitui o parecer dinâmico se a trava do score_cvm rebaixou o ativo
+    if score_cvm_valor <= 3.0:
+        parecer = score["parecer_analista"]
+    elif metodos_descontados == total_metodos_ativos and total_metodos_ativos > 0:
         parecer = "Alinhamento total de compra. Ativo descontado em todas as janelas de análise."
     elif metodos_descontados >= 1 and pilares["fluxo_de_caixa"] == "Cara":
         parecer = "Divergência estrutural. Operação barata no presente, mas pressionada por endividamento no longo prazo."
@@ -261,7 +289,7 @@ async def valuation(ticker: str):
 
     consenso_info = {
         "pilares_status": pilares,
-        "grau_concordancia": f"{metodos_descontados}/{total_metodos_ativos} pilares descontados",
+        "grau_concordancia": score["grau_concordancia"] if "grau_concordancia" in score else f"{metodos_descontados}/{total_metodos_ativos} pilares descontados",
         "parecer_analista": parecer
     }
 
@@ -283,6 +311,7 @@ async def valuation(ticker: str):
         "alertas_historicos": alertas_historicos,
         "setor_info": {
             "setor":          setor,
+            "industria":      subsetor,
             "metodos_validos": config_setor["metodos_validos"],
             "metricas_ideais": config_setor["metricas_ideais"],
         },
@@ -293,6 +322,55 @@ async def valuation(ticker: str):
         "consenso":  consenso_info,
         "saude_financeira": saude_financeira,
     }
+
+
+# ── NOVA ROTA DE INTELIGÊNCIA SETORIAL (PEER GROUP) ──
+
+@app.get("/api/valuation/setor/concorrentes/{ticker}")
+@app.get("/valuation/setor/concorrentes/{ticker}")
+async def obter_concorrentes_setor_api(ticker: str, limit: int = 4):
+    """
+    Identifica os concorrentes diretos da empresa por subsetor e retorna
+    uma lista resumida contendo múltiplos e scores para comparação direta.
+    """
+    ticker_upper = ticker.upper()
+    
+    try:
+        dados_principal = buscar_dados(ticker_upper)
+        if not dados_principal:
+            raise HTTPException(status_code=404, detail="Ativo mestre não localizado.")
+            
+        subsetor = dados_principal.get("industria", "Geral")
+        lista_concorrentes = buscar_concorrentes_por_subsetor(subsetor, ticker_upper)
+        
+        tickers_alvo = lista_concorrentes[:limit]
+        resultado_concorrentes = []
+        
+        for t_concorrente in tickers_alvo:
+            try:
+                dados_c = buscar_dados(t_concorrente)
+                if dados_c:
+                    resultado_concorrentes.append({
+                        "ticker": t_concorrente,
+                        "nome": dados_c.get("nome", ""),
+                        "preco_atual": dados_c.get("preco_atual", 0),
+                        "pl": dados_c.get("pl", 0),
+                        "pvp": dados_c.get("pvp", 0),
+                        "ev_ebitda": dados_c.get("ev_ebitda", 0),
+                        "dividend_yield": dados_c.get("dividend_yield", 0),
+                    })
+            except Exception:
+                continue
+                
+        return {
+            "ticker_referencia": ticker_upper,
+            "subsetor_identificado": subsetor,
+            "total_concorrentes_encontrados": len(lista_concorrentes),
+            "concorrentes": resultado_concorrentes
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro interno no agrupamento setorial: {str(e)}")
 
 
 # ── Servir frontend estático em produção ────────────────────────────────────

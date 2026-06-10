@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { PeerGroupTable } from './components/PeerGroupTable'
 import axios from 'axios'
 import type {
   ValuationResult,
@@ -10,6 +11,7 @@ import type {
   TrimestralItem,
 } from './types'
 
+
 // ─── tipos watchlist ────────────────────────────────────────────────────────
 
 interface WatchlistItem {
@@ -17,6 +19,7 @@ interface WatchlistItem {
   savedAt: string
   data: ValuationResult
 }
+
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -120,7 +123,6 @@ const MethodRow = ({
 
 // ─── section components ─────────────────────────────────────────────────────
 
-
 const scoreColorSaude = (s: number) => {
   if (s >= 8) return 'text-green-700'
   if (s >= 6) return 'text-blue-700'
@@ -138,7 +140,7 @@ const BarChart = ({ data, color }: { data: TrimestralItem[]; color: string }) =>
         const neg = d.valor < 0
         return (
           <div key={i} className="flex-1 flex flex-col items-center gap-0.5">
-            <span className="text-[9px] text-gray-500 font-medium">{Math.abs(d.valor) >= 1000 ? `${(d.valor/1000).toFixed(1)}B` : `${d.valor.toFixed(0)}M`}</span>
+            <span className="text-[9px] text-gray-500 font-medium">{Math.abs(d.valor) >= 1000 ? `${(d.valor/1000).toFixed(0)}B` : `${d.valor.toFixed(0)}M`}</span>
             <div
               className={`w-full rounded-t ${neg ? 'bg-red-400' : color}`}
               style={{ height: `${Math.max(pct, 4)}%` }}
@@ -169,7 +171,7 @@ const SecaoSaudeFinanceira = ({ s }: { s: SaudeFinanceira | undefined }) => {
     s.tendencia_receita === 'caindo'    ? 'bg-red-100 text-red-700' :
     'bg-gray-100 text-gray-500'
 
-  const qualidadeLabel =
+  const calidadelabel =
     s.qualidade_lucro == null ? '—' :
     s.qualidade_lucro >= 1.2  ? `${s.qualidade_lucro.toFixed(1)}x ✅` :
     s.qualidade_lucro >= 0.8  ? `${s.qualidade_lucro.toFixed(1)}x ⚠️` :
@@ -179,7 +181,6 @@ const SecaoSaudeFinanceira = ({ s }: { s: SaudeFinanceira | undefined }) => {
     <div>
       <SectionLabel>Saúde Financeira — dados CVM</SectionLabel>
 
-      {/* score + métricas rápidas */}
       <div className="grid grid-cols-3 gap-2 mb-3">
         <div className="bg-gray-50 rounded-lg p-3 text-center">
           <p className="text-xs text-gray-400 mb-1">Score CVM</p>
@@ -196,11 +197,10 @@ const SecaoSaudeFinanceira = ({ s }: { s: SaudeFinanceira | undefined }) => {
         </div>
         <div className="bg-gray-50 rounded-lg p-3 text-center">
           <p className="text-xs text-gray-400 mb-1">FCO / Lucro</p>
-          <p className="text-sm font-semibold text-gray-700">{qualidadeLabel}</p>
+          <p className="text-sm font-semibold text-gray-700">{calidadelabel}</p>
         </div>
       </div>
 
-      {/* gráficos trimestrais */}
       {s.receita_trimestral && s.receita_trimestral.length > 0 && (
         <div className="mb-3">
           <p className="text-xs text-gray-400 mb-1">Receita Líquida (R$ milhões)</p>
@@ -222,7 +222,6 @@ const SecaoSaudeFinanceira = ({ s }: { s: SaudeFinanceira | undefined }) => {
         </div>
       )}
 
-      {/* destaques e alertas */}
       {s.destaques && s.destaques.length > 0 && (
         <div className="space-y-1 mb-2">
           {s.destaques.map((d, i) => (
@@ -498,7 +497,6 @@ const WatchlistCard = ({
 
   return (
     <div className={`bg-white rounded-2xl shadow-sm border ${scoreBg(score)} p-4`}>
-      {/* cabeçalho */}
       <div className="flex items-start justify-between mb-3">
         <div>
           <div className="flex items-center gap-2">
@@ -514,7 +512,6 @@ const WatchlistCard = ({
         </div>
       </div>
 
-      {/* pilares consenso resumido */}
       {r.consenso?.pilares_status && (
         <div className="flex gap-1.5 mb-3">
           {Object.entries(r.consenso.pilares_status).map(([key, val]) => {
@@ -536,12 +533,10 @@ const WatchlistCard = ({
         </div>
       )}
 
-      {/* parecer resumido */}
       {r.consenso?.parecer_analista && (
         <p className="text-xs text-gray-500 italic mb-3 line-clamp-2">"{r.consenso.parecer_analista}"</p>
       )}
 
-      {/* rodapé */}
       <div className="flex items-center justify-between pt-2 border-t border-gray-100">
         <p className="text-xs text-gray-300">Atualizado {formatDate(item.savedAt)}</p>
         <div className="flex gap-2">
@@ -605,7 +600,6 @@ const TelaWatchlist = ({
 
   return (
     <div className="space-y-4">
-      {/* resumo geral */}
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-white rounded-xl p-3 text-center shadow-sm border border-gray-100">
           <p className="text-xs text-gray-400 mb-0.5">Tickers</p>
@@ -621,7 +615,6 @@ const TelaWatchlist = ({
         </div>
       </div>
 
-      {/* botão atualizar tudo */}
       <button
         onClick={onRefreshAll}
         disabled={refreshingAll}
@@ -630,7 +623,6 @@ const TelaWatchlist = ({
         {refreshingAll ? '↻ Atualizando todos...' : `↻ Atualizar tudo (${totalTickers})`}
       </button>
 
-      {/* cards */}
       {watchlist
         .slice()
         .sort((a, b) => b.data.risco.score_ajustado - a.data.risco.score_ajustado)
@@ -660,7 +652,6 @@ const ResultadoCompleto = ({
   onToggleWatchlist: () => void
 }) => (
   <div className="bg-white rounded-2xl shadow p-6 space-y-6">
-    {/* Cabeçalho */}
     <div className="flex justify-between items-start">
       <div>
         <h2 className="text-2xl font-bold text-gray-800">{resultado.ticker}</h2>
@@ -673,7 +664,6 @@ const ResultadoCompleto = ({
       </div>
     </div>
 
-    {/* Score */}
     <div className="bg-blue-50 rounded-xl p-4 text-center">
       <p className="text-xs text-gray-400 mb-1 uppercase tracking-widest">Score de atratividade</p>
       <p className={`text-5xl font-bold ${scoreColor(resultado.score.score)}`}>
@@ -685,7 +675,6 @@ const ResultadoCompleto = ({
       <p className="text-xs text-gray-400 mt-1">Baseado em {resultado.score.metodos_aplicados} método(s)</p>
     </div>
 
-    {/* Botão watchlist */}
     <button
       onClick={onToggleWatchlist}
       className={`w-full py-2.5 rounded-xl font-semibold text-sm transition ${
@@ -703,7 +692,17 @@ const ResultadoCompleto = ({
     {resultado.crescimento && <SecaoCrescimento c={resultado.crescimento} />}
     <SecaoCapm capm={resultado.capm} />
     {resultado.endividamento && <SecaoEndividamento e={resultado.endividamento} />}
+    
     {resultado.consenso && <SecaoConsenso c={resultado.consenso} />}
+    
+    {/* INJEÇÃO DA TABELA DE CONCORRENTES SETORIAIS (PEER GROUP) ABAIXO DO CONSENSO */}
+    <PeerGroupTable 
+      ticker={resultado.ticker}
+      precoAtualMestre={resultado.preco_atual}
+      plMestre={resultado.pl || 0}
+      pvpMestre={resultado.pvp || 0}
+    />
+
     <SecaoRisco r={resultado.risco} />
     <SecaoSaudeFinanceira s={resultado.saude_financeira} />
   </div>
@@ -723,7 +722,6 @@ export default function App() {
   const [refreshingTicker, setRefreshingTicker] = useState<string | null>(null)
   const [refreshingAll, setRefreshingAll] = useState(false)
 
-  // persiste watchlist sempre que muda
   useEffect(() => {
     saveWatchlist(watchlist)
   }, [watchlist])
@@ -816,13 +814,11 @@ export default function App() {
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-xl mx-auto">
 
-        {/* Header */}
         <div className="mb-6 text-center">
           <h1 className="text-3xl font-bold text-blue-900">Valuation Tracker</h1>
           <p className="text-gray-500 mt-1">Análise fundamentalista de ações da B3</p>
         </div>
 
-        {/* Navegação */}
         <div className="flex gap-1 mb-6 bg-white rounded-xl p-1 shadow-sm border border-gray-100">
           <button
             onClick={() => setTela('busca')}
@@ -842,7 +838,6 @@ export default function App() {
           </button>
         </div>
 
-        {/* Tela: Busca */}
         {tela === 'busca' && (
           <>
             <div className="flex gap-2 mb-6">
@@ -878,7 +873,6 @@ export default function App() {
           </>
         )}
 
-        {/* Tela: Watchlist */}
         {tela === 'watchlist' && (
           <TelaWatchlist
             watchlist={watchlist}

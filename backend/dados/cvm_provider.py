@@ -140,6 +140,9 @@ def _extrair_serie(df: pd.DataFrame, codigo_conta: str) -> pd.Series:
     if sub.empty:
         return pd.Series(dtype=float)
     sub["VL_NUM"] = pd.to_numeric(sub["VL_CONTA"], errors="coerce")
+    # respeita escala: MIL = valores em milhares, UNIDADE = valores em reais
+    sub["_FATOR"] = sub["ESCALA_MOEDA"].apply(lambda e: 1000.0 if str(e).strip().upper() == "MIL" else 1.0)
+    sub["VL_NUM"] = sub["VL_NUM"] * sub["_FATOR"]  # converte tudo para R$ reais
     sub["DT_FIM"] = pd.to_datetime(sub["DT_FIM_EXERC"], errors="coerce")
     return sub.groupby("DT_FIM")["VL_NUM"].sum().sort_index()
 

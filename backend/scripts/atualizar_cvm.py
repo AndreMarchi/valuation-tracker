@@ -32,9 +32,9 @@ URL_CADASTRO = "https://dados.cvm.gov.br/dados/CIA_ABERTA/CAD/DADOS/cad_cia_aber
 
 # CSVs que queremos extrair de cada ZIP
 CSVS_NECESSARIOS = {
-    "DRE_ind": "dre",
-    "DFC_MI_ind": "dfc",
-    "BPP_ind": "bpp",
+    "DRE_con": "dre",
+    "DFC_MI_con": "dfc",
+    "BPP_con": "bpp",
 }
 
 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
