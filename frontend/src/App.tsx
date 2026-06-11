@@ -696,12 +696,20 @@ const ResultadoCompleto = ({
     {resultado.consenso && <SecaoConsenso c={resultado.consenso} />}
     
     {/* INJEÇÃO DA TABELA DE CONCORRENTES SETORIAIS (PEER GROUP) ABAIXO DO CONSENSO */}
-    <PeerGroupTable 
-      ticker={resultado.ticker}
-      precoAtualMestre={resultado.preco_atual}
-      plMestre={resultado.pl || 0}
-      pvpMestre={resultado.pvp || 0}
-    />
+    {resultado?.ticker && (
+      <PeerGroupTable 
+        ticker={resultado.ticker}
+        precoAtualMestre={resultado.preco_atual || 0}
+        
+        // O P/L e P/VP estão dentro da gaveta "multiplos"
+        plMestre={resultado.multiplos?.pl?.atual || resultado.multiplos?.pl?.valor || 0}
+        pvpMestre={resultado.multiplos?.pvp?.atual || resultado.multiplos?.pvp?.valor || 0}        
+        // O EV/EBITDA tem uma gaveta própria na raiz do seu JSON
+        evEbitdaMestre={resultado.ev_ebitda?.ev_ebitda_atual || 0}
+        // O DY vem do cálculo do Método Bazin
+        dyMestre={resultado.bazin?.dividend_yield || 0}
+      />
+    )}
 
     <SecaoRisco r={resultado.risco} />
     <SecaoSaudeFinanceira s={resultado.saude_financeira} />

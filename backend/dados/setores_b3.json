@@ -1,0 +1,2564 @@
+[
+  {
+    "Nome": "ALLIANÇA SAÚDE E PARTICIPAÇÕES S.A.",
+    "Tickets": "AALR3",
+    "CNPJ": "42.771.949/0001-35",
+    "Segmento_de_mercado": "Serv.Méd.Hospit..Análises e Diagnósticos",
+    "Setor_de_atuacao": "Saúde"
+  },
+  {
+    "Nome": "BCO ABC BRASIL S.A.",
+    "Tickets": "ABCB4",
+    "CNPJ": "28.195.667/0001-06",
+    "Segmento_de_mercado": "Bancos",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "AMBEV S.A.",
+    "Tickets": "ABEV3",
+    "CNPJ": "07.526.557/0001-00",
+    "Segmento_de_mercado": "Cervejas e Refrigerantes",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "CIABRASF CIA BRASILEIRA DE SERVIÇOS FINANCEIROS SA",
+    "Tickets": "ADMF3",
+    "CNPJ": "52.270.350/0001-71",
+    "Segmento_de_mercado": "Serviços Diversos",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "AERIS IND. E COM. DE EQUIP. GERACAO DE ENERGIA S/A",
+    "Tickets": "AERI3",
+    "CNPJ": "12.528.708/0001-07",
+    "Segmento_de_mercado": "Máq. e Equip. Industriais",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "AUREN PARTICIPAÇÕES S.A.",
+    "Tickets": "AESB3",
+    "CNPJ": "37.663.076/0001-07",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "AFLUENTE TRANSMISSÃO DE ENERGIA ELÉTRICA S/A",
+    "Tickets": "AFLT3",
+    "CNPJ": "10.338.320/0001-00",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "BRASILAGRO-CIA BRAS DE PROP AGRICOLAS",
+    "Tickets": "AGRO3",
+    "CNPJ": "07.628.528/0001-59",
+    "Segmento_de_mercado": "Agricultura",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "AGROGALAXY PARTICIPAÇÕES S.A.",
+    "Tickets": "AGXY3",
+    "CNPJ": "21.240.146/0001-84",
+    "Segmento_de_mercado": "Agricultura",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "SAO PAULO TURISMO S.A.",
+    "Tickets": "AHEB3, AHEB5, AHEB6",
+    "CNPJ": "62.002.886/0001-60",
+    "Segmento_de_mercado": "Produção de Eventos e Shows",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "ALLIED TECNOLOGIA S.A.",
+    "Tickets": "ALLD3",
+    "CNPJ": "20.247.322/0001-47",
+    "Segmento_de_mercado": "Eletrodomésticos",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "ALLOS S.A",
+    "Tickets": "ALOS3",
+    "CNPJ": "05.878.397/0001-32",
+    "Segmento_de_mercado": "Exploração de Imóveis",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "ALPARGATAS S.A.",
+    "Tickets": "ALPA3, ALPA4",
+    "CNPJ": "61.079.117/0001-05",
+    "Segmento_de_mercado": "Calçados",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "ALLPARK EMPREENDIMENTOS PARTICIPACOES SERVICOS S.A",
+    "Tickets": "ALPK3",
+    "CNPJ": "60.537.263/0001-66",
+    "Segmento_de_mercado": "Serviços Diversos",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "ALUPAR INVESTIMENTO S/A",
+    "Tickets": "ALUP11, ALUP3, ALUP4",
+    "CNPJ": "08.364.948/0001-38",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "MARISA LOJAS S.A.",
+    "Tickets": "AMAR3",
+    "CNPJ": "61.189.288/0001-89",
+    "Segmento_de_mercado": "Tecidos. Vestuário e Calçados",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "AMBIPAR PARTICIPACOES E EMPREENDIMENTOS S/A",
+    "Tickets": "AMBP3",
+    "CNPJ": "12.648.266/0001-24",
+    "Segmento_de_mercado": "Água e Saneamento",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "AMERICANAS S.A",
+    "Tickets": "AMER3",
+    "CNPJ": "00.776.574/0001-56",
+    "Segmento_de_mercado": "Produtos Diversos",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "AUTOMOB PARTICIPAÇÕES S.A.",
+    "Tickets": "AMOB3",
+    "CNPJ": "35.654.688/0001-08",
+    "Segmento_de_mercado": "Automóveis e Motocicletas",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "ANIMA HOLDING S.A.",
+    "Tickets": "ANIM3",
+    "CNPJ": "09.288.252/0001-32",
+    "Segmento_de_mercado": "Serviços Educacionais",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "ALPER CONSULTORIA E CORRETORA DE SEGUROS S.A.",
+    "Tickets": "APER3",
+    "CNPJ": "11.721.921/0001-60",
+    "Segmento_de_mercado": "Corretoras de Seguros e Resseguros",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "ALIPERTI S.A.",
+    "Tickets": "APT14",
+    "CNPJ": "61.156.931/0001-78",
+    "Segmento_de_mercado": "Agricultura",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "ARMAC LOCAÇÃO. LOGÍSTICA E SERVIÇOS S.A.",
+    "Tickets": "ARML3",
+    "CNPJ": "00.242.184/0001-04",
+    "Segmento_de_mercado": "Serviços Diversos",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "ARANDU INVESTIMENTOS S.A.",
+    "Tickets": "ARND3, REAG3",
+    "CNPJ": "14.127.813/0001-51",
+    "Segmento_de_mercado": "Holdings Diversificadas",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "AREZZO INDÚSTRIA E COMÉRCIO S.A.",
+    "Tickets": "ARZZ3",
+    "CNPJ": "16.590.234/0001-76",
+    "Segmento_de_mercado": "Tecidos. Vestuário e Calçados",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "SENDAS DISTRIBUIDORA S.A.",
+    "Tickets": "ASAI3",
+    "CNPJ": "06.057.223/0001-71",
+    "Segmento_de_mercado": "Alimentos",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "ATOM EDUCAÇÃO E EDITORA S.A.",
+    "Tickets": "ATED3",
+    "CNPJ": "23.994.857/0001-70",
+    "Segmento_de_mercado": "Serviços Educacionais",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "CONTAX PARTICIPAÇÕES S.A",
+    "Tickets": "ATMP3, CTAX3",
+    "CNPJ": "04.032.433/0001-80",
+    "Segmento_de_mercado": "Serviços Diversos",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "FICTOR ALIMENTOS S.A",
+    "Tickets": "ATOM3, FICT3",
+    "CNPJ": "00.359.742/0001-08",
+    "Segmento_de_mercado": "Carnes e Derivados",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "UNIÃO PET PARTICIPAÇÕES S.A.",
+    "Tickets": "AUAU3",
+    "CNPJ": "53.153.938/0001-08",
+    "Segmento_de_mercado": "Produtos Diversos",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "AUREN ENERGIA S.A.",
+    "Tickets": "AURE3",
+    "CNPJ": "28.594.234/0001-23",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "ALPHAVILLE S.A.",
+    "Tickets": "AVLL3",
+    "CNPJ": "16.811.931/0001-00",
+    "Segmento_de_mercado": "Incorporações",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "AXIA ENERGIA S.A.",
+    "Tickets": "AXIA3, AXIA5, AXIA6",
+    "CNPJ": "00.001.180/0001-26",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "AZEVEDO E TRAVASSOS S.A.",
+    "Tickets": "AZEV3, AZEV4",
+    "CNPJ": "61.351.532/0001-68",
+    "Segmento_de_mercado": "Construção Pesada",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "AZEVEDO & TRAVASSOS ENERGIA S.A.",
+    "Tickets": "AZTE3",
+    "CNPJ": "52.017.473/0001-03",
+    "Segmento_de_mercado": "Exploração. Refino e Distribuição",
+    "Setor_de_atuacao": "Petróleo. Gás e Biocombustíveis"
+  },
+  {
+    "Nome": "AZUL S.A.",
+    "Tickets": "AZUL11, AZUL12, AZUL3, AZUL4, AZUL53, AZUL54, AZUL97, AZUL98, AZUL99",
+    "CNPJ": "09.305.994/0001-29",
+    "Segmento_de_mercado": "Transporte Aéreo",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "AZZAS 2154 S.A.",
+    "Tickets": "AZZA3",
+    "CNPJ": "16.590.234/0001-76",
+    "Segmento_de_mercado": "Tecidos. Vestuário e Calçados",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "B100 S.A.",
+    "Tickets": "B1003",
+    "CNPJ": "52.270.350/0001-71",
+    "Segmento_de_mercado": "Serviços Diversos",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "B3 S.A. BRASIL. BOLSA, BALCÃO",
+    "Tickets": "B3SA3",
+    "CNPJ": "09.346.601/0001-25",
+    "Segmento_de_mercado": "Serviços Financeiros Diversos",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "BAHEMA EDUCAÇÃO S.A.",
+    "Tickets": "ВАНІЗ",
+    "CNPJ": "45.987.245/0001-92",
+    "Segmento_de_mercado": "Serviços Educacionais",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "BAUMER S.A.",
+    "Tickets": "BALM3, BALM4",
+    "CNPJ": "61.374.161/0001-30",
+    "Segmento_de_mercado": "Equipamentos",
+    "Setor_de_atuacao": "Saúde"
+  },
+  {
+    "Nome": "EXCELSIOR ALIMENTOS S.A.",
+    "Tickets": "BAUH4",
+    "CNPJ": "95.426.862/0001-97",
+    "Segmento_de_mercado": "Carnes e Derivados",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "BCO AMAZONIA S.A.",
+    "Tickets": "BAZA3",
+    "CNPJ": "04.902.979/0001-44",
+    "Segmento_de_mercado": "Bancos",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "BCO BRASIL S.A.",
+    "Tickets": "BBAS3",
+    "CNPJ": "000000000191",
+    "Segmento_de_mercado": "Bancos",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "BCO BRADESCO S.A.",
+    "Tickets": "BBDC3, BBDC4",
+    "CNPJ": "60.746.948/0001-12",
+    "Segmento_de_mercado": "Bancos",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "BB SEGURIDADE PARTICIPAÇÕES S.A.",
+    "Tickets": "BBSE3",
+    "CNPJ": "17.344.597/0001-94",
+    "Segmento_de_mercado": "Seguradoras",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "BARDELLA S.A. INDUSTRIAS MECANICAS",
+    "Tickets": "BDLL3, BDLL4",
+    "CNPJ": "60.851.615/0001-53",
+    "Segmento_de_mercado": "Máq. e Equip. Industriais",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "MINERVA S.A.",
+    "Tickets": "BEEF3",
+    "CNPJ": "67.620.377/0001-14",
+    "Segmento_de_mercado": "Carnes e Derivados",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "BANESTES S.A.BCO EST ESPIRITO SANTO",
+    "Tickets": "BEES3, BEES4",
+    "CNPJ": "28.127.603/0001-78",
+    "Segmento_de_mercado": "Bancos",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "BCO ESTADO DE SERGIPE S.A. - BANESE",
+    "Tickets": "BGIP3, BGIP4",
+    "CNPJ": "13.009.717/0001-46",
+    "Segmento_de_mercado": "Bancos",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "GRUPO CASAS BAHIA S.A.",
+    "Tickets": "BHIA3",
+    "CNPJ": "33.041.260/0652-90",
+    "Segmento_de_mercado": "Eletrodomésticos",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "BIOMA EDUCAÇÃO S.A.",
+    "Tickets": "BIED3",
+    "CNPJ": "45.987.245/0001-92",
+    "Segmento_de_mercado": "Serviços Educacionais",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "BIOMM S.A.",
+    "Tickets": "BIOM3",
+    "CNPJ": "04.752.991/0001-10",
+    "Segmento_de_mercado": "Medicamentos e Outros Produtos",
+    "Setor_de_atuacao": "Saúde"
+  },
+  {
+    "Nome": "BLAU FARMACÊUTICA S.A.",
+    "Tickets": "BLAU3",
+    "CNPJ": "58.430.828/0001-60",
+    "Segmento_de_mercado": "Medicamentos e Outros Produtos",
+    "Setor_de_atuacao": "Saúde"
+  },
+  {
+    "Nome": "BCO MERCANTIL DO BRASIL S.A.",
+    "Tickets": "BMEB3, BMEB4",
+    "CNPJ": "17.184.037/0001-10",
+    "Segmento_de_mercado": "Bancos",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "BANCO BMG S.A.",
+    "Tickets": "BMGB4",
+    "CNPJ": "61.186.680/0001-74",
+    "Segmento_de_mercado": "Bancos",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "BCO MERCANTIL DE INVESTIMENTOS S.A.",
+    "Tickets": "BMIN3, BMIN4",
+    "CNPJ": "34.169.557/0001-72",
+    "Segmento_de_mercado": "Bancos",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "BICICLETAS MONARK S.A.",
+    "Tickets": "BMKS3",
+    "CNPJ": "56.992.423/0001-90",
+    "Segmento_de_mercado": "Bicicletas",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "BEMOBI MOBILE TECH S.A.",
+    "Tickets": "BMOB3",
+    "CNPJ": "09.042.817/0001-05",
+    "Segmento_de_mercado": "Programas e Serviços",
+    "Setor_de_atuacao": "Tecnologia da Informação"
+  },
+  {
+    "Nome": "BCO NORDESTE DO BRASIL S.A.",
+    "Tickets": "BNBR3",
+    "CNPJ": "07.237.373/0001-20",
+    "Segmento_de_mercado": "Bancos",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "BOMBRIL S.A.",
+    "Tickets": "BOBR3, BOBR4",
+    "CNPJ": "50.564.053/0001-03",
+    "Segmento_de_mercado": "Produtos de Limpeza",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "BCO BTG PACTUAL S.A.",
+    "Tickets": "BPAC11, ВРАСЗ, BPAC5",
+    "CNPJ": "30.306.294/0001-45",
+    "Segmento_de_mercado": "Bancos",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "BCO PAN S.A.",
+    "Tickets": "ΒΡΑΝ4",
+    "CNPJ": "59.285.411/0001-13",
+    "Segmento_de_mercado": "Bancos",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "BCO ESTADO DO PARA S.A.",
+    "Tickets": "BPAR3",
+    "CNPJ": "04.913.711/0001-08",
+    "Segmento_de_mercado": "Bancos",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "BRADESPAR S.A.",
+    "Tickets": "BRAP3, BRAP4",
+    "CNPJ": "03.847.461/0001-92",
+    "Segmento_de_mercado": "Minerais Metálicos",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "BRAVA ENERGIA S.A.",
+    "Tickets": "BRAV3",
+    "CNPJ": "12.091.809/0001-55",
+    "Segmento_de_mercado": "Exploração. Refino e Distribuição",
+    "Setor_de_atuacao": "Petróleo. Gás e Biocombustíveis"
+  },
+  {
+    "Nome": "BRBI BR PARTNERS S.A.",
+    "Tickets": "BRBI11",
+    "CNPJ": "10.739.356/0001-03",
+    "Segmento_de_mercado": "Bancos",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "BRF S.A.",
+    "Tickets": "BRFS3",
+    "CNPJ": "01.838.723/0001-27",
+    "Segmento_de_mercado": "Carnes e Derivados",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "CONSORCIO ALFA DE ADMINISTRACAO S.A.",
+    "Tickets": "BRGE3, BRGE5, BRGE6",
+    "CNPJ": "17.193.806/0001-46",
+    "Segmento_de_mercado": "Seguradoras",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "BRISANET PARTICIPAÇÕES S.A.",
+    "Tickets": "BRIT3",
+    "CNPJ": "19.796.586/0001-70",
+    "Segmento_de_mercado": "Telecomunicações",
+    "Setor_de_atuacao": "Comunicações"
+  },
+  {
+    "Nome": "BCO ALFA DE INVESTIMENTO S.A.",
+    "Tickets": "BRIV3, BRIV4",
+    "CNPJ": "60.770.336/0001-65",
+    "Segmento_de_mercado": "Bancos",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "BRASKEM S.A.",
+    "Tickets": "BRKM3, BRKM5, BRKM6",
+    "CNPJ": "42.150.391/0001-70",
+    "Segmento_de_mercado": "Petroquímicos",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "BCO ESTADO DO RIO GRANDE DO SUL S.A.",
+    "Tickets": "BRSR3, BRSR5, BRSR6",
+    "CNPJ": "92.702.067/0001-96",
+    "Segmento_de_mercado": "Bancos",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "BRISANET SERVIÇOS DE TELECOMUNICAÇÕES S.A.",
+    "Tickets": "BRST3",
+    "CNPJ": "04.601.397/0001-28",
+    "Segmento_de_mercado": "Telecomunicações",
+    "Setor_de_atuacao": "Comunicações"
+  },
+  {
+    "Nome": "BRB BCO DE BRASILIA S.A.",
+    "Tickets": "BSL13, BSL14",
+    "CNPJ": "00.000.208/0001-00",
+    "Segmento_de_mercado": "Bancos",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "CONSTRUTORA ADOLPHO LINDENBERG S.A.",
+    "Tickets": "CALI3",
+    "CNPJ": "61.022.042/0001-18",
+    "Segmento_de_mercado": "Incorporações",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "CAMBUCI S.A.",
+    "Tickets": "CAMB3",
+    "CNPJ": "61.088.894/0001-08",
+    "Segmento_de_mercado": "Calçados",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "CAMIL ALIMENTOS S.A.",
+    "Tickets": "CAML3",
+    "CNPJ": "64.904.295/0001-03",
+    "Segmento_de_mercado": "Alimentos Diversos",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "MELIUZ S.A.",
+    "Tickets": "CASH3",
+    "CNPJ": "14.110.585/0001-07",
+    "Segmento_de_mercado": "Programas e Serviços",
+    "Setor_de_atuacao": "Tecnologia da Informação"
+  },
+  {
+    "Nome": "CIA CATARINENSE DE AGUAS E SANEAM.-CASAN",
+    "Tickets": "CASN3, CASN4",
+    "CNPJ": "82.508.433/0001-17",
+    "Segmento_de_mercado": "Água e Saneamento",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "COMPANHIA BRASILEIRA DE ALUMÍNIO",
+    "Tickets": "CBAV3",
+    "CNPJ": "61.409.892/0001-73",
+    "Segmento_de_mercado": "Minerais Metálicos",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "AMPLA ENERGIA E SERVICOS S.A.",
+    "Tickets": "СВЕЕЗ",
+    "CNPJ": "33.050.071/0001-58",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "MOTIVA INFRAESTRUTURA DE MOBILIDADE S.A.",
+    "Tickets": "CCRO3, MOTV3",
+    "CNPJ": "02.846.056/0001-97",
+    "Segmento_de_mercado": "Exploração de Rodovias",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "BELORA RDVC CITY DESENVOLVIMENTO IMOBILIÁRIO S.A.",
+    "Tickets": "CCTY3",
+    "CNPJ": "52.805.925/0001-03",
+    "Segmento_de_mercado": "Incorporações",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "CEA MODAS S.A.",
+    "Tickets": "CEAB3",
+    "CNPJ": "45.242.914/0001-05",
+    "Segmento_de_mercado": "Tecidos. Vestuário e Calçados",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "CIA ENERGETICA DE BRASILIA",
+    "Tickets": "CEBR3, CEBR5, CEBR6",
+    "CNPJ": "00.070.698/0001-11",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "CIA FIACAO TECIDOS CEDRO CACHOEIRA",
+    "Tickets": "CEDO3, CEDO4",
+    "CNPJ": "17.245.234/0001-00",
+    "Segmento_de_mercado": "Fios e Tecidos",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "CIA ELETRICIDADE EST. DA BAHIA COELBA",
+    "Tickets": "CEEB3, CEEB5",
+    "CNPJ": "15.139.629/0001-94",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "CIA ESTADUAL DE DISTRIB ENER ELET-CEEE-D",
+    "Tickets": "CEED3, CEED4",
+    "CNPJ": "08.467.115/0001-00",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "CIA DISTRIB DE GAS DO RIO DE JANEIRO-CEG",
+    "Tickets": "CEGR3",
+    "CNPJ": "33.938.119/0001-69",
+    "Segmento_de_mercado": "Gás",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "CIA GAS DE SAO PAULO-COMGAS",
+    "Tickets": "CGAS3, CGAS5",
+    "CNPJ": "61.856.571/0001-17",
+    "Segmento_de_mercado": "Gás",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "GRAZZIOTIN S.A.",
+    "Tickets": "CGRA3, CGRA4",
+    "CNPJ": "92.012.467/0001-70",
+    "Segmento_de_mercado": "Tecidos. Vestuário e Calçados",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "CIELO S.A. - INSTITUIÇÃO DE PAGAMENTO",
+    "Tickets": "CIEL3",
+    "CNPJ": "01.027.058/0001-91",
+    "Segmento_de_mercado": "Serviços Financeiros Diversos",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "CLEAR SALE S.A.",
+    "Tickets": "CLSA3",
+    "CNPJ": "03.802.115/0001-98",
+    "Segmento_de_mercado": "Serviços Financeiros Diversos",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "CENTRAIS ELET DE SANTA CATARINA S.A.",
+    "Tickets": "CLSC3, CLSC4",
+    "CNPJ": "83.878.892/0001-55",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "CIA ENERGETICA DE MINAS GERAIS - CEMIG",
+    "Tickets": "CMIG3, CMIG4",
+    "CNPJ": "17.155.730/0001-64",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "CSN MINERAÇÃO S.A.",
+    "Tickets": "CMIN3",
+    "CNPJ": "08.902.291/0001-15",
+    "Segmento_de_mercado": "Minerais Metálicos",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "CIA ENERGETICA DO CEARA - COELCE",
+    "Tickets": "COCEЗ, COCES, COCE6",
+    "CNPJ": "07.047.251/0001-70",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "COGNA EDUCAÇÃO S.A.",
+    "Tickets": "COGN3",
+    "CNPJ": "02.800.026/0001-40",
+    "Segmento_de_mercado": "Serviços Educacionais",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "CORREA RIBEIRO S.A. COMERCIO E INDUSTRIA",
+    "Tickets": "CORR3, CORR4",
+    "CNPJ": "15.101.405/0001-93",
+    "Segmento_de_mercado": "Exploração de Imóveis",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "CPFL ENERGIA S.A.",
+    "Tickets": "CPFE3",
+    "CNPJ": "02.429.144/0001-93",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "CIA PARANAENSE DE ENERGIA - COPEL",
+    "Tickets": "CPLE3, CPLE5, CPLE6",
+    "CNPJ": "76.483.817/0001-20",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "ATACADÃO S.A.",
+    "Tickets": "CRFB3",
+    "CNPJ": "75.315.333/0001-09",
+    "Segmento_de_mercado": "Alimentos",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "FINANCEIRA ALFA S.A.- CRED FINANC E INVS",
+    "Tickets": "CRIV3, CRIV4",
+    "CNPJ": "17.167.412/0001-13",
+    "Segmento_de_mercado": "Soc. Crédito e Financiamento",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "TRONOX PIGMENTOS DO BRASIL S.A.",
+    "Tickets": "CRPG3, CRPG5, CRPG6",
+    "CNPJ": "15.115.504/0001-24",
+    "Segmento_de_mercado": "Químicos Diversos",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "COSAN S.A.",
+    "Tickets": "CSAN3",
+    "CNPJ": "50.746.577/0001-15",
+    "Segmento_de_mercado": "Exploração. Refino e Distribuição",
+    "Setor_de_atuacao": "Petróleo. Gás e Biocombustíveis"
+  },
+  {
+    "Nome": "CRUZEIRO DO SUL EDUCACIONAL S.A.",
+    "Tickets": "CSED3",
+    "CNPJ": "62.984.091/0001-02",
+    "Segmento_de_mercado": "Serviços Educacionais",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "CIA SANEAMENTO DE MINAS GERAIS-COPASA MG",
+    "Tickets": "CSMG3",
+    "CNPJ": "17.281.106/0001-03",
+    "Segmento_de_mercado": "Água e Saneamento",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "CIA SIDERURGICA NACIONAL",
+    "Tickets": "CSNA3",
+    "CNPJ": "33.042.730/0001-04",
+    "Segmento_de_mercado": "Siderurgia",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "CIA ENERGETICA DO RIO GDE NORTE - COSERN",
+    "Tickets": "CSRN3, CSRN5, CSRN6",
+    "CNPJ": "08.324.196/0001-81",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "CSU DIGITAL S.A.",
+    "Tickets": "CSUD3",
+    "CNPJ": "01.896.779/0001-38",
+    "Segmento_de_mercado": "Serviços Financeiros Diversos",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "KARSTEN S.A.",
+    "Tickets": "СТКАЗ, CTKA4",
+    "CNPJ": "82.640.558/0001-04",
+    "Segmento_de_mercado": "Fios e Tecidos",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "CIA TECIDOS NORTE DE MINAS COTEMINAS",
+    "Tickets": "CTNM3, CTNM4",
+    "CNPJ": "22.677.520/0001-76",
+    "Segmento_de_mercado": "Fios e Tecidos",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "CIA TECIDOS SANTANENSE",
+    "Tickets": "CTSA3, CTSA4",
+    "CNPJ": "21.255.567/0001-89",
+    "Segmento_de_mercado": "Fios e Tecidos",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "CURY CONSTRUTORA E INCORPORADORA S.A.",
+    "Tickets": "CURY3",
+    "CNPJ": "08.797.760/0001-83",
+    "Segmento_de_mercado": "Incorporações",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "CVC BRASIL OPERADORA E AGÊNCIA DE VIAGENS S.A.",
+    "Tickets": "CVCB3",
+    "CNPJ": "10.760.260/0001-19",
+    "Segmento_de_mercado": "Viagens e Turismo",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "CAIXA SEGURIDADE PARTICIPAÇÕES S.A.",
+    "Tickets": "CXSE3",
+    "CNPJ": "22.543.331/0001-00",
+    "Segmento_de_mercado": "Seguradoras",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "CYRELA BRAZIL REALTY S.A.EMPREEND E PART",
+    "Tickets": "CYRE3, CYRE4",
+    "CNPJ": "73.178.600/0001-18",
+    "Segmento_de_mercado": "Incorporações",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "DIAGNOSTICOS DA AMERICA S.A.",
+    "Tickets": "DASA3",
+    "CNPJ": "61.486.650/0001-83",
+    "Segmento_de_mercado": "Serv.Méd.Hospit..Análises e Diagnósticos",
+    "Setor_de_atuacao": "Saúde"
+  },
+  {
+    "Nome": "DESKTOP S.A.",
+    "Tickets": "DESK3",
+    "CNPJ": "08.170.849/0001-15",
+    "Segmento_de_mercado": "Telecomunicações",
+    "Setor_de_atuacao": "Comunicações"
+  },
+  {
+    "Nome": "DEXXOS PARTICIPACOES S.A.",
+    "Tickets": "DEXP3, DEXP4",
+    "CNPJ": "02.193.750/0001-52",
+    "Segmento_de_mercado": "Petroquímicos",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "DIRECIONAL ENGENHARIA S.A.",
+    "Tickets": "DIRR3",
+    "CNPJ": "16.614.075/0001-00",
+    "Segmento_de_mercado": "Incorporações",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "DM FINANCEIRA S.A. CRÉDITO. FINANC E INVEST",
+    "Tickets": "DMFN3",
+    "CNPJ": "91.669.747/0001-92",
+    "Segmento_de_mercado": "Soc. Crédito e Financiamento",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "D1000 VAREJO FARMA PARTICIPAÇÕES S.A.",
+    "Tickets": "DMVF3",
+    "CNPJ": "12.108.897/0001-50",
+    "Segmento_de_mercado": "Medicamentos e Outros Produtos",
+    "Setor_de_atuacao": "Saúde"
+  },
+  {
+    "Nome": "DOHLER S.A.",
+    "Tickets": "DOHL3, DOHL4",
+    "CNPJ": "84.683.408/0001-03",
+    "Segmento_de_mercado": "Fios e Tecidos",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "DOTZ S.A.",
+    "Tickets": "DOTZ3",
+    "CNPJ": "18.174.270/0001-84",
+    "Segmento_de_mercado": "Programas de Fidelização",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "DTCOM-DIRECT TO COMPANY S.A.",
+    "Tickets": "DTCY3",
+    "CNPJ": "03.303.999/0001-36",
+    "Segmento_de_mercado": "Serviços Diversos",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "DEXCO S.A.",
+    "Tickets": "DXCO3",
+    "CNPJ": "97.837.181/0001-47",
+    "Segmento_de_mercado": "Madeira",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "ELECTRO ACO ALTONA S.A.",
+    "Tickets": "EALT3, EALT4",
+    "CNPJ": "82.643.537/0001-34",
+    "Segmento_de_mercado": "Máq. e Equip. Industriais",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "ECORODOVIAS INFRAESTRUTURA E LOGÍSTICA S.A.",
+    "Tickets": "ECOR3",
+    "CNPJ": "04.149.454/0001-80",
+    "Segmento_de_mercado": "Exploração de Rodovias",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "GRANJA FARIA S.A.",
+    "Tickets": "EGGY3",
+    "CNPJ": "81.616.807/0001-55",
+    "Segmento_de_mercado": "Agricultura",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "ENGIE BRASIL ENERGIA S.A.",
+    "Tickets": "EGIE3",
+    "CNPJ": "02.474.103/0001-19",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "ELEKTRO REDES S.A.",
+    "Tickets": "EKTR3, EKTR4",
+    "CNPJ": "02.328.280/0001-97",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "CENTRAIS ELET BRAS S.A. - ELETROBRAS",
+    "Tickets": "ELET3, ELET5, ELET6",
+    "CNPJ": "00.001.180/0001-26",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "ELETROMIDIA S.A.",
+    "Tickets": "ELMD3",
+    "CNPJ": "09.347.516/0001-81",
+    "Segmento_de_mercado": "Publicidade e Propaganda",
+    "Setor_de_atuacao": "Comunicações"
+  },
+  {
+    "Nome": "EMAE-EMPRESA METROP.AGUAS ENERGIA S.A.",
+    "Tickets": "ЕМАЕЗ, EMAE4",
+    "CNPJ": "02.302.101/0001-42",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "EMBRAER S.A.",
+    "Tickets": "EMBJ3, EMBR3",
+    "CNPJ": "07.689.002/0001-89",
+    "Segmento_de_mercado": "Material Aeronáutico e de Defesa",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "ENAUTA PARTICIPAÇÕES S.A.",
+    "Tickets": "ENAT3",
+    "CNPJ": "11.669.021/0001-10",
+    "Segmento_de_mercado": "Exploração. Refino e Distribuição",
+    "Setor_de_atuacao": "Petróleo. Gás e Biocombustíveis"
+  },
+  {
+    "Nome": "ENEVA S.A",
+    "Tickets": "ENEV3",
+    "CNPJ": "04.423.567/0001-21",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "ENERGISA S.A.",
+    "Tickets": "ENGI11, ENG13, ENG14",
+    "CNPJ": "00.864.214/0001-06",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "ENJOEI S.A.",
+    "Tickets": "ENJU3",
+    "CNPJ": "16.922.038/0001-51",
+    "Segmento_de_mercado": "Programas e Serviços",
+    "Setor_de_atuacao": "Tecnologia da Informação"
+  },
+  {
+    "Nome": "ENERGISA MATO GROSSO-DISTRIBUIDORA DE ENERGIA S/A",
+    "Tickets": "ENMT3, ENMT4",
+    "CNPJ": "03.467.321/0001-99",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "EMBPAR PARTICIPACOES S.A.",
+    "Tickets": "EPAR3",
+    "CNPJ": "42.331.462/0001-31",
+    "Segmento_de_mercado": "Holdings Diversificadas",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "EQUATORIAL MARANHÃO DISTRIBUIDORA DE ENERGIA S.A.",
+    "Tickets": "EQMA3B",
+    "CNPJ": "06.272.793/0001-84",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "EQUATORIAL PARA DISTRIBUIDORA DE ENERGIA S.A.",
+    "Tickets": "EQPA3, EQPA5, EQPA6",
+    "CNPJ": "04.895.728/0001-80",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "EQUATORIAL S.A.",
+    "Tickets": "EQTL3",
+    "CNPJ": "03.220.438/0001-73",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "MPM CORPOREOS S.A.",
+    "Tickets": "ESPA3",
+    "CNPJ": "26.659.061/0001-59",
+    "Segmento_de_mercado": "Produtos de Uso Pessoal",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "MANUFATURA DE BRINQUEDOS ESTRELA S.A.",
+    "Tickets": "ESTR3, ESTR4",
+    "CNPJ": "61.082.004/0001-50",
+    "Segmento_de_mercado": "Brinquedos e Jogos",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "ETERNIT S.A.",
+    "Tickets": "ETER3",
+    "CNPJ": "61.092.037/0001-81",
+    "Segmento_de_mercado": "Produtos para Construção",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "EUCATEX S.A, INDUSTRIA E COMERCIO",
+    "Tickets": "EUCA3, EUCA4",
+    "CNPJ": "56.643.018/0001-66",
+    "Segmento_de_mercado": "Madeira",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "EVEN CONSTRUTORA E INCORPORADORA S.A.",
+    "Tickets": "EVEN3",
+    "CNPJ": "43.470.988/0001-65",
+    "Segmento_de_mercado": "Incorporações",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "EZ TEC EMPREEND. E PARTICIPACOES S.A.",
+    "Tickets": "EZTC3",
+    "CNPJ": "08.312.229/0001-73",
+    "Segmento_de_mercado": "Incorporações",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "CIA FERRO LIGAS DA BAHIA - FERBASA",
+    "Tickets": "FESA3, FESA4",
+    "CNPJ": "15.141.799/0001-03",
+    "Segmento_de_mercado": "Siderurgia",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "FERTILIZANTES HERINGER S.A.",
+    "Tickets": "FHER3",
+    "CNPJ": "22.266.175/0001-88",
+    "Segmento_de_mercado": "Fertilizantes e Defensivos",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "FICA EMPREENDIMENTOS IMOBILIÁRIOS S.A",
+    "Tickets": "FIE13",
+    "CNPJ": "07.820.907/0001-46",
+    "Segmento_de_mercado": "Incorporações",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "INVESTIMENTOS BEMGE S.A.",
+    "Tickets": "FIGE3, FIGE4",
+    "CNPJ": "01.548.981/0001-79",
+    "Segmento_de_mercado": "Outros Intermediarios Financeiros",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "UNIFIQUE TELECOMUNICAÇÕES S.A.",
+    "Tickets": "FIQE3",
+    "CNPJ": "02.255.187/0001-08",
+    "Segmento_de_mercado": "Telecomunicações",
+    "Setor_de_atuacao": "Comunicações"
+  },
+  {
+    "Nome": "FLEURY S.A.",
+    "Tickets": "FLRY3",
+    "CNPJ": "60.840.055/0001-31",
+    "Segmento_de_mercado": "Serv. Méd.Hospit.. Análises e Diagnósticos",
+    "Setor_de_atuacao": "Saúde"
+  },
+  {
+    "Nome": "FRASLE MOBILITY S.A.",
+    "Tickets": "FRAS3",
+    "CNPJ": "88.610.126/0001-29",
+    "Segmento_de_mercado": "Material Rodoviário",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "METALFRIO SOLUTIONS S.A.",
+    "Tickets": "FRIO3",
+    "CNPJ": "04.821.041/0001-08",
+    "Segmento_de_mercado": "Máq. e Equip. Industriais",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "POMIFRUTAS S/A",
+    "Tickets": "FRTA3",
+    "CNPJ": "86.550.951/0001-50",
+    "Segmento_de_mercado": "Agricultura",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "RIO PARANΑΡΑΝΕΜΑ ΕNERGIA S.A.",
+    "Tickets": "GEPA3, GEPA4",
+    "CNPJ": "02.998.301/0001-81",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "GAFISA S.A.",
+    "Tickets": "GFSA11, GFSA3",
+    "CNPJ": "01.545.826/0001-07",
+    "Segmento_de_mercado": "Incorporações",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "GERDAU S.A.",
+    "Tickets": "GGBR3, GGBR4",
+    "CNPJ": "33.611.500/0001-19",
+    "Segmento_de_mercado": "Siderurgia",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "GPS PARTICIPACOES E EMPREENDIMENTOS S.A.",
+    "Tickets": "GGPS3",
+    "CNPJ": "09.229.201/0001-30",
+    "Segmento_de_mercado": "Serviços Diversos",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "GRUPO MATEUS S.A.",
+    "Tickets": "GMAT3",
+    "CNPJ": "24.990.777/0001-09",
+    "Segmento_de_mercado": "Alimentos",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "METALURGICA GERDAU S.A.",
+    "Tickets": "GOAU3, GOAU4",
+    "CNPJ": "92.690.783/0001-09",
+    "Segmento_de_mercado": "Siderurgia",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "GOL LINHAS AEREAS INTELIGENTES S.A.",
+    "Tickets": "GOLL4, GOLL54",
+    "CNPJ": "06.164.253/0001-87",
+    "Segmento_de_mercado": "Transporte Aéreo",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "CIA CELG DE PARTICIPACOES - CELGPAR",
+    "Tickets": "GPAR3",
+    "CNPJ": "08.560.444/0001-93",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "GRENDENE S.A.",
+    "Tickets": "GRND3",
+    "CNPJ": "89.850.341/0001-60",
+    "Segmento_de_mercado": "Calçados",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "GENERAL SHOPPING E OUTLETS DO BRASIL S.A.",
+    "Tickets": "GSHP3",
+    "CNPJ": "08.764.621/0001-53",
+    "Segmento_de_mercado": "Exploração de Imóveis",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "GUARARAPES CONFECCOES S.A.",
+    "Tickets": "GUAR3, RIAA3",
+    "CNPJ": "08.402.943/0001-52",
+    "Segmento_de_mercado": "Tecidos. Vestuário e Calçados",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "HAGA S.A. INDUSTRIA E COMERCIO",
+    "Tickets": "HAGA3, HAGA4",
+    "CNPJ": "30.540.991/0001-66",
+    "Segmento_de_mercado": "Artefatos de Ferro e Aço",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "HAPVIDA PARTICIPACOES E INVESTIMENTOS SA",
+    "Tickets": "HAPV3",
+    "CNPJ": "05.197.443/0001-38",
+    "Segmento_de_mercado": "Serv. Méd.Hospit..Análises e Diagnósticos",
+    "Setor_de_atuacao": "Saúde"
+  },
+  {
+    "Nome": "HELBOR EMPREENDIMENTOS S.A.",
+    "Tickets": "HBOR3",
+    "CNPJ": "49.263.189/0001-02",
+    "Segmento_de_mercado": "Incorporações",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "HBR REALTY EMPREENDIMENTOS IMOBILIARIOS S/A",
+    "Tickets": "HBRE3",
+    "CNPJ": "14.785.152/0001-51",
+    "Segmento_de_mercado": "Exploração de Imóveis",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "HIDROVIAS DO BRASIL S.A.",
+    "Tickets": "HBSA3",
+    "CNPJ": "12.648.327/0001-53",
+    "Segmento_de_mercado": "Transporte Hidroviário",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "CIA HABITASUL DE PARTICIPACOES",
+    "Tickets": "HBTS5",
+    "CNPJ": "87.762.563/0001-03",
+    "Segmento_de_mercado": "Exploração de Imóveis",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "HERCULES S.A. FABRICA DE TALHERES",
+    "Tickets": "НЕТАЗ, HETA4",
+    "CNPJ": "92.749.225/0001-63",
+    "Segmento_de_mercado": "Utensílios Domésticos",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "HOTEIS OTHON S.A.",
+    "Tickets": "HOOT4",
+    "CNPJ": "33.200.049/0001-47",
+    "Segmento_de_mercado": "Hotelaria",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "HYPERA S.A.",
+    "Tickets": "НҮРЕЗ",
+    "CNPJ": "02.932.074/0001-91",
+    "Segmento_de_mercado": "Medicamentos e Outros Produtos",
+    "Setor_de_atuacao": "Saúde"
+  },
+  {
+    "Nome": "INFRACOMMERCE CXAAS S.A.",
+    "Tickets": "IFCM12, IFCM3",
+    "CNPJ": "38.456.921/0001-36",
+    "Segmento_de_mercado": "Programas e Serviços",
+    "Setor_de_atuacao": "Tecnologia da Informação"
+  },
+  {
+    "Nome": "IGUATEMI S.A.",
+    "Tickets": "IGTI11, IGT13, IGT14",
+    "CNPJ": "60.543.816/0001-93",
+    "Segmento_de_mercado": "Exploração de Imóveis",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "INEPAR S.A. INDUSTRIA E CONSTRUCOES",
+    "Tickets": "INEP3, INEP4",
+    "CNPJ": "76.627.504/0001-06",
+    "Segmento_de_mercado": "Máq. e Equip. Industriais",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "INTELBRAS S.A. IND DE TELEC ELETRONICA BRASILEIRA",
+    "Tickets": "INTB3",
+    "CNPJ": "-",
+    "Segmento_de_mercado": "Equipamentos e Serviços",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "IRB-BRASIL RESSEGUROS S.A.",
+    "Tickets": "IRBR3",
+    "CNPJ": "33.376.989/0001-91",
+    "Segmento_de_mercado": "Resseguradoras",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "ISA ENERGIA BRASIL S.A",
+    "Tickets": "ISAE3, ISAE4, TRPL3, TRPL4",
+    "CNPJ": "02.998.611/0001-04",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "ITAUSA S.A.",
+    "Tickets": "ITSA3, ITSA4",
+    "CNPJ": "61.532.644/0001-15",
+    "Segmento_de_mercado": "Holdings Diversificadas",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "ITAU UNIBANCO HOLDING S.A.",
+    "Tickets": "ITUB3, ITUB4",
+    "CNPJ": "60.872.504/0001-23",
+    "Segmento_de_mercado": "Bancos",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "JALLES MACHADO S.A.",
+    "Tickets": "JALL3",
+    "CNPJ": "02.635.522/0001-95",
+    "Segmento_de_mercado": "Açucar e Alcool",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "JOAO FORTES ENGENHARIA S.A.",
+    "Tickets": "JFEN3",
+    "CNPJ": "33.035.536/0001-00",
+    "Segmento_de_mercado": "Incorporações",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "JHSF PARTICIPACOES S.A.",
+    "Tickets": "JHSF3",
+    "CNPJ": "08.294.224/0001-65",
+    "Segmento_de_mercado": "Incorporações",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "JOSAPAR-JOAQUIM OLIVEIRA S.A. - PARTICIP",
+    "Tickets": "JОРАЗ, JOPA4",
+    "CNPJ": "87.456.562/0001-22",
+    "Segmento_de_mercado": "Alimentos Diversos",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "JSL S.A.",
+    "Tickets": "JSLG3",
+    "CNPJ": "52.548.435/0001-79",
+    "Segmento_de_mercado": "Transporte Rodoviário",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "KEPLER WEBER S.A.",
+    "Tickets": "KEPL3",
+    "CNPJ": "91.983.056/0001-69",
+    "Segmento_de_mercado": "Máq. e Equip. Industriais",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "KLABIN S.A.",
+    "Tickets": "KLBN11, KLBN3, KLBN4",
+    "CNPJ": "89.637.490/0001-45",
+    "Segmento_de_mercado": "Papel e Celulose",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "KORA SAÚDE PARTICIPAÇÕES S.A",
+    "Tickets": "KRSA3",
+    "CNPJ": "13.270.520/0001-66",
+    "Segmento_de_mercado": "Serv.Méd.Hospit..Análises e Diagnósticos",
+    "Setor_de_atuacao": "Saúde"
+  },
+  {
+    "Nome": "TERRA SANTA PROPRIEDADES AGRICOLAS S.A.",
+    "Tickets": "LAND3",
+    "CNPJ": "40.337.136/0001-06",
+    "Segmento_de_mercado": "Agricultura",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "LAVVI EMPREENDIMENTOS IMOBILIÁRIOS S.A.",
+    "Tickets": "LAVV3",
+    "CNPJ": "26.462.693/0001-28",
+    "Segmento_de_mercado": "Incorporações",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "MAHLE-METAL LEVE S.A.",
+    "Tickets": "LEVE3",
+    "CNPJ": "60.476.884/0001-87",
+    "Segmento_de_mercado": "Automóveis e Motocicletas",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "LIGHT S.A.",
+    "Tickets": "LIGT3",
+    "CNPJ": "03.378.521/0001-75",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "ELETROBRÁS PARTICIPAÇÕES S.A. - ELETROPAR",
+    "Tickets": "LIPR3",
+    "CNPJ": "01.104.937/0001-70",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "LOJAS QUERO-QUERO S/A",
+    "Tickets": "LJQQ3",
+    "CNPJ": "96.418.264/0218-02",
+    "Segmento_de_mercado": "Produtos Diversos",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "LOG COMMERCIAL PROPERTIES",
+    "Tickets": "LOGG3",
+    "CNPJ": "09.041.168/0001-10",
+    "Segmento_de_mercado": "Exploração de Imóveis",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "LOG-IN LOGISTICA INTERMODAL S.A.",
+    "Tickets": "LOGN3",
+    "CNPJ": "42.278.291/0001-24",
+    "Segmento_de_mercado": "Transporte Hidroviário",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "LPS BRASIL CONSULTORIA DE IMOVEIS S.A.",
+    "Tickets": "LPSB3",
+    "CNPJ": "08.078.847/0001-09",
+    "Segmento_de_mercado": "Intermediação Imobiliária",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "LOJAS RENNER S.A.",
+    "Tickets": "LREN3",
+    "CNPJ": "92.754.738/0001-62",
+    "Segmento_de_mercado": "Tecidos. Vestuário e Calçados",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "LUPATECH S.A.",
+    "Tickets": "LUPA3",
+    "CNPJ": "89.463.822/0001-12",
+    "Segmento_de_mercado": "Equipamentos e Serviços",
+    "Setor_de_atuacao": "Petróleo. Gás e Biocombustíveis"
+  },
+  {
+    "Nome": "TREVISA INVESTIMENTOS S.A.",
+    "Tickets": "LUXM3, LUXM4",
+    "CNPJ": "92.660.570/0001-26",
+    "Segmento_de_mercado": "Transporte Hidroviário",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "LIVETECH DA BAHIA INDUSTRIA E COMERCIO S/A",
+    "Tickets": "LVTC3, WDCN3",
+    "CNPJ": "05.917.486/0001-40",
+    "Segmento_de_mercado": "Programas e Serviços",
+    "Setor_de_atuacao": "Tecnologia da Informação"
+  },
+  {
+    "Nome": "LWSA S.A.",
+    "Tickets": "LWSA3",
+    "CNPJ": "02.351.877/0001-52",
+    "Segmento_de_mercado": "Programas e Serviços",
+    "Setor_de_atuacao": "Tecnologia da Informação"
+  },
+  {
+    "Nome": "CEMEPE INVESTIMENTOS S.A.",
+    "Tickets": "MAPT3, MAPT4",
+    "CNPJ": "93.828.986/0001-73",
+    "Segmento_de_mercado": "Outros",
+    "Setor_de_atuacao": "Outros"
+  },
+  {
+    "Nome": "HOSPITAL MATER DEI S/A",
+    "Tickets": "MATD3",
+    "CNPJ": "16.676.520/0001-59",
+    "Segmento_de_mercado": "Serv. Méd.Hospit.. Análises e Diagnósticos",
+    "Setor_de_atuacao": "Saúde"
+  },
+  {
+    "Nome": "GRUPO TOKY S.A.",
+    "Tickets": "MBLY3, ТОКҮЗ",
+    "CNPJ": "31.553.627/0001-01",
+    "Segmento_de_mercado": "Móveis",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "MARFRIG GLOBAL FOODS S.A.",
+    "Tickets": "MBRF3, MRFG3",
+    "CNPJ": "03.853.896/0001-40",
+    "Segmento_de_mercado": "Carnes e Derivados",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "M.DIAS BRANCO S.A. IND COM DE ALIMENTOS",
+    "Tickets": "MDIA3",
+    "CNPJ": "07.206.816/0001-15",
+    "Segmento_de_mercado": "Alimentos Diversos",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "MOURA DUBEUX ENGENHARIA S/A",
+    "Tickets": "MDNE3",
+    "CNPJ": "12.049.631/0001-84",
+    "Segmento_de_mercado": "Incorporações",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "INTERNATIONAL MEAL COMPANY ALIMENTACAO S.A.",
+    "Tickets": "MEAL3",
+    "CNPJ": "17.314.329/0001-20",
+    "Segmento_de_mercado": "Restaurante e Similares",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "MELNICK DESENVOLVIMENTO IMOBILIÁRIO S.A.",
+    "Tickets": "MELK3",
+    "CNPJ": "12.181.987/0001-77",
+    "Segmento_de_mercado": "Incorporações",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "MERCANTIL FINANCEIRA S.A. CRED. FINANC. E INVEST",
+    "Tickets": "MERC3, MERC4",
+    "CNPJ": "33.040.601/0001-87",
+    "Segmento_de_mercado": "Soc. Crédito e Financiamento",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "MANGELS INDUSTRIAL S.A.",
+    "Tickets": "MGEL3, MGEL4",
+    "CNPJ": "61.065.298/0001-02",
+    "Segmento_de_mercado": "Artefatos de Ferro e Aço",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "MAGAZINE LUIZA S.A.",
+    "Tickets": "MGLU3",
+    "CNPJ": "47.960.950/0001-21",
+    "Segmento_de_mercado": "Eletrodomésticos",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "MILLS LOCAÇÃO. SERVIÇOS E LOGÍSTICA S.A",
+    "Tickets": "MILS3",
+    "CNPJ": "27.093.558/0001-15",
+    "Segmento_de_mercado": "Serviços Diversos",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "GRUPO MULTI S.A.",
+    "Tickets": "MLAS3",
+    "CNPJ": "59.717.553/0001-02",
+    "Segmento_de_mercado": "Computadores e Equipamentos",
+    "Setor_de_atuacao": "Tecnologia da Informação"
+  },
+  {
+    "Nome": "MINASMAQUINAS S.A.",
+    "Tickets": "MMAQ3, MMAQ4",
+    "CNPJ": "17.161.241/0001-15",
+    "Segmento_de_mercado": "Material de Transporte",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "MUNDIAL S.A. PRODUTOS DE CONSUMO",
+    "Tickets": "MNDL3",
+    "CNPJ": "88.610.191/0001-54",
+    "Segmento_de_mercado": "Acessórios",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "MINUPAR PARTICIPACOES S.A.",
+    "Tickets": "MNPR3",
+    "CNPJ": "90.076.886/0001-40",
+    "Segmento_de_mercado": "Carnes e Derivados",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "MONTEIRO ARANHA S.A.",
+    "Tickets": "MOAR3",
+    "CNPJ": "33.102.476/0001-92",
+    "Segmento_de_mercado": "Holdings Diversificadas",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "MOVIDA PARTICIPACOES SA",
+    "Tickets": "MOVI3",
+    "CNPJ": "21.314.559/0001-66",
+    "Segmento_de_mercado": "Aluguel de carros",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "MRS LOGISTICA S.A.",
+    "Tickets": "MRSA3B, MRSA5B, MRSA6B",
+    "CNPJ": "01.417.222/0001-77",
+    "Segmento_de_mercado": "Transporte Ferroviário",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "MRV ENGENHARIA E PARTICIPACOES S.A.",
+    "Tickets": "MRVE3",
+    "CNPJ": "08.343.492/0001-20",
+    "Segmento_de_mercado": "Incorporações",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "CIA MELHORAMENTOS DE SAO PAULO",
+    "Tickets": "MSPA3, MSPA4",
+    "CNPJ": "60.730.348/0001-66",
+    "Segmento_de_mercado": "Papel e Celulose",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "MITRE REALTY EMPREENDIMENTOS E PARTICIPAÇÕES S.A.",
+    "Tickets": "MTRE3",
+    "CNPJ": "07.882.930/0001-65",
+    "Segmento_de_mercado": "Incorporações",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "METISA METALURGICA TIMBOENSE S.A.",
+    "Tickets": "MTSA3, MTSA4",
+    "CNPJ": "86.375.425/0001-09",
+    "Segmento_de_mercado": "Máq. e Equip. Construção e Agricolas",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "MULTIPLAN - EMPREEND IMOBILIARIOS S.A.",
+    "Tickets": "MULT3",
+    "CNPJ": "07.816.890/0001-53",
+    "Segmento_de_mercado": "Exploração de Imóveis",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "WETZEL S.A.",
+    "Tickets": "MWET3, MWET4",
+    "CNPJ": "84.683.671/0001-94",
+    "Segmento_de_mercado": "Material Rodoviário",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "JOCHPE MAXION S.A.",
+    "Tickets": "МҮРКЗ",
+    "CNPJ": "61.156.113/0001-75",
+    "Segmento_de_mercado": "Automóveis e Motocicletas",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "NATURA COSMETICOS S.A.",
+    "Tickets": "NATU3",
+    "CNPJ": "71.673.990/0001-77",
+    "Segmento_de_mercado": "Produtos de Uso Pessoal",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "NEOENERGIA S.A.",
+    "Tickets": "NEOE3",
+    "CNPJ": "01.083.200/0001-18",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "NEXPE PARTICIPAÇÕES S.A",
+    "Tickets": "NEXP3",
+    "CNPJ": "08.613.550/0001-98",
+    "Segmento_de_mercado": "Intermediação Imobiliária",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "NEOGRID PARTICIPACOES S.A.",
+    "Tickets": "NGRD3",
+    "CNPJ": "10.139.870/0001-08",
+    "Segmento_de_mercado": "Programas e Serviços",
+    "Setor_de_atuacao": "Tecnologia da Informação"
+  },
+  {
+    "Nome": "REAG INVESTIMENTOS S.A.",
+    "Tickets": "NINJ3",
+    "CNPJ": "14.127.813/0001-51",
+    "Segmento_de_mercado": "Programas e Serviços",
+    "Setor_de_atuacao": "Tecnologia da Informação"
+  },
+  {
+    "Nome": "NORDON INDUSTRIAS METALURGICAS S.A.",
+    "Tickets": "NORD3",
+    "CNPJ": "60.884.319/0001-59",
+    "Segmento_de_mercado": "Exploração de Imóveis",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "NATURA &CO HOLDING S.A.",
+    "Tickets": "NTCO3",
+    "CNPJ": "32.785.497/0001-97",
+    "Segmento_de_mercado": "Produtos de Uso Pessoal",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "NUTRIPLANT INDUSTRIA E COMERCIO S.A.",
+    "Tickets": "NUTR3",
+    "CNPJ": "51.128.999/0001-90",
+    "Segmento_de_mercado": "Fertilizantes e Defensivos",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "ORANJEBTC S.A. - EDUCAÇÃO E INVESTIMENTO",
+    "Tickets": "OBTC3",
+    "CNPJ": "59.693.110/0001-29",
+    "Segmento_de_mercado": "Serviços Educacionais",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "CONSERVAS ODERICH S.A.",
+    "Tickets": "ODER4",
+    "CNPJ": "97.191.902/0001-94",
+    "Segmento_de_mercado": "Alimentos Diversos",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "ODONTOPREV S.A.",
+    "Tickets": "ODPV3",
+    "CNPJ": "58.119.199/0001-51",
+    "Segmento_de_mercado": "Serv.Méd.Hospit..Análises e Diagnósticos",
+    "Setor_de_atuacao": "Saúde"
+  },
+  {
+    "Nome": "OUROFINO S.A.",
+    "Tickets": "OFSA3",
+    "CNPJ": "20.258.278/0001-70",
+    "Segmento_de_mercado": "Medicamentos e Outros Produtos",
+    "Setor_de_atuacao": "Saúde"
+  },
+  {
+    "Nome": "ΟΙ S.A.",
+    "Tickets": "OIBR3, OIBR4",
+    "CNPJ": "76.535.764/0001-43",
+    "Segmento_de_mercado": "Telecomunicações",
+    "Setor_de_atuacao": "Comunicações"
+  },
+  {
+    "Nome": "ONCOCLINICAS DO BRASIL SERVICOS MEDICOS S.A.",
+    "Tickets": "ONCO3",
+    "CNPJ": "12.104.241/0004-02",
+    "Segmento_de_mercado": "Serv.Méd.Hospit..Análises e Diagnósticos",
+    "Setor_de_atuacao": "Saúde"
+  },
+  {
+    "Nome": "OCEANPACT SERVICOS MARITIMOS S.A.",
+    "Tickets": "OPCT3",
+    "CNPJ": "09.114.805/0001-30",
+    "Segmento_de_mercado": "Equipamentos e Serviços",
+    "Setor_de_atuacao": "Petróleo. Gás e Biocombustíveis"
+  },
+  {
+    "Nome": "ORIZON VALORIZACAO DE RESIDUOS S.A.",
+    "Tickets": "ORVR3",
+    "CNPJ": "11.421.994/0001-36",
+    "Segmento_de_mercado": "Água e Saneamento",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "OSX BRASIL S.A.",
+    "Tickets": "OSXB3",
+    "CNPJ": "09.112.685/0001-32",
+    "Segmento_de_mercado": "Equipamentos e Serviços",
+    "Setor_de_atuacao": "Petróleo. Gás e Biocombustíveis"
+  },
+  {
+    "Nome": "COMPASS GAS E ENERGIA S.A.",
+    "Tickets": "PASS3",
+    "CNPJ": "21.389.501/0001-81",
+    "Segmento_de_mercado": "Gás",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "PANATLANTICA S.A.",
+    "Tickets": "PAT13, PAT14",
+    "CNPJ": "92.693.019/0001-89",
+    "Segmento_de_mercado": "Artefatos de Ferro e Aço",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "CIA BRASILEIRA DE DISTRIBUICAO",
+    "Tickets": "PCAR3",
+    "CNPJ": "47.508.411/0001-56",
+    "Segmento_de_mercado": "Alimentos",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "PDG REALTY S.A. EMPREEND E PARTICIPACOES",
+    "Tickets": "PDGR3",
+    "CNPJ": "02.950.811/0001-89",
+    "Segmento_de_mercado": "Incorporações",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "PADTEC HOLDING S.A.",
+    "Tickets": "PDTC3",
+    "CNPJ": "02.365.069/0001-44",
+    "Segmento_de_mercado": "Programas e Serviços",
+    "Setor_de_atuacao": "Tecnologia da Informação"
+  },
+  {
+    "Nome": "CIA PARTICIPACOES ALIANCA DA BAHIA",
+    "Tickets": "PEAB3, PEAB4",
+    "CNPJ": "01.938.783/0001-11",
+    "Segmento_de_mercado": "Exploração de Imóveis",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "PETROLEO BRASILEIRO S.A. PETROBRAS",
+    "Tickets": "PETR3, PETR4",
+    "CNPJ": "33.000.167/0001-01",
+    "Segmento_de_mercado": "Exploração. Refino e Distribuição",
+    "Setor_de_atuacao": "Petróleo. Gás e Biocombustíveis"
+  },
+  {
+    "Nome": "PET CENTER COMERCIO E PARTICIPACOES S.A.",
+    "Tickets": "PETZ3",
+    "CNPJ": "18.328.118/0001-09",
+    "Segmento_de_mercado": "Produtos Diversos",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "PROFARMA DISTRIB PROD FARMACEUTICOS S.A.",
+    "Tickets": "PFRM3",
+    "CNPJ": "45.453.214/0001-51",
+    "Segmento_de_mercado": "Medicamentos e Outros Produtos",
+    "Setor_de_atuacao": "Saúde"
+  },
+  {
+    "Nome": "EMPREENDIMENTOS PAGUE MENOS S.A.",
+    "Tickets": "PGMN3",
+    "CNPJ": "06.626.253/0001-51",
+    "Segmento_de_mercado": "Medicamentos e Outros Produtos",
+    "Setor_de_atuacao": "Saúde"
+  },
+  {
+    "Nome": "BCO PINE S.A.",
+    "Tickets": "PINE3, PINE4",
+    "CNPJ": "62.144.175/0001-20",
+    "Segmento_de_mercado": "Bancos",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "PLASCAR PARTICIPACOES INDUSTRIAIS S.A.",
+    "Tickets": "PLAS3",
+    "CNPJ": "51.928.174/0001-50",
+    "Segmento_de_mercado": "Automóveis e Motocicletas",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "PLANO & PLANO DESENVOLVIMENTO IMOBILIÁRIO S.A.",
+    "Tickets": "PLPL3",
+    "CNPJ": "24.230.275/0001-80",
+    "Segmento_de_mercado": "Incorporações",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "PARANAPANEMA S.A.",
+    "Tickets": "PMAM3",
+    "CNPJ": "60.398.369/0004-79",
+    "Segmento_de_mercado": "Artefatos de Cobre",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "PREFEITURA MUNICIPAL DE SAO PAULO",
+    "Tickets": "PMSP11B, PMSP12B",
+    "CNPJ": "-",
+    "Segmento_de_mercado": "Outros",
+    "Setor_de_atuacao": "Outros"
+  },
+  {
+    "Nome": "DIMED S.A. DISTRIBUIDORA DE MEDICAMENTOS",
+    "Tickets": "PNVL3",
+    "CNPJ": "92.665.611/0001-77",
+    "Segmento_de_mercado": "Medicamentos e Outros Produtos",
+    "Setor_de_atuacao": "Saúde"
+  },
+  {
+    "Nome": "MARCOPOLO S.A.",
+    "Tickets": "РОМОЗ, POMO4",
+    "CNPJ": "88.611.835/0001-29",
+    "Segmento_de_mercado": "Material Rodoviário",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "WILSON SONS S.A.",
+    "Tickets": "PORT3",
+    "CNPJ": "33.130.691/0001-05",
+    "Segmento_de_mercado": "Serviços de Apoio e Armazenagem",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "POSITIVO TECNOLOGIA S.A.",
+    "Tickets": "POS13",
+    "CNPJ": "81.243.735/0001-48",
+    "Segmento_de_mercado": "Computadores e Equipamentos",
+    "Setor_de_atuacao": "Tecnologia da Informação"
+  },
+  {
+    "Nome": "PRIO S.A.",
+    "Tickets": "PRIO3",
+    "CNPJ": "10.629.105/0001-68",
+    "Segmento_de_mercado": "Exploração. Refino e Distribuição",
+    "Setor_de_atuacao": "Petróleo. Gás e Biocombustíveis"
+  },
+  {
+    "Nome": "PRINER SERVIÇOS INDUSTRIAIS S.A.",
+    "Tickets": "PRNR3",
+    "CNPJ": "18.593.815/0001-97",
+    "Segmento_de_mercado": "Serviços Diversos",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "PORTO SEGURO S.A.",
+    "Tickets": "PSSA3",
+    "CNPJ": "02.149.205/0001-69",
+    "Segmento_de_mercado": "Seguradoras",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "PBG S/A",
+    "Tickets": "PTBL3",
+    "CNPJ": "83.475.913/0001-91",
+    "Segmento_de_mercado": "Produtos para Construção",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "PETTENATI S.A. INDUSTRIA TEXTIL",
+    "Tickets": "PTNT3, PTNT4",
+    "CNPJ": "88.613.658/0001-10",
+    "Segmento_de_mercado": "Fios e Tecidos",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "QUALICORP CONSULTORIA E CORRETORA DE SEGUROS S.A.",
+    "Tickets": "QUAL3",
+    "CNPJ": "11.992.680/0001-93",
+    "Segmento_de_mercado": "Serv.Méd.Hospit..Análises e Diagnósticos",
+    "Setor_de_atuacao": "Saúde"
+  },
+  {
+    "Nome": "RAIA DROGASIL S.A.",
+    "Tickets": "RADL3",
+    "CNPJ": "61.585.865/0001-51",
+    "Segmento_de_mercado": "Medicamentos e Outros Produtos",
+    "Setor_de_atuacao": "Saúde"
+  },
+  {
+    "Nome": "RUMO S.A.",
+    "Tickets": "RAIL3",
+    "CNPJ": "02.387.241/0001-60",
+    "Segmento_de_mercado": "Transporte Ferroviário",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "RAIZEN S.A.",
+    "Tickets": "RAIZ4",
+    "CNPJ": "33.453.598/0001-23",
+    "Segmento_de_mercado": "Exploração. Refino e Distribuição",
+    "Setor_de_atuacao": "Petróleo. Gás e Biocombustíveis"
+  },
+  {
+    "Nome": "IRANI PAPEL E EMBALAGEM S.A.",
+    "Tickets": "RAN13",
+    "CNPJ": "92.791.243/0001-03",
+    "Segmento_de_mercado": "Embalagens",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "RANDONCORP S.A.",
+    "Tickets": "RAPT3, RAPT4",
+    "CNPJ": "89.086.144/0001-16",
+    "Segmento_de_mercado": "Material Rodoviário",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "RECRUSUL S.A.",
+    "Tickets": "RCSL3, RCSL4",
+    "CNPJ": "91.333.666/0001-17",
+    "Segmento_de_mercado": "Material Rodoviário",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "RNI NEGÓCIOS IMOBILIÁRIOS S.A.",
+    "Tickets": "RDN13",
+    "CNPJ": "67.010.660/0001-24",
+    "Segmento_de_mercado": "Incorporações",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "REDE DOR SÃO LUIZ S.A.",
+    "Tickets": "RDOR3",
+    "CNPJ": "06.047.087/0001-39",
+    "Segmento_de_mercado": "Serv.Méd.Hospit.. Análises e Diagnósticos",
+    "Setor_de_atuacao": "Saúde"
+  },
+  {
+    "Nome": "PETRORECONCAVO S.A.",
+    "Tickets": "RECV3",
+    "CNPJ": "03.342.704/0001-30",
+    "Segmento_de_mercado": "Exploração. Refino e Distribuição",
+    "Setor_de_atuacao": "Petróleo. Gás e Biocombustíveis"
+  },
+  {
+    "Nome": "REDE ENERGIA PARTICIPAÇÕES S.A.",
+    "Tickets": "REDE3",
+    "CNPJ": "61.584.140/0001-49",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "LOCALIZA RENT A CAR S.A.",
+    "Tickets": "RENT3, RENT4",
+    "CNPJ": "16.670.085/0001-55",
+    "Segmento_de_mercado": "Aluguel de carros",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "RIO ALTO ENERGIAS RENOVÁVEIS S.A.",
+    "Tickets": "RIOS3",
+    "CNPJ": "38.199.406/0001-18",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "RENOVA ENERGIA S.A.",
+    "Tickets": "RNEW11, RNEW3, RNEW4",
+    "CNPJ": "08.534.605/0001-74",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "ROMI S.A.",
+    "Tickets": "ROM13",
+    "CNPJ": "56.720.428/0001-63",
+    "Segmento_de_mercado": "Máq. e Equip. Industriais",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "ALFA HOLDINGS S.A.",
+    "Tickets": "RPAD3, RPAD5, RPAD6",
+    "CNPJ": "17.167.396/0001-69",
+    "Segmento_de_mercado": "Bancos",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "REFINARIA DE PETROLEOS MANGUINHOS S.A.",
+    "Tickets": "RPMG3",
+    "CNPJ": "33.412.081/0001-96",
+    "Segmento_de_mercado": "Exploração. Refino e Distribuição",
+    "Setor_de_atuacao": "Petróleo. Gás e Biocombustíveis"
+  },
+  {
+    "Nome": "3R PETROLEUM ÓLEO E GÁS S.A",
+    "Tickets": "RRRP3",
+    "CNPJ": "-",
+    "Segmento_de_mercado": "Exploração. Refino e Distribuição",
+    "Setor_de_atuacao": "Petróleo. Gás e Biocombustíveis"
+  },
+  {
+    "Nome": "ROSSI RESIDENCIAL S.A.",
+    "Tickets": "RSID3",
+    "CNPJ": "61.065.751/0001-80",
+    "Segmento_de_mercado": "Incorporações",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "METALURGICA RIOSULENSE S.A.",
+    "Tickets": "RSUL4",
+    "CNPJ": "85.778.074/0001-06",
+    "Segmento_de_mercado": "Material Rodoviário",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "REVEE S.A.",
+    "Tickets": "RVEE3",
+    "CNPJ": "52.841.191/0001-18",
+    "Segmento_de_mercado": "Produção de Eventos e Shows",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "BCO SANTANDER (BRASIL) S.A.",
+    "Tickets": "SANB11, SANB3, SANB4",
+    "CNPJ": "90.400.888/0001-42",
+    "Segmento_de_mercado": "Bancos",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "CIA SANEAMENTO DO PARANA-SANEPAR",
+    "Tickets": "SAPR11, SAPR3, SAPR4",
+    "CNPJ": "76.484.013/0001-45",
+    "Segmento_de_mercado": "Água e Saneamento",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "BRADSAUDE S.A.",
+    "Tickets": "SAUD3",
+    "CNPJ": "58.119.199/0001-51",
+    "Segmento_de_mercado": "Serv.Méd.Hospit..Análises e Diagnósticos",
+    "Setor_de_atuacao": "Saúde"
+  },
+  {
+    "Nome": "GRUPO SBF SA",
+    "Tickets": "SBFG3",
+    "CNPJ": "13.217.485/0001-11",
+    "Segmento_de_mercado": "Produtos Diversos",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "CIA SANEAMENTO BASICO EST SAO PAULO",
+    "Tickets": "SBSP3",
+    "CNPJ": "43.776.517/0001-80",
+    "Segmento_de_mercado": "Água e Saneamento",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "SAO CARLOS EMPREEND E PARTICIPACOES S.A.",
+    "Tickets": "SCAR3",
+    "CNPJ": "29.780.061/0001-09",
+    "Segmento_de_mercado": "Exploração de Imóveis",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "SER EDUCACIONAL S.A.",
+    "Tickets": "SEER3",
+    "CNPJ": "04.986.320/0001-13",
+    "Segmento_de_mercado": "Serviços Educacionais",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "SEQUOIA LOGISTICA E TRANSPORTES S.A",
+    "Tickets": "SEQL3",
+    "CNPJ": "01.599.101/0001-93",
+    "Segmento_de_mercado": "Transporte Rodoviário",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "SPRINGS GLOBAL PARTICIPACOES S.A.",
+    "Tickets": "SGPS3",
+    "CNPJ": "07.718.269/0001-57",
+    "Segmento_de_mercado": "Fios e Tecidos",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "T4F ENTRETENIMENTO S.A.",
+    "Tickets": "SHOW3",
+    "CNPJ": "02.860.694/0001-62",
+    "Segmento_de_mercado": "Produção de Eventos e Shows",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "SCHULZ S.A.",
+    "Tickets": "SHUL3, SHUL4",
+    "CNPJ": "84.693.183/0001-68",
+    "Segmento_de_mercado": "Motores. Compressores e Outros",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "SIMPAR S.A.",
+    "Tickets": "SIMH3",
+    "CNPJ": "07.415.333/0001-20",
+    "Segmento_de_mercado": "Holdings Diversificadas",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "SLC AGRICOLA S.A",
+    "Tickets": "SLCE3",
+    "CNPJ": "89.096.457/0001-55",
+    "Segmento_de_mercado": "Agricultura",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "SMARTFIT ESCOLA DE GINÁSTICA E DANÇA S.A.",
+    "Tickets": "SMFT3",
+    "CNPJ": "07.594.978/0001-78",
+    "Segmento_de_mercado": "Atividades Esportivas",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "SAO MARTINHO S.A.",
+    "Tickets": "SMTO3",
+    "CNPJ": "51.466.860/0001-56",
+    "Segmento_de_mercado": "Açucar e Alcool",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "SANSUY S.A. INDUSTRIA DE PLASTICOS",
+    "Tickets": "SNSY3, SNSY5, SNSY6",
+    "CNPJ": "14.807.945/0001-24",
+    "Segmento_de_mercado": "Materiais Diversos",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "BOA SAFRA SEMENTES S.A.",
+    "Tickets": "SOJA3",
+    "CNPJ": "10.807.374/0001-77",
+    "Segmento_de_mercado": "Agricultura",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "GRUPO DE MODA SOMA S.A.",
+    "Tickets": "SOMA3",
+    "CNPJ": "10.285.590/0001-08",
+    "Segmento_de_mercado": "Tecidos. Vestuário e Calçados",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "SONDOTECNICA ENGENHARIA SOLOS S.A.",
+    "Tickets": "SOND3, SOND5, SOND6",
+    "CNPJ": "33.386.210/0001-19",
+    "Segmento_de_mercado": "Engenharia Consultiva",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "SERENA ENERGIA S.A.",
+    "Tickets": "SRNA3",
+    "CNPJ": "42.500.384/0001-51",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "SANTOS BRASIL PARTICIPACOES S.A.",
+    "Tickets": "STBP3",
+    "CNPJ": "02.762.121/0001-04",
+    "Segmento_de_mercado": "Serviços de Apoio e Armazenagem",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "SUZANO S.A.",
+    "Tickets": "SUZB3",
+    "CNPJ": "16.404.287/0001-55",
+    "Segmento_de_mercado": "Papel e Celulose",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "SYN PROP E TECH S.A.",
+    "Tickets": "SYNE3",
+    "CNPJ": "08.801.621/0001-86",
+    "Segmento_de_mercado": "Exploração de Imóveis",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "TRANSMISSORA ALIANÇA DE ENERGIA ELÉTRICA S.A.",
+    "Tickets": "TAEE11, ТАЕЕЗ, TAEE4",
+    "CNPJ": "07.859.971/0001-30",
+    "Segmento_de_mercado": "Energia Elétrica",
+    "Setor_de_atuacao": "Utilidade Pública"
+  },
+  {
+    "Nome": "TAURUS ARMAS 5.A.",
+    "Tickets": "TASA3, TASA4",
+    "CNPJ": "92.781.335/0001-02",
+    "Segmento_de_mercado": "Armas e Munições",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "TECNISA S.A.",
+    "Tickets": "TCSA3",
+    "CNPJ": "08.065.557/0001-12",
+    "Segmento_de_mercado": "Incorporações",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "TECHNOS S.A.",
+    "Tickets": "TECN3",
+    "CNPJ": "09.295.063/0001-97",
+    "Segmento_de_mercado": "Acessórios",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "TEKA-TECELAGEM KUEHNRICH S.A.",
+    "Tickets": "ТЕКАЗ, TEKA4",
+    "CNPJ": "82.636.986/0001-55",
+    "Segmento_de_mercado": "Fios e Tecidos",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "TELEC BRASILEIRAS S.A. TELEBRAS",
+    "Tickets": "TELB3, TELB4",
+    "CNPJ": "00.336.701/0001-04",
+    "Segmento_de_mercado": "Telecomunicações",
+    "Setor_de_atuacao": "Comunicações"
+  },
+  {
+    "Nome": "CONSTRUTORA TENDA S.A.",
+    "Tickets": "TEND3",
+    "CNPJ": "71.476.527/0001-35",
+    "Segmento_de_mercado": "Incorporações",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "ATIVO TESTE",
+    "Tickets": "TF655, TF665, TF675, TF685, TF693",
+    "CNPJ": "-",
+    "Segmento_de_mercado": "Outros",
+    "Setor_de_atuacao": "Outros"
+  },
+  {
+    "Nome": "TRACK & FIELD CO S.A.",
+    "Tickets": "TFCO4",
+    "CNPJ": "59.418.806/0001-47",
+    "Segmento_de_mercado": "Vestuário",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "TEGMA GESTAO LOGISTICA S.A.",
+    "Tickets": "TGMA3",
+    "CNPJ": "02.351.144/0001-18",
+    "Segmento_de_mercado": "Transporte Rodoviário",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "TIM S.A.",
+    "Tickets": "TIMS3",
+    "CNPJ": "02.421.421/0001-11",
+    "Segmento_de_mercado": "Telecomunicações",
+    "Setor_de_atuacao": "Comunicações"
+  },
+  {
+    "Nome": "TEKNO S.A. INDUSTRIA E COMERCIO",
+    "Tickets": "TKNO3, TKNO4",
+    "CNPJ": "33.467.572/0001-34",
+    "Segmento_de_mercado": "Artefatos de Ferro e Aço",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "TOTVS S.A.",
+    "Tickets": "TOTS3",
+    "CNPJ": "53.113.791/0001-22",
+    "Segmento_de_mercado": "Programas e Serviços",
+    "Setor_de_atuacao": "Tecnologia da Informação"
+  },
+  {
+    "Nome": "ΤΡΙ - TRIUNFO PARTICIP, E INVEST. S.A.",
+    "Tickets": "TPIS3",
+    "CNPJ": "03.014.553/0001-91",
+    "Segmento_de_mercado": "Exploração de Rodovias",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "TC S.A.",
+    "Tickets": "TRAD3",
+    "CNPJ": "26.345.998/0001-50",
+    "Segmento_de_mercado": "Programas e Serviços",
+    "Setor_de_atuacao": "Tecnologia da Informação"
+  },
+  {
+    "Nome": "TRISUL S.A.",
+    "Tickets": "TRIS3",
+    "CNPJ": "08.811.643/0001-27",
+    "Segmento_de_mercado": "Incorporações",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "TRÊS TENTOS AGROINDUSTRIAL S/A",
+    "Tickets": "TTEN3",
+    "CNPJ": "94.813.102/0001-70",
+    "Segmento_de_mercado": "Agricultura",
+    "Setor_de_atuacao": "Consumo não Cíclico"
+  },
+  {
+    "Nome": "TUPY S.A.",
+    "Tickets": "TUPY3",
+    "CNPJ": "84.683.374/0003-00",
+    "Segmento_de_mercado": "Material Rodoviário",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "TEXTIL RENAUXVIEW S.A.",
+    "Tickets": "TXRX3, TXRX4",
+    "CNPJ": "82.982.075/0001-80",
+    "Segmento_de_mercado": "Fios e Tecidos",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "UNICASA INDÚSTRIA DE MÓVEIS S.A.",
+    "Tickets": "UCAS3",
+    "CNPJ": "90.441.460/0001-48",
+    "Segmento_de_mercado": "Móveis",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "ULTRAPAR PARTICIPACOES S.A.",
+    "Tickets": "UGPA3",
+    "CNPJ": "33.256.439/0001-39",
+    "Segmento_de_mercado": "Exploração. Refino e Distribuição",
+    "Setor_de_atuacao": "Petróleo. Gás e Biocombustíveis"
+  },
+  {
+    "Nome": "UNIPAR CARBOCLORO S.A..",
+    "Tickets": "UNIP3, UNIP5, UNIP6",
+    "CNPJ": "33.958.695/0001-78",
+    "Segmento_de_mercado": "Químicos Diversos",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "USINAS SID DE MINAS GERAIS S.A.-USIMINAS",
+    "Tickets": "USIM3, USIM5, USIM6",
+    "CNPJ": "60.894.730/0001-05",
+    "Segmento_de_mercado": "Siderurgia",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "VALE S.A.",
+    "Tickets": "VALE3",
+    "CNPJ": "33.592.510/0001-54",
+    "Segmento_de_mercado": "Minerais Metálicos",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "VAMOS LOCAÇÃO DE CAMINHÕES. MÁQUINAS E EQUIP. S.A.",
+    "Tickets": "VAMO3",
+    "CNPJ": "23.373.000/0001-32",
+    "Segmento_de_mercado": "Aluguel de carros",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "VIBRA ENERGIA S.A.",
+    "Tickets": "VBBR3",
+    "CNPJ": "34.274.233/0001-02",
+    "Segmento_de_mercado": "Distribuição de Combustíveis",
+    "Setor_de_atuacao": "Petróleo. Gás e Biocombustíveis"
+  },
+  {
+    "Nome": "VITTIA S.A.",
+    "Tickets": "VITT3",
+    "CNPJ": "45.365.558/0001-09",
+    "Segmento_de_mercado": "Fertilizantes e Defensivos",
+    "Setor_de_atuacao": "Materiais Básicos"
+  },
+  {
+    "Nome": "VIVARA PARTICIPAÇOES S.A",
+    "Tickets": "VIVA3",
+    "CNPJ": "33.839.910/0001-11",
+    "Segmento_de_mercado": "Acessórios",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "VIVER INCORPORADORA E CONSTRUTORA S.A.",
+    "Tickets": "VIVR3",
+    "CNPJ": "67.571.414/0001-41",
+    "Segmento_de_mercado": "Incorporações",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "TELEFÔNICA BRASIL S.A",
+    "Tickets": "VIVT3",
+    "CNPJ": "02.558.157/0001-62",
+    "Segmento_de_mercado": "Telecomunicações",
+    "Setor_de_atuacao": "Comunicações"
+  },
+  {
+    "Nome": "VALID SOLUÇÕES S.A.",
+    "Tickets": "VLID3",
+    "CNPJ": "33.113.309/0001-47",
+    "Segmento_de_mercado": "Serviços Diversos",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "FERROVIA CENTRO-ATLANTICA S.A.",
+    "Tickets": "VSPT3",
+    "CNPJ": "00.924.429/0001-75",
+    "Segmento_de_mercado": "Transporte Ferroviário",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "VESTE S.A. ESTILO",
+    "Tickets": "VSTE3",
+    "CNPJ": "49.669.856/0001-43",
+    "Segmento_de_mercado": "Tecidos. Vestuário e Calçados",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "VITRU EDUCAÇÃO S.A",
+    "Tickets": "VTRU3",
+    "CNPJ": "20.512.706/0001-40",
+    "Segmento_de_mercado": "Serviços Educacionais",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "VULCABRAS S.A.",
+    "Tickets": "VULC3",
+    "CNPJ": "50.926.955/0001-42",
+    "Segmento_de_mercado": "Calçados",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "CM HOSPITALAR S.A.",
+    "Tickets": "VVEO3",
+    "CNPJ": "12.420.164/0001-57",
+    "Segmento_de_mercado": "Medicamentos e Outros Produtos",
+    "Setor_de_atuacao": "Saúde"
+  },
+  {
+    "Nome": "WEG S.A.",
+    "Tickets": "WEGE3",
+    "CNPJ": "84.429.695/0001-11",
+    "Segmento_de_mercado": "Motores. Compressores e Outros",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "WESTWING COMERCIO VAREJISTA S.A.",
+    "Tickets": "WEST3",
+    "CNPJ": "14.776.142/0001-50",
+    "Segmento_de_mercado": "Móveis",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "WHIRLPOOL S.A.",
+    "Tickets": "WHRL3, WHRL4",
+    "CNPJ": "59.105.999/0001-86",
+    "Segmento_de_mercado": "Eletrodomésticos",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "WIZ CO PARTICIPAÇÕES E CORRETAGEM DE SEGUROS S.A.",
+    "Tickets": "WIZC3",
+    "CNPJ": "42.278.473/0001-03",
+    "Segmento_de_mercado": "Corretoras de Seguros e Resseguros",
+    "Setor_de_atuacao": "Financeiro"
+  },
+  {
+    "Nome": "WLM PART. E COMÉRCIO DE MÁQUINAS E VEÍCULOS S.A.",
+    "Tickets": "WLMM3, WLMM4",
+    "CNPJ": "33.228.024/0001-51",
+    "Segmento_de_mercado": "Material de Transporte",
+    "Setor_de_atuacao": "Bens Industriais"
+  },
+  {
+    "Nome": "YBYRÁ CAPITAL S.A.",
+    "Tickets": "YBRA4",
+    "CNPJ": "02.217.319/0001-07",
+    "Segmento_de_mercado": "Outros",
+    "Setor_de_atuacao": "Outros"
+  },
+  {
+    "Nome": "YDUQS PARTICIPACOES S.A.",
+    "Tickets": "YDUQ3",
+    "CNPJ": "08.807.432/0001-10",
+    "Segmento_de_mercado": "Serviços Educacionais",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  },
+  {
+    "Nome": "ZAMP S.A.",
+    "Tickets": "ZAMP3",
+    "CNPJ": "13.574.594/0001-96",
+    "Segmento_de_mercado": "Restaurante e Similares",
+    "Setor_de_atuacao": "Consumo Cíclico"
+  }
+]

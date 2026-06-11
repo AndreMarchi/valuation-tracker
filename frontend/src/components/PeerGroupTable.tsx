@@ -1,14 +1,13 @@
-// frontend/src/components/PeerGroupTable.tsx
 import React, { useEffect, useState } from 'react';
 
 interface Concorrente {
   ticker: string;
-  nome: string;
-  preco_atual: number;
-  pl: number;
-  pvp: number;
-  ev_ebitda: number;
-  dividend_yield: number;
+  nome?: string;
+  preco_atual: any;
+  pl: any;
+  pvp: any;
+  ev_ebitda: any;
+  dividend_yield: any;
 }
 
 interface PeerGroupData {
@@ -20,28 +19,34 @@ interface PeerGroupData {
 
 interface PeerGroupTableProps {
   ticker: string;
-  precoAtualMestre: number;
-  plMestre: number;
-  pvpMestre: number;
+  precoAtualMestre: any;
+  plMestre: any;
+  pvpMestre: any;
+  evEbitdaMestre: any;
+  dyMestre: any;
 }
 
 export const PeerGroupTable: React.FC<PeerGroupTableProps> = ({ 
   ticker, 
   precoAtualMestre, 
   plMestre, 
-  pvpMestre 
+  pvpMestre,
+  evEbitdaMestre,
+  dyMestre
 }) => {
   const [data, setData] = useState<PeerGroupData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!ticker) return;
+    
     setLoading(true);
     setError(null);
     
     fetch(`/api/valuation/setor/concorrentes/${ticker}`)
       .then((res) => {
-        if (!res.ok) throw new Error('Não foi possível carregar os dados setoriais.');
+        if (!res.ok) throw new Error('Falha na comunicação com a API setorial.');
         return res.json();
       })
       .then((resData: PeerGroupData) => {
@@ -54,73 +59,82 @@ export const PeerGroupTable: React.FC<PeerGroupTableProps> = ({
       });
   }, [ticker]);
 
-  if (loading) return <div className="p-4 text-gray-400 text-sm animate-pulse">Buscando concorrentes operacionais na B3...</div>;
-  if (error) return <div className="p-4 text-red-400 text-sm">Aviso: {error}</div>;
-  if (!data || data.concorrentes.length === 0) return null;
+  // PROTEÇÃO 1: Evita quebrar se 'concorrentes' vier undefined do backend
+  if (loading) return <p className="text-xs text-gray-400 mt-2 animate-pulse">Ranqueando pares...</p>;
+  if (error) return <p className="text-xs text-red-500 mt-2">Aviso: {error}</p>;
+  if (!data || !Array.isArray(data.concorrentes) || data.concorrentes.length === 0) return null;
+
+  // PROTEÇÃO 2: Converte qualquer lixo de dados em número seguro antes de formatar
+  const renderMultiplo = (valorBruto: any, alvoMestreBruto: any) => {
+    const v = Number(valorBruto);
+    const alvo = Number(alvoMestreBruto);
+
+    if (isNaN(v) || v === 0) return <span className="text-gray-400">—</span>;
+
+    if (v < 0) return <span className="text-red-500 font-semibold">{v.toFixed(2)}x</span>;
+    if (v < alvo && alvo > 0) return <span className="text-green-700 font-semibold">{v.toFixed(2)}x</span>;
+    return <span className="text-gray-600 font-semibold">{v.toFixed(2)}x</span>;
+  };
+
+  // Garante a conversão dos dados do ativo alvo
+  const precoMestreNum = Number(precoAtualMestre) || 0;
+  const dyMestreNum = Number(dyMestre) || 0;
 
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-lg mt-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 pb-4 border-b border-gray-800">
-        <div>
-          <h3 className="text-xl font-bold text-white flex items-center gap-2">
-            👥 Análise de Pares de Mercado (Peer Group)
-          </h3>
-          <p className="text-gray-400 text-xs mt-0.5">
-            Subsetor Identificado: <span className="text-indigo-400 font-semibold">{data.subsetor_identificado}</span>
-          </p>
-        </div>
-        <span className="text-xs bg-indigo-950/50 text-indigo-300 border border-indigo-800/60 px-2.5 py-1 rounded-full mt-2 md:mt-0 font-medium">
-          {data.total_concorrentes_encontrados} empresas no setor
-        </span>
-      </div>
+    <div className="mt-4 pt-4 border-t border-gray-100">
+      <h3 className="text-xs font-semibold tracking-widest text-gray-400 uppercase mb-3">
+        👥 Peer Group — Top Concorrentes Filtrados
+      </h3>
+      
+      <p className="text-xs text-gray-500 mb-2">
+        Segmento: <span className="font-semibold text-gray-700">{data.subsetor_identificado || "Geral"}</span>
+      </p>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm text-gray-300">
-          <thead className="text-xs uppercase bg-gray-950 text-gray-400 border-b border-gray-800">
+      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
+        <table className="w-full text-left text-xs text-gray-600">
+          <thead className="bg-gray-50 text-gray-500 font-semibold uppercase border-b border-gray-200">
             <tr>
-              <th className="px-4 py-3 font-semibold">Ativo</th>
-              <th className="px-4 py-3 font-semibold">Preço</th>
-              <th className="px-4 py-3 font-semibold">P/L</th>
-              <th className="px-4 py-3 font-semibold">P/VP</th>
-              <th className="px-4 py-3 font-semibold">EV/EBITDA</th>
-              <th className="px-4 py-3 font-semibold">DY (%)</th>
+              <th className="px-3 py-2">Ativo</th>
+              <th className="px-3 py-2">Preço</th>
+              <th className="px-3 py-2">P/L</th>
+              <th className="px-3 py-2">P/VP</th>
+              <th className="px-3 py-2">EV/EBITDA</th>
+              <th className="px-3 py-2">DY</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-800/50">
-            {/* LINHA DE REFERÊNCIA: O ATIVO ATUAL DA SUA BUSCA MESTRE */}
-            <tr className="bg-indigo-950/30 border-l-4 border-indigo-500 font-medium">
-              <td className="px-4 py-3.5 text-white font-bold">{ticker} (Avaliando)</td>
-              <td className="px-4 py-3.5 text-white">R$ {precoAtualMestre.toFixed(2)}</td>
-              <td className="px-4 py-3.5 text-indigo-300">{plMestre > 0 ? `${plMestre.toFixed(2)}x` : '-'}</td>
-              <td className="px-4 py-3.5 text-indigo-300">{pvpMestre > 0 ? `${pvpMestre.toFixed(2)}x` : '-'}</td>
-              <td className="px-4 py-3.5 text-gray-500">Mestre</td>
-              <td className="px-4 py-3.5 text-gray-500">Mestre</td>
+          <tbody className="divide-y divide-gray-100">
+            <tr className="bg-blue-50/60 font-semibold text-gray-900 border-l-4 border-blue-600">
+              <td className="px-3 py-2.5 font-bold text-blue-900">{ticker} (Alvo)</td>
+              <td className="px-3 py-2.5">R$ {precoMestreNum.toFixed(2)}</td>
+              <td className="px-3 py-2.5">{renderMultiplo(plMestre, 0)}</td>
+              <td className="px-3 py-2.5">{renderMultiplo(pvpMestre, 0)}</td>
+              <td className="px-3 py-2.5">{renderMultiplo(evEbitdaMestre, 0)}</td>
+              <td className="px-3 py-2.5 font-medium">
+                {dyMestreNum > 0 
+                  ? <span className="text-blue-700">{dyMestreNum.toFixed(2)}%</span> 
+                  : <span className="text-gray-400">—</span>}
+              </td>
             </tr>
 
-            {/* LISTA DOS CONCORRENTES DIRETOS DEVOLVIDOS PELA API */}
-            {data.concorrentes.map((concorrente) => (
-              <tr key={concorrente.ticker} className="hover:bg-gray-850 transition-colors">
-                <td className="px-4 py-3 font-semibold text-gray-200">
-                  {concorrente.ticker}
-                  <span className="block text-gray-500 font-normal text-xxs truncate max-w-[150px]">
-                    {concorrente.nome}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-gray-400">R$ {concorrente.preco_atual.toFixed(2)}</td>
-                <td className={`px-4 py-3 font-medium ${concorrente.pl < plMestre && concorrente.pl > 0 ? 'text-emerald-400' : 'text-gray-400'}`}>
-                  {concorrente.pl > 0 ? `${concorrente.pl.toFixed(2)}x` : '-'}
-                </td>
-                <td className={`px-4 py-3 font-medium ${concorrente.pvp < pvpMestre && concorrente.pvp > 0 ? 'text-emerald-400' : 'text-gray-400'}`}>
-                  {concorrente.pvp > 0 ? `${concorrente.pvp.toFixed(2)}x` : '-'}
-                </td>
-                <td className="px-4 py-3 text-gray-400">
-                  {concorrente.ev_ebitda > 0 ? `${concorrente.ev_ebitda.toFixed(2)}x` : '-'}
-                </td>
-                <td className="px-4 py-3 text-emerald-400 font-semibold">
-                  {concorrente.dividend_yield > 0 ? `${concorrente.dividend_yield.toFixed(2)}%` : '0,00%'}
-                </td>
-              </tr>
-            ))}
+            {data.concorrentes.map((c) => {
+              const precoConcorrente = Number(c.preco_atual) || 0;
+              const dyConcorrente = Number(c.dividend_yield) || 0;
+
+              return (
+                <tr key={c.ticker} className="hover:bg-gray-50/80 transition-colors">
+                  <td className="px-3 py-2 font-bold text-gray-800">{c.ticker}</td>
+                  <td className="px-3 py-2 text-gray-500">R$ {precoConcorrente.toFixed(2)}</td>
+                  <td className="px-3 py-2">{renderMultiplo(c.pl, plMestre)}</td>
+                  <td className="px-3 py-2">{renderMultiplo(c.pvp, pvpMestre)}</td>
+                  <td className="px-3 py-2">{renderMultiplo(c.ev_ebitda, evEbitdaMestre)}</td>
+                  <td className="px-3 py-2 font-medium">
+                    {dyConcorrente > 0 
+                      ? <span className="text-green-700">{dyConcorrente.toFixed(2)}%</span> 
+                      : <span className="text-gray-400">—</span>}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
