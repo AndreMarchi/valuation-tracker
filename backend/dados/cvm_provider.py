@@ -147,8 +147,30 @@ def _extrair_serie(df: pd.DataFrame, codigo_conta: str) -> pd.Series:
     return sub.groupby("DT_FIM")["VL_NUM"].sum().sort_index()
 
 # ─── função principal ─────────────────────────────────────────────────────────
+MAPA_NOMES_CVM = {
+    "WIZC3": "WIZ CO PARTICIPAÇÕES E CORRETAGEM DE SEGUROS S.A.",
+    "B3SA3": "B3 S.A. - BRASIL, BOLSA, BALCÃO",
+    "BBAS3": "BANCO DO BRASIL S.A.",
+    "MGLU3": "MAGAZINE LUIZA S.A.",
+    "VIIA3": "GRUPO CASAS BAHIA S.A.",
+    "BHIA3": "GRUPO CASAS BAHIA S.A.",
+}
 
-def buscar_saude_financeira_cvm(nome_fundamentus: str) -> dict:
+# ─── função principal ─────────────────────────────────────────────────────────
+
+def buscar_saude_financeira_cvm(nome_ou_ticker: str) -> dict:
+    """Busca dados na CVM usando o nome oficial ou mapeamento direto de ticker."""
+    
+    termo_busca = nome_ou_ticker.upper().strip()
+    
+    # 1. VERIFICA O DICIONÁRIO PRIMEIRO
+    # Se receber o ticker "WIZC3", substitui pelo nome oficial exigido no cadastro da CVM
+    if termo_busca in MAPA_NOMES_CVM:
+        razao_social_exata = MAPA_NOMES_CVM[termo_busca]
+        print(f"🔄 Traduzindo {termo_busca} para a CVM: {razao_social_exata}")
+    else:
+        razao_social_exata = termo_busca
+        
     try:
         if not DADOS_DIR.exists() or not any(DADOS_DIR.iterdir()):
             return {
@@ -156,9 +178,10 @@ def buscar_saude_financeira_cvm(nome_fundamentus: str) -> dict:
                 "erro": "Dados CVM não encontrados. Execute backend/scripts/atualizar_cvm.py",
             }
 
-        cd_cvm = buscar_cd_cvm(nome_fundamentus)
+        # CORREÇÃO: Agora passamos a razão social já traduzida para o buscador de códigos
+        cd_cvm = buscar_cd_cvm(razao_social_exata)
         if cd_cvm is None:
-            return {"disponivel": False, "erro": f"Empresa não encontrada na CVM: {nome_fundamentus}"}
+            return {"disponivel": False, "erro": f"Empresa não encontrada na CVM: {razao_social_exata}"}
 
         logger.info(f"Carregando demonstrações CVM para CD_CVM={cd_cvm}")
 

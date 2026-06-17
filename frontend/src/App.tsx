@@ -10,6 +10,7 @@ import type {
   SaudeFinanceira,
   TrimestralItem,
 } from './types'
+import { ValuationDrivers } from './components/ValuationDrivers'
 
 
 // ─── tipos watchlist ────────────────────────────────────────────────────────
@@ -687,6 +688,9 @@ const ResultadoCompleto = ({
     </button>
 
     <SecaoMetodos r={resultado} />
+    {resultado?.drivers && (
+      <ValuationDrivers drivers={resultado.drivers} />
+    )}
     {resultado.dcf?.cenarios && <SecaoCenariosDCF cenarios={resultado.dcf.cenarios} />}
     <SecaoEvEbitda ev={resultado.ev_ebitda} />
     {resultado.crescimento && <SecaoCrescimento c={resultado.crescimento} />}

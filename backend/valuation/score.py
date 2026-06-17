@@ -14,6 +14,14 @@ def _classificacao_para_pontos(classificacao: str) -> float:
         "Não aplicável":  None,
     }.get(classificacao, None)
 
+def _safe_float(valor, padrao=0.0):
+    """Garante que o valor seja um número, evitando crashes com NoneTypes."""
+    if valor is None:
+        return padrao
+    try:
+        return float(valor)
+    except (ValueError, TypeError):
+        return padrao
 
 def calcular_score(
     graham: dict,
@@ -100,4 +108,55 @@ def calcular_score(
         "metodos_aplicados": metodos_contados,
         "score_cvm_referencia": score_cvm,
         "detalhes": metodos_pontos,
+    }
+
+def gerar_drivers_valuation(dados_empresa: dict) -> dict:
+    """
+    Analisa os dados já calculados e extrai os principais drivers positivos e negativos 
+    de forma 100% determinística e blindada contra valores nulos.
+    """
+    positivos = []
+    negativos = []
+
+    # 1. Análise Graham
+    graham_margem = _safe_float(dados_empresa.get("graham", {}).get("margem_seguranca"))
+    if graham_margem > 20:
+        positivos.append(f"Graham fortemente descontado (+{graham_margem:.1f}%)")
+    elif graham_margem < -10:
+        negativos.append(f"Preço acima do VPA/LPA aceitável por Graham ({graham_margem:.1f}%)")
+
+    # 2. Análise de EV/EBITDA
+    ev_ebitda_atual = _safe_float(dados_empresa.get("ev_ebitda", {}).get("ev_ebitda_atual"))
+    ev_ebitda_medio = _safe_float(dados_empresa.get("ev_ebitda", {}).get("ev_ebitda_medio"))
+    
+    if 0 < ev_ebitda_atual < ev_ebitda_medio:
+        desconto = ((ev_ebitda_medio - ev_ebitda_atual) / ev_ebitda_medio) * 100
+        positivos.append(f"EV/EBITDA negociado com {desconto:.1f}% de desconto frente ao histórico")
+    elif ev_ebitda_atual > (ev_ebitda_medio * 1.2) and ev_ebitda_medio > 0:
+        negativos.append("Múltiplo EV/EBITDA esticado em relação à própria média")
+    elif ev_ebitda_atual < 0:
+        negativos.append("Geração de caixa operacional negativa (EBITDA < 0)")
+
+    # 3. Dividendos e Bazin
+    dy_atual = _safe_float(dados_empresa.get("bazin", {}).get("dividend_yield"))
+    if dy_atual >= 6.0:
+        positivos.append(f"Dividend Yield robusto ({dy_atual:.2f}%)")
+
+    # 4. Saúde Financeira e Dívida
+    divida_ebit = _safe_float(dados_empresa.get("endividamento", {}).get("div_liquida_ebit"))
+    if divida_ebit > 3.0:
+        negativos.append(f"Alavancagem alta (Dívida Líq/EBIT = {divida_ebit:.1f}x)")
+    elif 0 <= divida_ebit < 1.5:
+        positivos.append("Baixa alavancagem financeira (caixa confortável)")
+
+    # 5. Análise DCF
+    dcf_margem = _safe_float(dados_empresa.get("dcf", {}).get("margem_seguranca"))
+    if dcf_margem > 15:
+        positivos.append(f"DCF indica subavaliação (+{dcf_margem:.1f}% de margem)")
+    elif dcf_margem < -15:
+        negativos.append("DCF aponta para sobreavaliação severa nos fluxos futuros")
+
+    return {
+        "positivos": positivos,
+        "negativos": negativos
     }

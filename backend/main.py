@@ -7,7 +7,7 @@ from valuation.graham   import calcular_graham
 from valuation.bazin    import calcular_bazin
 from valuation.multiplos import calcular_multiplos
 from valuation.dcf      import calcular_dcf
-from valuation.score    import calcular_score
+from valuation.score    import calcular_score, gerar_drivers_valuation
 from valuation.risco import analisar_risco
 from dados.historico import buscar_historico_5a, gerar_alertas_historicos
 from valuation.setor import aplicar_restricoes_setor, buscar_concorrentes_por_subsetor
@@ -99,7 +99,7 @@ async def valuation(ticker: str):
 
     # ── Saúde Financeira via CVM (não bloqueia se falhar) ──────────────────
     try:
-        dados_cvm = buscar_saude_financeira_cvm(dados["nome"])
+        dados_cvm = buscar_saude_financeira_cvm(ticker_upper)
         saude_financeira = calcular_saude_financeira(dados_cvm)
         crescimento_cvm = extrair_crescimento_cvm(dados_cvm)
         
@@ -297,7 +297,11 @@ async def valuation(ticker: str):
     historico = buscar_historico_5a(ticker_upper)
     alertas_historicos = gerar_alertas_historicos(historico, dcf, graham, bazin)
 
-    return {
+    # =========================================================================
+    # CONSOLIDAÇÃO DO JSON FINAL E GERAÇÃO DOS DRIVERS
+    # =========================================================================
+    
+    dados_finais = {
         "ticker":    ticker_upper,
         "nome":      dados["nome"],
         "preco_atual": preco,
@@ -322,6 +326,11 @@ async def valuation(ticker: str):
         "consenso":  consenso_info,
         "saude_financeira": saude_financeira,
     }
+
+    # Injeção da nova inteligência: Drivers de Valuation determinísticos
+    dados_finais["drivers"] = gerar_drivers_valuation(dados_finais)
+
+    return dados_finais
 
 
 # ── NOVA ROTA DE INTELIGÊNCIA SETORIAL (PEER GROUP) ──

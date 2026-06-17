@@ -1,8 +1,8 @@
 import time
-from dados.fundamentus_provider import buscar_dados_acao_fundamentus
-from dados.yfinance_provider import buscar_dados_acao_yf
 from dados.brapi import buscar_dados_acao_sync
-
+from dados.fundamentus_provider import buscar_dados_acao_fundamentus
+from dados.yquery_provider import buscar_dados_acao_yq
+from dados.yfinance_provider import buscar_dados_acao_yf
 
 _cache: dict = {}
 CACHE_DURACAO_SEGUNDOS = 600  # 10 minutos
@@ -16,10 +16,11 @@ def _cache_valido(ticker: str) -> bool:
 
 def buscar_dados(ticker: str) -> dict:
     """
-    Busca dados com fallback automático:
-    1. Fundamentus — mais rápido e rico para B3
-    2. Brapi — fallback com token
-    3. yfinance — último recurso
+    Busca dados com fallback automático e cascata de segurança:
+    1. Brapi — API oficial e estruturada focada no Brasil
+    2. Fundamentus — Base de dados rica em múltiplos da B3
+    3. YahooQuery — Acesso JSON direto e rápido aos balanços contábeis
+    4. Yfinance — Último recurso em caso de falha sistêmica geral
     """
 
     ticker_upper = ticker.upper().strip()
@@ -30,35 +31,46 @@ def buscar_dados(ticker: str) -> dict:
 
     erros = []
 
-    # 1. Fundamentus
+    # 1. Brapi
     try:
-        print(f"Tentando Fundamentus para {ticker_upper}...")
-        resultado = buscar_dados_acao_fundamentus(ticker_upper)
-        fonte = "fundamentus"
-    except Exception as e:
-        erros.append(f"Fundamentus: {e}")
-        print(f"Fundamentus falhou — tentando Brapi...")
+        print(f"Tentando Brapi para {ticker_upper}...")
+        resultado = buscar_dados_acao_sync(ticker_upper)
+        fonte = "brapi"
+    except Exception as e1:
+        erros.append(f"Brapi: {e1}")
+        print(f"Brapi falhou — tentando Fundamentus...")
 
-        # 2. Brapi
+        # 2. Fundamentus
         try:
-            resultado = buscar_dados_acao_sync(ticker_upper)
-            fonte = "brapi"
+            resultado = buscar_dados_acao_fundamentus(ticker_upper)
+            fonte = "fundamentus"
         except Exception as e2:
-            erros.append(f"Brapi: {e2}")
-            print(f"Brapi falhou — tentando yfinance...")
+            erros.append(f"Fundamentus: {e2}")
+            print(f"Fundamentus falhou — tentando YahooQuery...")
 
-            # 3. yfinance
+            # 3. YahooQuery (A nova âncora de segurança)
             try:
-                resultado = buscar_dados_acao_yf(ticker_upper)
-                fonte = "yfinance"
+                resultado = buscar_dados_acao_yq(ticker_upper)
+                fonte = "yahooquery"
             except Exception as e3:
-                erros.append(f"yfinance: {e3}")
-                raise Exception(f"Todas as fontes falharam: {' | '.join(erros)}")
+                erros.append(f"YahooQuery: {e3}")
+                print(f"YahooQuery falhou — tentando Yfinance...")
+
+                # 4. Yfinance (O último recurso)
+                try:
+                    resultado = buscar_dados_acao_yf(ticker_upper)
+                    fonte = "yfinance"
+                except Exception as e4:
+                    erros.append(f"yfinance: {e4}")
+                    raise Exception(f"Todas as fontes de dados falharam: {' | '.join(erros)}")
 
     resultado["fonte"] = fonte
+    
+    # Salva no cache da memória RAM para não bombardear as APIs
     _cache[ticker_upper] = {
         "dados":     resultado,
         "timestamp": time.time(),
     }
+    
     print(f"✅ Dados obtidos via {fonte} para {ticker_upper}")
     return resultado
