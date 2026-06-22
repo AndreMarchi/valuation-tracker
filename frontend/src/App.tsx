@@ -742,10 +742,10 @@ const ResultadoCompleto = ({
       <ConcessaoSection
         concessao={resultado.concessao}
         precoAtual={resultado.preco_atual}
-        ticker={ticker}
+        ticker={resultado.ticker}
         onProbRenovacaoChange={(prob) => {
-          // re-chama o endpoint com o novo parâmetro
-          buscarAnalise(ticker, { prob_renovacao: prob });
+          // Usa encadeamento opcional e passa apenas o ticker
+          buscarAnalise?.(resultado.ticker);
         }}
       />
     )}

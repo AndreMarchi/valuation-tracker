@@ -169,7 +169,10 @@ export interface ValuationResult {
     metricas_ideais: Record<string, any>
   }
   saude_financeira?: SaudeFinanceira
-  drivers?: Record<string, any>
+  drivers?: {
+    positivos: string[];
+    negativos: string[];
+  }
   concessao?: {
     aplicavel: boolean
     preco_justo: number
