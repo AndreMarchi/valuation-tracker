@@ -11,7 +11,7 @@ import type {
   TrimestralItem,
 } from './types'
 import { ValuationDrivers } from './components/ValuationDrivers'
-
+import ConcessaoSection from "./components/sections/ConcessaoSection"
 
 // ─── tipos watchlist ────────────────────────────────────────────────────────
 
@@ -20,7 +20,6 @@ interface WatchlistItem {
   savedAt: string
   data: ValuationResult
 }
-
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -363,16 +362,41 @@ const SecaoCrescimento = ({ c }: { c: CrescimentoInfo | null | undefined }) => {
   )
 }
 
-const SecaoCapm = ({ capm }: { capm: ValuationResult['capm'] }) => (
+const SecaoCapm = ({ capm }: { capm: any }) => (
   <div>
-    <SectionLabel>Taxa de desconto — CAPM / WACC</SectionLabel>
-    <p className="text-xs text-gray-400 bg-gray-50 rounded-lg px-3 py-2 mb-2">
-      Beta &lt; 1 = menos volátil que a B3 · Beta = 1 acompanha a B3 · Beta &gt; 1 = mais volátil
+    <SectionLabel>Taxa de desconto — Modelo CAPM Aberto</SectionLabel>
+    <p className="text-xs text-gray-400 bg-gray-50 rounded-lg px-3 py-2 mb-3">
+      Custo de Capital Próprio calculado através da soma dos prêmios de risco macroeconómicos e de mercado.
     </p>
-    <div className="grid grid-cols-3 gap-2">
-      <MetricCard label="Selic" value={`${(capm.selic * 100).toFixed(2)}%`} />
-      <MetricCard label="Beta" value={capm.beta} />
-      <MetricCard label="Taxa CAPM" value={`${capm.taxa_desconto_pct}%`} highlight="blue" />
+    
+    <div className="grid grid-cols-2 gap-2 mb-3">
+      <div className="bg-gray-50 rounded-lg p-2.5 text-center">
+        <p className="text-[11px] text-gray-400">Taxa Livre de Risco (Selic)</p>
+        <p className="text-sm font-semibold text-gray-700">{capm.rf_selic}%</p>
+      </div>
+      <div className="bg-gray-50 rounded-lg p-2.5 text-center">
+        <p className="text-[11px] text-gray-400">Beta do Ativo</p>
+        <p className="text-sm font-semibold text-gray-700">{capm.beta}</p>
+      </div>
+    </div>
+
+    <div className="border border-gray-100 rounded-xl p-3 bg-white space-y-2 mb-3">
+      <div className="flex justify-between items-center text-xs text-gray-600">
+        <span>Prémio de Risco de Mercado (ERP):</span>
+        <span className="font-semibold text-gray-800">+{capm.equity_risk_premium}%</span>
+      </div>
+      <div className="flex justify-between items-center text-xs text-gray-600">
+        <span>Prémio de Risco País (Brasil):</span>
+        <span className="font-semibold text-gray-800">+{capm.country_risk}%</span>
+      </div>
+      <div className="flex justify-between items-center text-xs text-gray-600">
+        <span>Prémio de Tamanho (Size Premium):</span>
+        <span className="font-semibold text-gray-800">+{capm.size_premium}%</span>
+      </div>
+      <div className="pt-2 border-t border-dashed border-gray-100 flex justify-between items-center text-sm font-bold text-blue-900">
+        <span>Custo de Capital (CAPM Final):</span>
+        <span>{capm.taxa_desconto_pct}%</span>
+      </div>
     </div>
   </div>
 )
@@ -687,11 +711,42 @@ const ResultadoCompleto = ({
       {isInWatchlist ? '✓ Na Watchlist — clique para remover' : '+ Salvar na Watchlist'}
     </button>
 
+    {/* 👇 NOVO: PAINEL DE MOMENTUM / ALERTAS CRÍTICOS ANTI-VALUE TRAP 👇 */}
+    {resultado.score.alertas_criticos && resultado.score.alertas_criticos.length > 0 && (
+      <div className="space-y-1.5 p-3 rounded-xl border bg-gray-50 border-gray-200">
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Momentum & Riscos de Operação:</p>
+        {resultado.score.alertas_criticos.map((alerta: string, idx: number) => {
+          const isOk = alerta.startsWith('✅');
+          return (
+            <div 
+              key={idx} 
+              className={`text-xs font-medium px-3 py-2 rounded-lg border ${
+                isOk ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-100 text-red-700'
+              }`}
+            >
+              {alerta}
+            </div>
+          );
+        })}
+      </div>
+    )}
+
     <SecaoMetodos r={resultado} />
     {resultado?.drivers && (
       <ValuationDrivers drivers={resultado.drivers} />
     )}
     {resultado.dcf?.cenarios && <SecaoCenariosDCF cenarios={resultado.dcf.cenarios} />}
+    {resultado?.concessao?.aplicavel && (
+      <ConcessaoSection
+        concessao={resultado.concessao}
+        precoAtual={resultado.preco_atual}
+        ticker={ticker}
+        onProbRenovacaoChange={(prob) => {
+          // re-chama o endpoint com o novo parâmetro
+          buscarAnalise(ticker, { prob_renovacao: prob });
+        }}
+      />
+    )}
     <SecaoEvEbitda ev={resultado.ev_ebitda} />
     {resultado.crescimento && <SecaoCrescimento c={resultado.crescimento} />}
     <SecaoCapm capm={resultado.capm} />

@@ -1,5 +1,6 @@
 import yfinance as yf
 import time
+import math
 
 _cache: dict = {}
 CACHE_DURACAO_SEGUNDOS = 600  # 10 minutos
@@ -25,7 +26,6 @@ def _extrair_dado_seguro(df, linha: str) -> float:
         if linha in df.index:
             valor = df.loc[linha].iloc[0]
             # Filtra valores NaN que o Pandas pode retornar
-            import math
             if valor is None or math.isnan(valor):
                 return 0.0
             return float(valor)
@@ -54,9 +54,10 @@ def buscar_dados_acao_yf(ticker: str) -> dict:
                 hist = ativo.history(period="5d")
                 if hist.empty:
                     raise ValueError(f"Ticker '{ticker}' não encontrado ou sem liquidez")
-                preco = hist['Close'].iloc[-1]
+                preco = float(hist['Close'].iloc[-1])
             else:
-                preco = info.get('currentPrice') or info.get('regularMarketPrice') or 0
+                preco = info.get('currentPrice') or info.get('regularMarketPrice') or 0.0
+                preco = float(preco)
 
             # ─── EXTRAÇÃO DOS BALANÇOS CONTÁBEIS REAIS ───────────────────────
             dre = ativo.financials         # Demonstração de Resultados
@@ -75,6 +76,17 @@ def buscar_dados_acao_yf(ticker: str) -> dict:
 
             # Qtd de ações (O .info geralmente acerta isso, mas o balanço traz a média diluída)
             num_acoes = info.get('sharesOutstanding') or _extrair_dado_seguro(dre, "Diluted Average Shares") or 1
+
+            # ─── EXTRAÇÃO DE RISCO E TAMANHO (CAPM DINÂMICO) ─────────────────
+            beta_ativo = info.get('beta')
+            if beta_ativo is None or math.isnan(beta_ativo):
+                beta_ativo = 1.0
+                
+            valor_mercado = info.get('marketCap')
+            if not valor_mercado and num_acoes > 0:
+                valor_mercado = preco * num_acoes
+            elif not valor_mercado:
+                valor_mercado = 0.0
 
             # Recálculo dos múltiplos localmente para garantir precisão
             lpa = lucro_liquido / num_acoes if num_acoes > 0 else 0
@@ -99,13 +111,17 @@ def buscar_dados_acao_yf(ticker: str) -> dict:
                 "pvp":              round(pvp_calculado, 2),
                 "dividendo_anual":  dividendo_anual,
                 "dividend_yield":   round(dividend_yield * 100, 2),
-                "fluxo_caixa":      caixa_livre,       # Substitui o info.get('freeCashflow') quebrado
-                "fco_recente":      fco,               # Excelente para o Quality Score
+                "fluxo_caixa":      caixa_livre,
+                "fco_recente":      fco,
                 "num_acoes":        num_acoes,
                 "divida_liquida":   divida_total - _extrair_dado_seguro(balanco, "Cash And Cash Equivalents"),
                 "ebit_12m":         ebit,
                 "lucro_liquido_recente": lucro_liquido,
                 "roe":              round((lucro_liquido / patrimonio_liq) * 100, 2) if patrimonio_liq > 0 else 0,
+                
+                # Novas chaves injetadas para o CAPM
+                "beta":             round(float(beta_ativo), 2),
+                "valor_mercado":    float(valor_mercado),
             }
 
             _cache[ticker_upper] = {

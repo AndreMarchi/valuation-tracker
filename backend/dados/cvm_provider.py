@@ -11,6 +11,7 @@ import re
 import logging
 import requests
 import pandas as pd
+import unicodedata
 from pathlib import Path
 from datetime import datetime
 
@@ -26,17 +27,29 @@ CONTA_RECEITA_LIQUIDA = "3.01"
 CONTA_LUCRO_LIQUIDO   = "3.11"
 CONTA_FCO             = "6.01"
 
-# ─── normalização de nomes ───────────────────────────────────────────────────
+# ─── normalização de nomes institucional ──────────────────────────────────────
 
 def _normalizar_nome(nome: str) -> str:
+    if not nome:
+        return ""
+    
+    # 1. Remove acentos completamente (Transforma Ó em O, Ã em A, etc.)
+    nome = "".join(c for c in unicodedata.normalize('NFD', nome) if unicodedata.category(c) != 'Mn')
+    
+    nome = nome.upper()
+    
+    # 2. Lista expandida de sufixos de mercado que devem ser limpos
     sufixos = [
-        r"\b(ON|PN|PNA|PNB|NM|N1|N2|N3|MB|MA|EJ|EB|DR3)\b",
+        r"\b(ON|PN|PNA|PNB|NM|N1|N2|N3|MB|MA|EJ|EB|DR3|PFD|PREFERENCIAL|ORDINARIA)\b",
         r"\bS\.?A\.?\b", r"\bS/A\b", r"\bCIA\.?\b",
         r"\bSA\b", r"\bLTDA\b",
     ]
-    nome = nome.upper()
     for s in sufixos:
         nome = re.sub(s, "", nome, flags=re.IGNORECASE)
+        
+    # 3. Limpa pontuações residuais como hifens de "S.A. - PETROBRAS"
+    nome = nome.replace("-", " ")
+    
     return re.sub(r"\s+", " ", nome).strip()
 
 # ─── cadastro → CD_CVM ───────────────────────────────────────────────────────
@@ -146,30 +159,71 @@ def _extrair_serie(df: pd.DataFrame, codigo_conta: str) -> pd.Series:
     sub["DT_FIM"] = pd.to_datetime(sub["DT_FIM_EXERC"], errors="coerce")
     return sub.groupby("DT_FIM")["VL_NUM"].sum().sort_index()
 
-# ─── função principal ─────────────────────────────────────────────────────────
+# ─── dicionário de tradução corporativa ───────────────────────────────────────
+
 MAPA_NOMES_CVM = {
-    "WIZC3": "WIZ CO PARTICIPAÇÕES E CORRETAGEM DE SEGUROS S.A.",
-    "B3SA3": "B3 S.A. - BRASIL, BOLSA, BALCÃO",
-    "BBAS3": "BANCO DO BRASIL S.A.",
-    "MGLU3": "MAGAZINE LUIZA S.A.",
-    "VIIA3": "GRUPO CASAS BAHIA S.A.",
-    "BHIA3": "GRUPO CASAS BAHIA S.A.",
+    # Âncoras de Blue Chips e casos complexos de strings
+    "PETR4":  "PETROLEO BRASILEIRO S.A. - PETROBRAS",
+    "PETR3":  "PETROLEO BRASILEIRO S.A. - PETROBRAS",
+    
+    # Casos Críticos e Rebrandings
+    "WIZC3":  "WIZ CO PARTICIPAÇÕES E CORRETAGEM DE SEGUROS S.A.",
+    "B3SA3":  "B3 S.A. - BRASIL, BOLSA, BALCÃO",
+    "VIIA3":  "GRUPO CASAS BAHIA S.A.",
+    "BHIA3":  "GRUPO CASAS BAHIA S.A.",
+    "ALOS3":  "ALLOS S.A.", # Antiga Aliansce Sonae
+    "PRIO3":  "PETRO RIO S.A.",
+    
+    # Energia e Saneamento (Nomes Longos)
+    "TAEE3":  "TRANSMISSORA ALIANCA DE ENERGIA ELETRICA S.A.",
+    "TAEE4":  "TRANSMISSORA ALIANCA DE ENERGIA ELETRICA S.A.",
+    "TAEE11": "TRANSMISSORA ALIANCA DE ENERGIA ELETRICA S.A.",
+    "SAPR3":  "CIA SANEAMENTO DO PARANA SANEPAR",
+    "SAPR4":  "CIA SANEAMENTO DO PARANA SANEPAR",
+    "SAPR11": "CIA SANEAMENTO DO PARANA SANEPAR",
+    "SBSP3":  "CIA SANEAMENTO BASICO EST SAO PAULO",
+    "CMIG3":  "CIA ENERGETICA DE MINAS GERAIS - CEMIG",
+    "CMIG4":  "CIA ENERGETICA DE MINAS GERAIS - CEMIG",
+    "CPLE3":  "CIA PARANAENSE DE ENERGIA - COPEL",
+    "CPLE6":  "CIA PARANAENSE DE ENERGIA - COPEL",
+    "EQTL3":  "EQUATORIAL ENERGIA S.A.",
+
+    # Bancos e Seguros
+    "BBAS3":  "BANCO DO BRASIL S.A.",
+    "BBSE3":  "BB SEGURIDADE PARTICIPACOES S.A.",
+    "CXSE3":  "CAIXA SEGURIDADE PARTICIPACOES S.A.",
+    "ITUB3":  "ITAU UNIBANCO HOLDING S.A.",
+    "ITUB4":  "ITAU UNIBANCO HOLDING S.A.",
+    "ITSA3":  "ITAUSA S.A.",
+    "ITSA4":  "ITAUSA S.A.",
+
+    # Varejo, Alimentos e Outros
+    "MGLU3":  "MAGAZINE LUIZA S.A.",
+    "RENT3":  "LOCALIZA RENT A CAR S.A.",
+    "RAIL3":  "RUMO S.A.",
+    "RDOR3":  "REDE D OR SAO LUIZ S.A.",
+    "ABEV3":  "AMBEV S.A.",
+    "ASAI3":  "SENDAS DISTRIBUIDORA S.A.", # Assaí Atacadista
+    "CRFB3":  "ATACADAO S.A.",            # Grupo Carrefour
+    "JBSS3":  "JBS S.A.",
+    "BEEF3":  "MINERVA S.A.",
+    "MRFG3":  "MARFRIG GLOBAL FOODS S.A.",
 }
 
 # ─── função principal ─────────────────────────────────────────────────────────
 
-def buscar_saude_financeira_cvm(nome_ou_ticker: str) -> dict:
-    """Busca dados na CVM usando o nome oficial ou mapeamento direto de ticker."""
+def buscar_saude_financeira_cvm(ticker: str, nome_empresa: str = "") -> dict:
+    """Busca dados na CVM usando o mapeamento de ticker ou o nome oficial como fallback."""
     
-    termo_busca = nome_ou_ticker.upper().strip()
+    ticker_busca = ticker.upper().strip()
     
     # 1. VERIFICA O DICIONÁRIO PRIMEIRO
-    # Se receber o ticker "WIZC3", substitui pelo nome oficial exigido no cadastro da CVM
-    if termo_busca in MAPA_NOMES_CVM:
-        razao_social_exata = MAPA_NOMES_CVM[termo_busca]
-        print(f"🔄 Traduzindo {termo_busca} para a CVM: {razao_social_exata}")
+    if ticker_busca in MAPA_NOMES_CVM:
+        razao_social_exata = MAPA_NOMES_CVM[ticker_busca]
+        print(f"🔄 Traduzindo {ticker_busca} para a CVM: {razao_social_exata}")
     else:
-        razao_social_exata = termo_busca
+        # Se não estiver no mapa das problemáticas, usa o nome real
+        razao_social_exata = nome_empresa if nome_empresa else ticker_busca
         
     try:
         if not DADOS_DIR.exists() or not any(DADOS_DIR.iterdir()):
@@ -178,8 +232,8 @@ def buscar_saude_financeira_cvm(nome_ou_ticker: str) -> dict:
                 "erro": "Dados CVM não encontrados. Execute backend/scripts/atualizar_cvm.py",
             }
 
-        # CORREÇÃO: Agora passamos a razão social já traduzida para o buscador de códigos
         cd_cvm = buscar_cd_cvm(razao_social_exata)
+        
         if cd_cvm is None:
             return {"disponivel": False, "erro": f"Empresa não encontrada na CVM: {razao_social_exata}"}
 

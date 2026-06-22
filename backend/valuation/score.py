@@ -28,15 +28,14 @@ def calcular_score(
     bazin: dict,
     multiplos: dict,
     dcf: dict,
-    score_cvm: float,              # Score 0-10 de saude_financeira.py
-    lucro_liquido_recente: float,  # Último lucro líquido trimestral real
-    fco_recente: float,            # Último FCO trimestral real
-    subsetor: str = "Geral"        # Parâmetro opcional para pesos dinâmicos
+    score_cvm: float,              
+    lucro_liquido_recente: float,  
+    fco_recente: float,            
+    subsetor: str = "Geral",
+    tendencia_receita: str = "estável",
+    qualidade_lucro: float = 1.0       
 ) -> dict:
-    """
-    Calcula o Score de Atratividade combinando os métodos de valuation e aplicando
-    pesos dinâmicos baseados no subsetor da empresa, além de travas contra Value Traps.
-    """
+    
     metodos_pontos = {
         "graham":   _classificacao_para_pontos(graham.get("classificacao")),
         "bazin":    _classificacao_para_pontos(bazin.get("classificacao")),
@@ -48,6 +47,7 @@ def calcular_score(
     # 1. Busca os pesos dinâmicos baseados no modelo de negócio do subsetor
     pesos = obter_pesos_setoriais(subsetor)
 
+    # 👇 A CORREÇÃO ESTÁ AQUI: Inicialização das variáveis antes do loop 👇
     soma_produtos = 0.0
     soma_pesos_validos = 0.0
     metodos_contados = 0
@@ -65,12 +65,14 @@ def calcular_score(
             "score": 0.0,
             "classificacao": "Não aplicável",
             "parecer_analista": "Não foi possível aplicar nenhum método de valuation válido.",
+            "alertas_criticos": [],
             "detalhes": metodos_pontos,
         }
 
     # Score matemático balanceado pelos pesos do setor
     score = soma_produtos / soma_pesos_validos
     parecer = "Ativo apresenta múltiplos e indicadores em níveis saudáveis de valuation."
+    alertas_criticos = []
 
     # 3. TRAVA DE SEGURANÇA 1: Saúde Financeira Crítica (Filtro K.O.)
     if score_cvm <= 3.0:
@@ -87,24 +89,44 @@ def calcular_score(
         score = max(score - 1.5, 0.0)
         parecer += " Perigo: Operação queimando caixa líquido (FCO negativo)."
 
+    # =================================================================
+    # 7. NOVAS PENALIDADES DE MOMENTUM (FILTRO ANTI-VALUE TRAP)
+    # =================================================================
+    
+    if tendencia_receita == "caindo":
+        score = max(score - 1.0, 0.0)
+        alertas_criticos.append("⚠ Receita em queda estrutural nos últimos trimestres.")
+        parecer = "Atenção: A empresa está encolhendo operacionalmente. Pode ser uma armadilha de valor."
+
+    if qualidade_lucro is not None and qualidade_lucro < 0.6:
+        score = max(score - 1.5, 0.0)
+        alertas_criticos.append(f"⚠ Baixa conversão de lucro em caixa (FCO/Lucro = {qualidade_lucro}x).")
+        parecer = "Alerta Contábil: O lucro da DRE não está se transformando em dinheiro no caixa."
+
+    # Se a saúde financeira CVM rebaixou o ativo antes, preserva o alerta mais grave
+    if score_cvm <= 3.0:
+        alertas_criticos.append("⚠ Saúde financeira crítica (Score CVM ≤ 3.0). Alto risco de insolvência.")
+        
+    if not alertas_criticos and score >= 6:
+        alertas_criticos.append("✅ Nenhum alerta crítico operacional identificado.")
+
     score_final = round(score, 1)
 
     # 6. Definição da Classificação Corrigida
-    if score_cvm <= 3.0:
-        classificacao = "Risco Elevado / Turnaround"
+    if score_cvm <= 3.0 or score_final < 4:
+        classificacao = "Risco Elevado / Evitar"
     elif score_final >= 8:
-        classificacao = "Muito Atrativa"
+        classificacao = "Muito Atrativa / Alta Convicção"
     elif score_final >= 6:
         classificacao = "Atrativa"
-    elif score_final >= 4:
-        classificacao = "Neutra"
     else:
-        classificacao = "Cara / Evitar"
+        classificacao = "Neutra"
 
     return {
         "score": score_final,
         "classificacao": classificacao,
         "parecer_analista": parecer,
+        "alertas_criticos": alertas_criticos, 
         "metodos_aplicados": metodos_contados,
         "score_cvm_referencia": score_cvm,
         "detalhes": metodos_pontos,
@@ -160,3 +182,4 @@ def gerar_drivers_valuation(dados_empresa: dict) -> dict:
         "positivos": positivos,
         "negativos": negativos
     }
+

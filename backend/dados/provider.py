@@ -4,14 +4,46 @@ from dados.fundamentus_provider import buscar_dados_acao_fundamentus
 from dados.yquery_provider import buscar_dados_acao_yq
 from dados.yfinance_provider import buscar_dados_acao_yf
 
+# Usaremos o YahooQuery apenas para complementar os dados de risco rapidamente
+from yahooquery import Ticker
+import math
+
 _cache: dict = {}
 CACHE_DURACAO_SEGUNDOS = 600  # 10 minutos
-
 
 def _cache_valido(ticker: str) -> bool:
     if ticker not in _cache:
         return False
     return (time.time() - _cache[ticker]["timestamp"]) < CACHE_DURACAO_SEGUNDOS
+
+def _buscar_risco_complementar(ticker: str, preco_atual: float, num_acoes: float) -> dict:
+    """Busca cirurgicamente o Beta e o Valor de Mercado via YahooQuery caso o provedor principal não os tenha."""
+    ticker_formatado = f"{ticker.upper().strip()}.SA"
+    try:
+        ativo = Ticker(ticker_formatado)
+        summary = ativo.summary_detail.get(ticker_formatado, {})
+        price_data = ativo.price.get(ticker_formatado, {})
+        
+        if isinstance(summary, str) or isinstance(price_data, str):
+            return {"beta": 1.0, "valor_mercado": 0.0}
+
+        beta_ativo = summary.get('beta') or summary.get('fiveYearBeta')
+        if beta_ativo is None or math.isnan(beta_ativo):
+            beta_ativo = 1.0
+
+        valor_mercado = price_data.get('marketCap') or summary.get('marketCap')
+        if not valor_mercado and num_acoes > 0 and preco_atual > 0:
+            valor_mercado = preco_atual * num_acoes
+        elif not valor_mercado:
+            valor_mercado = 0.0
+
+        return {
+            "beta": round(float(beta_ativo), 2),
+            "valor_mercado": float(valor_mercado)
+        }
+    except Exception as e:
+        print(f"⚠️ Aviso: Falha ao buscar risco complementar para {ticker}: {e}")
+        return {"beta": 1.0, "valor_mercado": 0.0}
 
 
 def buscar_dados(ticker: str) -> dict:
@@ -30,6 +62,7 @@ def buscar_dados(ticker: str) -> dict:
         return _cache[ticker_upper]["dados"]
 
     erros = []
+    resultado = {}
 
     # 1. Brapi
     try:
@@ -64,6 +97,19 @@ def buscar_dados(ticker: str) -> dict:
                     erros.append(f"yfinance: {e4}")
                     raise Exception(f"Todas as fontes de dados falharam: {' | '.join(erros)}")
 
+    # ─── COSTURA CIRÚRGICA DE RISCO INSTITUCIONAL ───
+    # Se a fonte não foi o Yahoo (onde já implementamos a coleta), busca as variáveis separadamente
+    if fonte not in ["yahooquery", "yfinance"]:
+        print(f"🔄 Complementando variáveis de risco (Beta) via YahooQuery...")
+        preco_atual = resultado.get("preco_atual", 0.0)
+        num_acoes = resultado.get("num_acoes", 1.0)
+        
+        dados_complementares = _buscar_risco_complementar(ticker_upper, preco_atual, num_acoes)
+        
+        # Injeta as variáveis diretamente no dicionário de resposta
+        resultado["beta"] = dados_complementares["beta"]
+        resultado["valor_mercado"] = dados_complementares["valor_mercado"]
+    
     resultado["fonte"] = fonte
     
     # Salva no cache da memória RAM para não bombardear as APIs
@@ -72,5 +118,5 @@ def buscar_dados(ticker: str) -> dict:
         "timestamp": time.time(),
     }
     
-    print(f"✅ Dados obtidos via {fonte} para {ticker_upper}")
+    print(f"✅ Dados obtidos via {fonte} para {ticker_upper} (Beta: {resultado.get('beta')})")
     return resultado

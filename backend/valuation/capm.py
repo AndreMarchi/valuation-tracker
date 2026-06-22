@@ -23,43 +23,52 @@ BETA_POR_SETOR = {
 }
 BETA_PADRAO = 1.0  # Caso o setor não esteja explicitamente mapeado
 
+# backend/valuation/capm.py
 
-def calcular_capm(setor: str, beta: float = None) -> dict:
+def calcular_capm(setor: str, selic_atual: float, beta_ativo: float = 1.0, valor_mercado: float = 0.0) -> dict:
     """
-    Calcula a taxa de desconto de uma ação utilizando o modelo CAPM.
-    
-    O CAPM (Capital Asset Pricing Model) define o retorno mínimo exigido 
-    pelos acionistas ponderando o retorno livre de risco e a volatilidade do setor.
-    
-    A Taxa Selic é atualizada de forma automática consultando a API do BACEN.
-    
-    CONCEITOS CHAVE:
-    ----------------
-    - Selic: Custo de oportunidade básico da renda fixa nacional.
-    - Prêmio de Risco: O "plus" matemático para justificar o risco de bolsa.
-    - Beta (β): Risco sistêmico. Valores abaixo de 1.0 são defensivos (ex: Energia);
-                valores acima de 1.0 são agressivos/voláteis (ex: Tecnologia).
-    
-    Fórmula:
-    --------
-    Taxa Bruta = Selic + (Beta * Prêmio de Risco)
+    Calcula o Custo de Capital Próprio (CAPM) detalhando todos os prêmios de risco.
+    Inclui cálculo dinâmico de Size Premium baseado no Valor de Mercado.
     """
-    # 1. Captura da taxa livre de risco em tempo real
-    selic = buscar_selic_atual()
     
-    # 2. Atribuição do Beta (Usa o parâmetro manual se fornecido, senão busca o setorial)
-    beta_usado = beta if beta else BETA_POR_SETOR.get(setor, BETA_PADRAO)
+    # 1. Taxa Livre de Risco (Rf) = Selic 
+    rf = selic_atual if selic_atual else 0.105 
     
-    # 3. Aplicação da equação clássica do CAPM
-    taxa_desconto = selic + (beta_usado * PREMIO_RISCO_MERCADO)
+    # 2. Equity Risk Premium (ERP) - Prêmio por investir em ações
+    erp = 0.055 
+    
+    # 3. Country Risk Premium - Prêmio de Risco Brasil
+    country_risk = 0.025 
+    
+    # 4. SIZE PREMIUM DINÂMICO (Baseado no Valor de Mercado)
+    # Quanto menor a empresa, maior o risco de iliquidez e volatilidade.
+    if valor_mercado > 50_000_000_000:       # > R$ 50 Bilhões (Large Cap - Ex: PETR4, ITUB4)
+        size_premium = 0.00                  # 0% de prêmio
+    elif valor_mercado > 10_000_000_000:     # > R$ 10 Bilhões (Mid Cap - Ex: RENT3)
+        size_premium = 0.01                  # 1% de prêmio
+    elif valor_mercado > 2_000_000_000:      # > R$ 2 Bilhões (Small Cap - Ex: WIZC3)
+        size_premium = 0.02                  # 2% de prêmio
+    elif valor_mercado > 0:                  # < R$ 2 Bilhões (Micro Cap)
+        size_premium = 0.035                 # 3.5% de prêmio
+    else:
+        size_premium = 0.015                 # Fallback caso falhe o valor de mercado
+    
+    # Trava de segurança para o Beta (Evita Betas absurdamente altos ou negativos)
+    if beta_ativo is not None and -1.0 <= beta_ativo <= 4.0:
+        beta = beta_ativo
+    else:
+        beta = 1.0
 
-    # 4. Filtro de Consistência (Aplica as travas de teto e piso estipuladas)
-    taxa_desconto = max(TAXA_DESCONTO_MINIMA, min(taxa_desconto, TAXA_DESCONTO_MAXIMA))
+    # CAPM = Rf + (Beta * ERP) + Country Risk + Size Premium
+    taxa_desconto = rf + (beta * erp) + country_risk + size_premium
 
     return {
-        "selic":             round(selic, 4),
-        "beta":              beta_usado,
-        "premio_risco":      PREMIO_RISCO_MERCADO,
-        "taxa_desconto":     round(taxa_desconto, 4),
-        "taxa_desconto_pct": round(taxa_desconto * 100, 2),
+        "selic": rf,                                   
+        "rf_selic": round(rf * 100, 2),                
+        "beta": round(beta, 2),
+        "equity_risk_premium": round(erp * 100, 2),
+        "country_risk": round(country_risk * 100, 2),
+        "size_premium": round(size_premium * 100, 2),
+        "taxa_desconto": round(taxa_desconto, 4),      
+        "taxa_desconto_pct": round(taxa_desconto * 100, 2) 
     }

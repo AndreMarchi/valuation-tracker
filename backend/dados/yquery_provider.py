@@ -2,6 +2,7 @@
 from yahooquery import Ticker
 import time
 import pandas as pd
+import math
 
 _cache: dict = {}
 CACHE_DURACAO_SEGUNDOS = 600  # 10 minutos
@@ -82,6 +83,17 @@ def buscar_dados_acao_yq(ticker: str) -> dict:
     dividend_yield = summary.get('dividendYield') or summary.get('trailingAnnualDividendYield') or 0
     dividendo_anual = round(preco * dividend_yield, 2) if dividend_yield else 0
 
+    # ─── EXTRAÇÃO DE RISCO E TAMANHO (CAPM DINÂMICO) ─────────────────
+    beta_ativo = summary.get('beta') or summary.get('fiveYearBeta')
+    if beta_ativo is None or math.isnan(beta_ativo):
+        beta_ativo = 1.0
+
+    valor_mercado = price_data.get('marketCap') or summary.get('marketCap')
+    if not valor_mercado and num_acoes > 0:
+        valor_mercado = preco * num_acoes
+    elif not valor_mercado:
+        valor_mercado = 0.0
+
     # 3. RECÁLCULO DOS MÚLTIPLOS
     # Para evitar anomalias do provedor, sempre calculamos P/L e P/VP localmente com a DRE
     lpa = lucro_liquido / num_acoes if num_acoes > 0 else 0
@@ -112,6 +124,10 @@ def buscar_dados_acao_yq(ticker: str) -> dict:
         "ebit_12m":         ebit,
         "lucro_liquido_recente": lucro_liquido,
         "roe":              round((lucro_liquido / patrimonio_liq) * 100, 2) if patrimonio_liq > 0 else 0,
+        
+        # Novas chaves injetadas para o CAPM
+        "beta":             round(float(beta_ativo), 2),
+        "valor_mercado":    float(valor_mercado),
     }
 
     _cache[ticker_upper] = {

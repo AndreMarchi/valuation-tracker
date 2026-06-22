@@ -17,62 +17,52 @@ EV_EBITDA_MEDIO_SETOR = {
 EV_EBITDA_MEDIO_PADRAO = 8.0
 
 
+# backend/valuation/ev_ebitda.py
+
 def calcular_ev_ebitda(
-    ev_ebitda_atual: float,
-    setor: str,
-    ebit_12m: float,
-    num_acoes: float,
-    div_liquida: float,
+    ev_ebitda_atual: float, 
+    ev_ebitda_historico: float, # O múltiplo que a empresa costuma negociar
+    ev_ebitda_setor: float,     # A média do setor
+    ebit_12m: float, 
+    num_acoes: float, 
+    div_liquida: float
 ) -> dict:
     """
-    Avalia a empresa pelo múltiplo EV/EBITDA comparado à média setorial.
-
-    Args:
-        ev_ebitda_atual: EV/EBITDA atual da empresa
-        setor:           Setor da empresa
-        ebit_12m:        EBIT dos últimos 12 meses
-        num_acoes:       Número total de ações
-        div_liquida:     Dívida líquida
-
-    Returns:
-        Dicionário com análise EV/EBITDA e preço justo estimado
+    Calcula o preço justo por EV/EBITDA usando uma âncora híbrida (50% Empresa / 50% Setor)
+    para evitar inflar o preço alvo de empresas ineficientes.
     """
-
     if ev_ebitda_atual <= 0 or ebit_12m <= 0 or num_acoes <= 0:
         return {
-            "classificacao":    "Não aplicável",
-            "erro":             "EV/EBITDA não calculável — dados insuficientes",
-            "ev_ebitda_atual":  ev_ebitda_atual,
-            "ev_ebitda_medio":  None,
-            "preco_justo":      None,
-            "margem_seguranca": None,
+            "ev_ebitda_atual": ev_ebitda_atual,
+            "preco_justo": None,
+            "classificacao": "Não aplicável",
+            "erro": "EBITDA ou Múltiplo atual negativo/inválido."
         }
 
-    # EBITDA estimado como EBIT × 1.2 (aproximação)
-    ebitda_estimado = ebit_12m * 1.2
+    # Tratamento de segurança caso o histórico ou o setor não existam
+    hist = ev_ebitda_historico if ev_ebitda_historico > 0 else ev_ebitda_atual
+    setor = ev_ebitda_setor if ev_ebitda_setor > 0 else hist
 
-    media_setor = EV_EBITDA_MEDIO_SETOR.get(setor, EV_EBITDA_MEDIO_PADRAO)
+    # A Mágica Institucional: Blend 50/50
+    multiplo_alvo = (hist * 0.5) + (setor * 0.5)
 
-    # Preço justo pelo EV/EBITDA setorial
-    ev_justo      = ebitda_estimado * media_setor
-    equity_justo  = ev_justo - div_liquida
-    preco_justo   = equity_justo / num_acoes if num_acoes > 0 else 0
+    # EV Alvo = EBITDA * Múltiplo Alvo
+    ev_alvo = ebit_12m * multiplo_alvo
+    
+    # Preço Justo = (EV Alvo - Dívida Líquida) / Número de Ações
+    valor_mercado_alvo = ev_alvo - div_liquida
+    preco_justo = valor_mercado_alvo / num_acoes if valor_mercado_alvo > 0 else 0.0
 
-    desconto = ((ev_justo - (ebitda_estimado * ev_ebitda_atual)) /
-                (ebitda_estimado * ev_ebitda_atual)) * 100
-
-    if desconto >= 20:
+    if ev_ebitda_atual < multiplo_alvo * 0.8:
         classificacao = "Descontada"
-    elif desconto >= 0:
-        classificacao = "Neutra"
-    else:
+    elif ev_ebitda_atual > multiplo_alvo * 1.2:
         classificacao = "Cara"
+    else:
+        classificacao = "Neutra"
 
     return {
-        "ev_ebitda_atual":   round(ev_ebitda_atual, 2),
-        "ev_ebitda_medio":   media_setor,
-        "ebitda_estimado":   round(ebitda_estimado / 1_000_000, 2),
-        "preco_justo":       round(preco_justo, 2) if preco_justo > 0 else None,
-        "margem_seguranca":  round(desconto, 2),
-        "classificacao":     classificacao,
+        "ev_ebitda_atual": round(ev_ebitda_atual, 2),
+        "ev_ebitda_alvo_blend": round(multiplo_alvo, 2),
+        "preco_justo": round(preco_justo, 2),
+        "classificacao": classificacao
     }
