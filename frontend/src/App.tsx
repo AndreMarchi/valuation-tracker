@@ -671,10 +671,12 @@ const ResultadoCompleto = ({
   resultado,
   isInWatchlist,
   onToggleWatchlist,
+  buscarAnalise,
 }: {
   resultado: ValuationResult
   isInWatchlist: boolean
   onToggleWatchlist: () => void
+  buscarAnalise?: (t?: string) => Promise<any>
 }) => (
   <div className="bg-white rounded-2xl shadow p-6 space-y-6">
     <div className="flex justify-between items-start">
@@ -935,6 +937,7 @@ export default function App() {
                 resultado={resultado}
                 isInWatchlist={isInWatchlist}
                 onToggleWatchlist={toggleWatchlist}
+                buscarAnalise={buscar}
               />
             )}
           </>

@@ -3,7 +3,7 @@
 // Adicionar após a seção de DCF existente, condicionalmente quando
 // resultado.concessao?.aplicavel === true.
 
-import React, { useState } from "react";
+import { useState } from "react";
 
 interface FluxoProjetado {
   ano: number;
@@ -46,7 +46,7 @@ const pct = (v: number) => `${(v * 100).toFixed(0)}%`;
 export default function ConcessaoSection({
   concessao,
   precoAtual,
-  ticker,
+  _ticker,
   onProbRenovacaoChange,
 }: Props) {
   const [probLocal, setProbLocal] = useState(concessao.probabilidade_renovacao);

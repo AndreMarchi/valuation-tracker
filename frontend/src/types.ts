@@ -26,14 +26,17 @@ export interface MetodoValuation {
 
 export interface Multiplos {
   preco_atual: number
-  pl: MetodoValuation & { valor: number; media_historica: number; desconto: number | null }
-  pvp: MetodoValuation & { valor: number; media_historica: number; desconto: number | null }
+  pl: MetodoValuation & { valor: number; media_historica: number; desconto: number | null; atual?: number }
+  pvp: MetodoValuation & { valor: number; media_historica: number; desconto: number | null; atual?: number }
 }
 
 export interface Score {
   score: number
   classificacao: string
   metodos_aplicados: number
+  alertas_criticos?: string[]      
+  parecer_analista?: string        
+  detalhes?: Record<string, number>
 }
 
 export interface Alerta {
@@ -166,4 +169,22 @@ export interface ValuationResult {
     metricas_ideais: Record<string, any>
   }
   saude_financeira?: SaudeFinanceira
+  drivers?: Record<string, any>
+  concessao?: {
+    aplicavel: boolean
+    preco_justo: number
+    anos_ate_vencimento: number
+    ano_vencimento_principal: number
+    ano_vencimento_secundario?: number
+    probabilidade_renovacao: number
+    vp_fluxos_pre_cliff: number
+    valor_terminal_esperado_pv: number
+    valor_terminal_renovacao: number
+    valor_terminal_liquidacao: number
+    impacto_cliff_vs_perpetuidade: number
+    fluxos_projetados: Array<{ ano: number; fcf: number; fator_desconto: number; vp: number; fase: string }>
+    wacc_usado: number
+    notas: string[]
+    motivo?: string
+  }
 }
