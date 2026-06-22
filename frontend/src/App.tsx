@@ -743,7 +743,7 @@ const ResultadoCompleto = ({
         concessao={resultado.concessao}
         precoAtual={resultado.preco_atual}
         ticker={resultado.ticker}
-        onProbRenovacaoChange={(prob) => {
+        onProbRenovacaoChange={() => {
           // Usa encadeamento opcional e passa apenas o ticker
           buscarAnalise?.(resultado.ticker);
         }}

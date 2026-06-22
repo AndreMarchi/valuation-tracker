@@ -46,8 +46,7 @@ const pct = (v: number) => `${(v * 100).toFixed(0)}%`;
 export default function ConcessaoSection({
   concessao,
   precoAtual,
-  _ticker,
-  onProbRenovacaoChange,
+  onProbRenovacaoChange
 }: Props) {
   const [probLocal, setProbLocal] = useState(concessao.probabilidade_renovacao);
 
