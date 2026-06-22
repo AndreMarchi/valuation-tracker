@@ -5,10 +5,9 @@ pandas==2.3.3
 numpy==2.0.2
 requests==2.32.5
 python-dotenv==1.2.1
-fundamentus==0.3.2
+fundamentus
 yfinance==0.2.55
 beautifulsoup4==4.13.4
-lxml==6.1.0
 pydantic==2.12.3
 python-multipart==0.0.20
-yahooquery==2.3.7
+yahooquery
