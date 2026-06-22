@@ -11,3 +11,4 @@ beautifulsoup4==4.13.4
 lxml==6.1.0
 pydantic==2.12.3
 python-multipart==0.0.20
+yahooquery==2.3.7
