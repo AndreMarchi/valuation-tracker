@@ -2,6 +2,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from typing import Optional
 from dados.provider import buscar_dados
 from valuation.graham   import calcular_graham
 from valuation.bazin    import calcular_bazin
@@ -25,6 +26,13 @@ from valuation.crescimento import (
 import os
 from dados.cvm_provider import buscar_saude_financeira_cvm
 from valuation.saude_financeira import calcular_saude_financeira, extrair_crescimento_cvm
+from dados.selic import buscar_selic_atual
+from valuation.dcf_concessao import (
+    calcular_dcf_concessao,
+    detectar_concessao,
+    empresa_tem_concessao,
+    ParametrosConcessao,
+)
 
 app = FastAPI(
     title="Valuation Tracker API",
@@ -52,7 +60,6 @@ def clear_cache():
 @app.get("/selic")
 def selic_atual():
     """Retorna a taxa Selic atual via BACEN."""
-    from dados.selic import buscar_selic_atual
     selic = buscar_selic_atual()
     return {
         "selic_decimal": selic,
@@ -75,15 +82,15 @@ async def valuation(ticker: str):
         raise HTTPException(status_code=502, detail=f"Erro ao buscar dados: {str(e)}")
 
     # Extração de dados básicos do provider dinâmico
-    preco   = dados["preco_atual"]
-    lpa     = dados["lpa"]
-    vpa     = dados["vpa"]
-    pl      = dados["pl"]
-    pvp     = dados["pvp"]
-    div     = dados["dividendo_anual"]
-    fcl     = (dados["fluxo_caixa"] or 0) / 1_000_000
-    acoes   = (dados["num_acoes"]   or 0) / 1_000_000
-    setor   = dados["setor"]
+    preco   = dados.get("preco_atual", 0)
+    lpa     = dados.get("lpa", 0)
+    vpa     = dados.get("vpa", 0)
+    pl      = dados.get("pl", 0)
+    pvp     = dados.get("pvp", 0)
+    div     = dados.get("dividendo_anual", 0)
+    fcl     = (dados.get("fluxo_caixa", 0) or 0) / 1_000_000
+    acoes   = (dados.get("num_acoes", 0)   or 0) / 1_000_000
+    setor   = dados.get("setor", "Geral")
     subsetor = dados.get("industria", "Geral")
 
     # --- 1. PREPARAÇÃO DE TAXAS E INDICADORES ---
@@ -99,7 +106,8 @@ async def valuation(ticker: str):
 
     # ── Saúde Financeira via CVM (não bloqueia se falhar) ──────────────────
     try:
-        dados_cvm = buscar_saude_financeira_cvm(ticker_upper)
+        #dados_cvm = buscar_saude_financeira_cvm(ticker_upper)
+        dados_cvm = buscar_saude_financeira_cvm(ticker_upper, dados.get("nome", ""))
         saude_financeira = calcular_saude_financeira(dados_cvm)
         crescimento_cvm = extrair_crescimento_cvm(dados_cvm)
         
@@ -127,16 +135,21 @@ async def valuation(ticker: str):
         "Transporte Aéreo", "Transporte",
         "Alimentos", "Mineração", "Siderurgia e Siderurgia e Metalurgia",
     }
-    if dados["setor"] in SETORES_CICLICOS:
+    if setor in SETORES_CICLICOS:
         taxa_crescimento = min(taxa_crescimento, 0.08)
 
     # Se empresa é muito lucrativa mas com crescimento negativo, usa mínimo de 2%
     if taxa_crescimento < 0 and lpa > 0 and vpa > 0:
         taxa_crescimento = 0.02
 
-    # Taxa de desconto pelo CAPM
-    capm = calcular_capm(setor=dados["setor"])
-    taxa_capm = capm["taxa_desconto"]
+    # Taxa de desconto pelo CAPM Institucional (Novo formato detalhado)
+    selic_val = buscar_selic_atual()
+    capm = calcular_capm(
+        setor=setor, 
+        selic_atual=selic_val, 
+        beta_ativo=dados.get("beta", 1.0)
+    )
+    taxa_capm = capm.get("taxa_desconto", 0.12)
 
     # Ajuste extra para endividamento alto aplicado dinamicamente no WACC
     div_ebit = (dados.get("div_liquida", 0) or 0) / (dados.get("ebit_12m", 1) or 1)
@@ -184,7 +197,10 @@ async def valuation(ticker: str):
         ticker=ticker_upper, 
     )
 
-    # CHAMADA ATUALIZADA: Agora passa o subsetor para aplicar os pesos setoriais dinâmicos
+    # Captura das variáveis de Momentum para injetar no Score Institucional
+    tend_rec = saude_financeira.get("tendencia_receita", "estável") if saude_financeira and saude_financeira.get("disponivel") else "estável"
+    qual_luc = saude_financeira.get("qualidade_lucro", 1.0) if saude_financeira and saude_financeira.get("disponivel") else 1.0
+
     score = calcular_score(
         graham=graham,
         bazin=bazin,
@@ -193,28 +209,35 @@ async def valuation(ticker: str):
         score_cvm=score_cvm_valor,
         lucro_liquido_recente=lucro_recente_valor,
         fco_recente=fco_recente_valor,
-        subsetor=subsetor
+        subsetor=subsetor,
+        tendencia_receita=tend_rec,
+        qualidade_lucro=qual_luc
     )
     
+    # EV/EBITDA Híbrido (Blend 50/50 - Empresa vs Setor)
+    historico_ev = dados.get("ev_ebitda_medio_5a") or dados.get("ev_ebitda", 8.0)
+    setor_ev = config_setor.get("ev_ebitda_setor", 8.0)
+
     ev_ebitda = calcular_ev_ebitda(
-        ev_ebitda_atual = dados.get("ev_ebitda", 0) or 0,
-        setor           = dados["setor"],
-        ebit_12m        = dados.get("ebit_12m", 0) or 0,
-        num_acoes       = dados.get("num_acoes", 0) or 0,
-        div_liquida     = dados.get("div_liquida", 0) or 0,
+        ev_ebitda_atual     = dados.get("ev_ebitda", 0) or 0,
+        ev_ebitda_historico = historico_ev,
+        ev_ebitda_setor     = setor_ev,
+        ebit_12m            = dados.get("ebit_12m", 0) or 0,
+        num_acoes           = dados.get("num_acoes", 0) or 0,
+        div_liquida         = dados.get("div_liquida", 0) or 0,
     )
 
     risco = analisar_risco(
         ticker=ticker_upper,
         setor=setor,
-        score_atual=score["score"],
+        score_atual=score.get("score", 0),
     )
     
     endividamento = analisar_endividamento(
         div_liquida = dados.get("div_liquida", 0) or 0,
         ebit_12m    = dados.get("ebit_12m", 0) or 0,
         patrim_liq  = dados.get("fluxo_caixa", 0) or 0,
-        score_atual = score["score"],
+        score_atual = score.get("score", 0),
     )
 
     # Análise de crescimento dinâmica
@@ -225,7 +248,7 @@ async def valuation(ticker: str):
 
     ev_receita = calcular_ev_receita(
         psr_atual=dados.get("psr", 0) or 0,
-        setor=dados["setor"],
+        setor=setor,
         receita_12m=dados.get("receita_liquida_12m", 0) or 0,
         num_acoes=dados.get("num_acoes", 0) or 0,
         div_liquida=dados.get("div_liquida", 0) or 0,
@@ -277,7 +300,7 @@ async def valuation(ticker: str):
 
     # Substitui o parecer dinâmico se a trava do score_cvm rebaixou o ativo
     if score_cvm_valor <= 3.0:
-        parecer = score["parecer_analista"]
+        parecer = score.get("parecer_analista", "")
     elif metodos_descontados == total_metodos_ativos and total_metodos_ativos > 0:
         parecer = "Alinhamento total de compra. Ativo descontado em todas as janelas de análise."
     elif metodos_descontados >= 1 and pilares["fluxo_de_caixa"] == "Cara":
@@ -289,7 +312,7 @@ async def valuation(ticker: str):
 
     consenso_info = {
         "pilares_status": pilares,
-        "grau_concordancia": score["grau_concordancia"] if "grau_concordancia" in score else f"{metodos_descontados}/{total_metodos_ativos} pilares descontados",
+        "grau_concordancia": score.get("grau_concordancia", f"{metodos_descontados}/{total_metodos_ativos} pilares descontados"),
         "parecer_analista": parecer
     }
 
@@ -303,7 +326,7 @@ async def valuation(ticker: str):
     
     dados_finais = {
         "ticker":    ticker_upper,
-        "nome":      dados["nome"],
+        "nome":      dados.get("nome", ""),
         "preco_atual": preco,
         "graham":    graham,
         "bazin":     bazin,
@@ -316,8 +339,8 @@ async def valuation(ticker: str):
         "setor_info": {
             "setor":          setor,
             "industria":      subsetor,
-            "metodos_validos": config_setor["metodos_validos"],
-            "metricas_ideais": config_setor["metricas_ideais"],
+            "metodos_validos": config_setor.get("metodos_validos", []),
+            "metricas_ideais": config_setor.get("metricas_ideais", []),
         },
         "endividamento": endividamento,
         "capm":      capm,
@@ -331,6 +354,85 @@ async def valuation(ticker: str):
     dados_finais["drivers"] = gerar_drivers_valuation(dados_finais)
 
     return dados_finais
+
+
+#DCF concessão: nova rota para empresas com concessões públicas, usando parâmetros específicos e lógica de detecção automática
+def enriquecer_com_concessao(
+    ticker: str,
+    fcf_base: float,
+    ativo_imob: float,
+    divida_liq: float,
+    num_acoes: float,
+    wacc: float,
+    resultado: dict,
+    # Parâmetros opcionais vindos do frontend (sliders do usuário)
+    prob_renovacao_override: Optional[float] = None,        # ✅
+    desconto_pos_renovacao_override: Optional[float] = None, # ✅
+) -> dict:
+    """
+    Enriquece o dicionário de resultado com a análise de concessão, se aplicável.
+    Retorna o mesmo dicionário, modificado in-place.
+    """
+ 
+    params = detectar_concessao(ticker)
+ 
+    if params is None:
+        resultado["concessao"] = None
+        return resultado
+ 
+    # Permite o usuário ajustar os parâmetros via frontend (sliders)
+    if prob_renovacao_override is not None:
+        params.probabilidade_renovacao = prob_renovacao_override
+    if desconto_pos_renovacao_override is not None:
+        params.desconto_pos_renovacao = desconto_pos_renovacao_override
+ 
+    # Usa o WACC já calculado pelo sistema (CAPM)
+    params.wacc = wacc
+ 
+    # Guarda FCF < 0 pode vir do CVM — protege o cálculo
+    if fcf_base is None or fcf_base <= 0:
+        resultado["concessao"] = {
+            "aplicavel": False,
+            "motivo": "FCF negativo ou indisponível — DCF concessão não calculado.",
+            "ano_vencimento_principal": params.ano_vencimento_principal,
+        }
+        return resultado
+ 
+    dcf_conc = calcular_dcf_concessao(
+        fcf_base=fcf_base,
+        ativo_imobilizado=ativo_imob,
+        divida_liquida=divida_liq,
+        numero_acoes=num_acoes,
+        params=params,
+    )
+ 
+    resultado["concessao"] = {
+        "aplicavel": True,
+        "preco_justo": dcf_conc.preco_justo,
+        "anos_ate_vencimento": dcf_conc.anos_ate_vencimento,
+        "ano_vencimento_principal": params.ano_vencimento_principal,
+        "ano_vencimento_secundario": params.ano_vencimento_secundario,
+        "probabilidade_renovacao": dcf_conc.probabilidade_renovacao,
+        "vp_fluxos_pre_cliff": dcf_conc.valor_presente_fluxos,
+        "valor_terminal_esperado_pv": dcf_conc.valor_terminal_esperado_pv,
+        "valor_terminal_renovacao": dcf_conc.valor_terminal_renovacao,
+        "valor_terminal_liquidacao": dcf_conc.valor_terminal_liquidacao,
+        "impacto_cliff_vs_perpetuidade": dcf_conc.impacto_cliff,
+        "fluxos_projetados": dcf_conc.fluxos_projetados,
+        "wacc_usado": dcf_conc.wacc_usado,
+        "notas": dcf_conc.notas,
+    }
+ 
+    # Injeta o preço justo do DCF concessão também na lista de métodos
+    # para participar do score de atratividade
+    resultado["metodos"]["dcf_concessao"] = {
+        "preco_justo": dcf_conc.preco_justo,
+        "aplicavel": True,
+        "descricao": f"DCF com cliff de concessão (2029/{params.ano_vencimento_secundario})",
+        "notas": dcf_conc.notas,
+    }
+ 
+    return resultado
 
 
 # ── NOVA ROTA DE INTELIGÊNCIA SETORIAL (PEER GROUP) ──
