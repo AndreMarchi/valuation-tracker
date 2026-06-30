@@ -27,7 +27,7 @@ def test_calcular_score_empresa_saudavel():
     )
     
     assert resultado["score"] == 8.0
-    assert resultado["classificacao"] == "Muito Atrativa"
+    assert resultado["classificacao"] == "Muito Atrativa / Alta Convicção"
     assert "indicadores em níveis saudáveis" in resultado["parecer_analista"]
 
 
@@ -89,7 +89,7 @@ def test_trava_filtro_ko_saude_critica_value_trap():
     )
     
     assert resultado["score"] == 3.0
-    assert resultado["classificacao"] == "Risco Elevado / Turnaround"
+    assert resultado["classificacao"] == "Risco Elevado / Evitar"
     assert "Alto risco de Value Trap" in resultado["parecer_analista"]
 
 

@@ -1,51 +1,43 @@
 import pytest
-from unittest.mock import patch
 from valuation.capm import calcular_capm
 
-@pytest.fixture
-def selic_fixa_14_5():
-    """Mock para garantir que a Selic retorne sempre 14.50% nos testes."""
-    with patch("valuation.capm.buscar_selic_atual", return_code=None) as mock:
-        mock.return_value = 0.145
-        yield mock
+SELIC_CENARIO_BASE = 0.1425  # Simulando um cenário de Selic a 14.25%
 
-def test_capm_setor_defensivo(selic_fixa_14_5):
-    """Energia Elétrica (Beta 0.65) deve calcular a taxa bruta sem estourar as travas."""
-    # Racional: 14.50% + (0.65 * 3.0%) = 14.50% + 1.95% = 16.45%
-    # Como o teto máximo é 16%, a trava deve atuar e reduzir para 16%
-    resultado = calcular_capm(setor="Energia Elétrica")
-    
-    assert resultado["beta"] == 0.65
-    assert resultado["taxa_desconto"] == 0.1600
-    assert resultado["taxa_desconto_pct"] == 16.0
+def test_capm_ativo_ultra_defensivo():
+        """Ativos ultra-defensivos com beta próximo a zero devem manter seu risco real reduzido."""
+        # Racional: 14.25% + (-0.01 * 5.5%) + 2.5% + 1.0% (Size Premium) = 17.70%
+        resultado = calcular_capm(
+            setor="Energia Elétrica",
+            selic_atual=SELIC_CENARIO_BASE,
+            beta_ativo=-0.01,
+            valor_mercado=13_000_000_000
+        )
+        
+        assert resultado["beta"] == -0.01
+        assert resultado["taxa_desconto_pct"] == 17.70
 
-def test_capm_setor_agressivo_bate_no_teto(selic_fixa_14_5):
-    """Setores com Beta alto devem ter a taxa limitada ao teto máximo de 16%."""
-    # Racional: Tecnologia (Beta 1.30) -> 14.50% + (1.30 * 3.0%) = 18.40%
-    # Deve cravar no teto de 16%
-    resultado = calcular_capm(setor="Tecnologia")
-    
-    assert resultado["beta"] == 1.30
-    assert resultado["taxa_desconto"] == 0.1600 
+def test_capm_ativo_agressivo():
+        """Ativos de tecnologia com beta alto devem calcular o custo de capital sem tetos artificiais."""
+        # Racional: 14.25% + (1.30 * 5.5%) + 2.5% + 2.0% (Size Premium) = 25.90%
+        resultado = calcular_capm(
+            setor="Tecnologia",
+            selic_atual=SELIC_CENARIO_BASE,
+            beta_ativo=1.30,
+            valor_mercado=5_000_000_000
+        )
+        
+        assert resultado["beta"] == 1.30
+        assert resultado["taxa_desconto_pct"] == 25.90
 
-def test_capm_setor_nao_mapeado_usa_padrao(selic_fixa_14_5):
-    """Setor inexistente deve usar o Beta padrão de 1.0."""
-    # Racional: Beta 1.0 -> 14.50% + (1.0 * 3.0%) = 17.50%
-    # Deve cravar no teto de 16% devido à Selic alta do cenário atual
-    resultado = calcular_capm(setor="Setor Inexistente")
+def test_capm_sem_beta_informado_usa_padrao():
+    """Caso o beta_ativo seja nulo, o sistema deve adotar o risco padrão de mercado (Beta 1.0)."""
+    resultado = calcular_capm(
+        setor="Qualquer", 
+        selic_atual=SELIC_CENARIO_BASE, 
+        beta_ativo=None,
+        valor_mercado=60_000_000_000  # Mega Cap (Size Premium 0.0%)
+    )
     
     assert resultado["beta"] == 1.0
-    assert resultado["taxa_desconto"] == 0.1600
-
-def test_capm_com_beta_manual(selic_fixa_14_5):
-    """Se passarmos um beta manual baixo, o piso de 10% deve ser respeitado se necessário."""
-    with patch("valuation.capm.buscar_selic_atual") as mock_selic:
-        # Forçando uma Selic artificialmente baixa de 5% para testar o piso do modelo
-        mock_selic.return_value = 0.05
-        
-        # Racional: 5.0% + (0.5 * 3.0%) = 5.0% + 1.5% = 6.5%
-        # Deve cravar no piso mínimo de 10%
-        resultado = calcular_capm(setor="Qualquer", beta=0.5)
-        
-        assert resultado["beta"] == 0.5
-        assert resultado["taxa_desconto"] == 0.1000
+    # 14.25% + (1.0 * 5.5%) + 2.5% + 0.0% = 22.25%
+    assert resultado["taxa_desconto_pct"] == 22.25
