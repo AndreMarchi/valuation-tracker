@@ -130,6 +130,13 @@ const scoreColorSaude = (s: number) => {
   return 'text-red-600'
 }
 
+const carregarScanner = async () => {
+    const response = await fetch("/api/scanner/resultado");
+    const data = await response.json();
+    setAtivos(data.ativos); // Isso preencherá sua tabela instantaneamente
+    setDataAtualizacao(data.data_atualizacao);
+};
+
 const BarChart = ({ data, color }: { data: TrimestralItem[]; color: string }) => {
   if (!data || data.length === 0) return <p className="text-xs text-gray-400">Sem dados</p>
   const max = Math.max(...data.map(d => Math.abs(d.valor)))
@@ -176,6 +183,8 @@ const SecaoSaudeFinanceira = ({ s }: { s: SaudeFinanceira | undefined }) => {
     s.qualidade_lucro >= 1.2  ? `${s.qualidade_lucro.toFixed(1)}x ✅` :
     s.qualidade_lucro >= 0.8  ? `${s.qualidade_lucro.toFixed(1)}x ⚠️` :
     `${s.qualidade_lucro.toFixed(1)}x ❌`
+
+
 
   return (
     <div>

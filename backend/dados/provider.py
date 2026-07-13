@@ -1,15 +1,18 @@
+import os
 import time
-from dados.brapi import buscar_dados_acao_sync
+import json
+import math
+from yahooquery import Ticker
+
+# Importações dos provedores restantes
 from dados.fundamentus_provider import buscar_dados_acao_fundamentus
 from dados.yquery_provider import buscar_dados_acao_yq
 from dados.yfinance_provider import buscar_dados_acao_yf
 
-# Usaremos o YahooQuery apenas para complementar os dados de risco rapidamente
-from yahooquery import Ticker
-import math
-
+# Variáveis globais para otimização
 _cache: dict = {}
-CACHE_DURACAO_SEGUNDOS = 600  # 10 minutos
+_TICKERS_CACHE = []
+CACHE_DURACAO_SEGUNDOS = 600
 
 def _cache_valido(ticker: str) -> bool:
     if ticker not in _cache:
@@ -17,7 +20,6 @@ def _cache_valido(ticker: str) -> bool:
     return (time.time() - _cache[ticker]["timestamp"]) < CACHE_DURACAO_SEGUNDOS
 
 def _buscar_risco_complementar(ticker: str, preco_atual: float, num_acoes: float) -> dict:
-    """Busca cirurgicamente o Beta e o Valor de Mercado via YahooQuery caso o provedor principal não os tenha."""
     ticker_formatado = f"{ticker.upper().strip()}.SA"
     try:
         ativo = Ticker(ticker_formatado)
@@ -37,86 +39,57 @@ def _buscar_risco_complementar(ticker: str, preco_atual: float, num_acoes: float
         elif not valor_mercado:
             valor_mercado = 0.0
 
-        return {
-            "beta": round(float(beta_ativo), 2),
-            "valor_mercado": float(valor_mercado)
-        }
+        return {"beta": round(float(beta_ativo), 2), "valor_mercado": float(valor_mercado)}
     except Exception as e:
         print(f"⚠️ Aviso: Falha ao buscar risco complementar para {ticker}: {e}")
         return {"beta": 1.0, "valor_mercado": 0.0}
 
-
 def buscar_dados(ticker: str) -> dict:
-    """
-    Busca dados com fallback automático e cascata de segurança:
-    1. Brapi — API oficial e estruturada focada no Brasil
-    2. Fundamentus — Base de dados rica em múltiplos da B3
-    3. YahooQuery — Acesso JSON direto e rápido aos balanços contábeis
-    4. Yfinance — Último recurso em caso de falha sistêmica geral
-    """
-
     ticker_upper = ticker.upper().strip()
-
     if _cache_valido(ticker_upper):
-        print(f"Cache hit: {ticker_upper}")
         return _cache[ticker_upper]["dados"]
 
     erros = []
-    resultado = {}
-
-    # 1. Brapi
+    # 1. Fundamentus (Agora é a prioridade #1)
     try:
-        print(f"Tentando Brapi para {ticker_upper}...")
-        resultado = buscar_dados_acao_sync(ticker_upper)
-        fonte = "brapi"
+        print(f"Tentando Fundamentus para {ticker_upper}...")
+        resultado = buscar_dados_acao_fundamentus(ticker_upper)
+        fonte = "fundamentus"
     except Exception as e1:
-        erros.append(f"Brapi: {e1}")
-        print(f"Brapi falhou — tentando Fundamentus...")
-
-        # 2. Fundamentus
+        erros.append(f"Fundamentus: {e1}")
+        # 2. YahooQuery
         try:
-            resultado = buscar_dados_acao_fundamentus(ticker_upper)
-            fonte = "fundamentus"
+            resultado = buscar_dados_acao_yq(ticker_upper)
+            fonte = "yahooquery"
         except Exception as e2:
-            erros.append(f"Fundamentus: {e2}")
-            print(f"Fundamentus falhou — tentando YahooQuery...")
-
-            # 3. YahooQuery (A nova âncora de segurança)
+            erros.append(f"YahooQuery: {e2}")
+            # 3. Yfinance
             try:
-                resultado = buscar_dados_acao_yq(ticker_upper)
-                fonte = "yahooquery"
+                resultado = buscar_dados_acao_yf(ticker_upper)
+                fonte = "yfinance"
             except Exception as e3:
-                erros.append(f"YahooQuery: {e3}")
-                print(f"YahooQuery falhou — tentando Yfinance...")
+                erros.append(f"yfinance: {e3}")
+                raise Exception(f"Todas as fontes falharam: {' | '.join(erros)}")
 
-                # 4. Yfinance (O último recurso)
-                try:
-                    resultado = buscar_dados_acao_yf(ticker_upper)
-                    fonte = "yfinance"
-                except Exception as e4:
-                    erros.append(f"yfinance: {e4}")
-                    raise Exception(f"Todas as fontes de dados falharam: {' | '.join(erros)}")
-
-    # ─── COSTURA CIRÚRGICA DE RISCO INSTITUCIONAL ───
-    # Se a fonte não foi o Yahoo (onde já implementamos a coleta), busca as variáveis separadamente
+    # Complemento de risco
     if fonte not in ["yahooquery", "yfinance"]:
-        print(f"🔄 Complementando variáveis de risco (Beta) via YahooQuery...")
-        preco_atual = resultado.get("preco_atual", 0.0)
-        num_acoes = resultado.get("num_acoes", 1.0)
-        
-        dados_complementares = _buscar_risco_complementar(ticker_upper, preco_atual, num_acoes)
-        
-        # Injeta as variáveis diretamente no dicionário de resposta
-        resultado["beta"] = dados_complementares["beta"]
-        resultado["valor_mercado"] = dados_complementares["valor_mercado"]
+        dados_comp = _buscar_risco_complementar(ticker_upper, resultado.get("preco_atual", 0.0), resultado.get("num_acoes", 1.0))
+        resultado["beta"] = dados_comp["beta"]
+        resultado["valor_mercado"] = dados_comp["valor_mercado"]
     
     resultado["fonte"] = fonte
-    
-    # Salva no cache da memória RAM para não bombardear as APIs
-    _cache[ticker_upper] = {
-        "dados":     resultado,
-        "timestamp": time.time(),
-    }
-    
-    print(f"✅ Dados obtidos via {fonte} para {ticker_upper} (Beta: {resultado.get('beta')})")
+    _cache[ticker_upper] = {"dados": resultado, "timestamp": time.time()}
     return resultado
+
+def carregar_todos_tickers_b3():
+    """Lê o JSON de setores uma única vez (em memória)."""
+    global _TICKERS_CACHE
+    if _TICKERS_CACHE:
+        return _TICKERS_CACHE
+        
+    caminho_json = os.path.join("dados", "setores_b3.json")
+    if os.path.exists(caminho_json):
+        with open(caminho_json, 'r', encoding='utf-8') as f:
+            dados = json.load(f)
+            _TICKERS_CACHE = [item["Tickets"] for item in dados if item.get("Tickets")]
+    return _TICKERS_CACHE

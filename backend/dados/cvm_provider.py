@@ -1,8 +1,6 @@
 """
 cvm_provider.py
-Lê demonstrações financeiras trimestrais da CVM a partir de arquivos
-em disco (backend/dados_cvm/), gerados pelo script atualizar_cvm.py.
-Fallback para download direto quando rodando localmente.
+Otimizado: Cache em RAM para cadastro e demonstrações para máxima performance.
 """
 
 import io
@@ -13,152 +11,80 @@ import requests
 import pandas as pd
 import unicodedata
 from pathlib import Path
-from datetime import datetime
 
+# Configuração de Logger
 logger = logging.getLogger(__name__)
-
-# ─── diretório de dados ───────────────────────────────────────────────────────
-
 DADOS_DIR = Path(__file__).parent.parent / "dados_cvm"
 
-# ─── contas CVM (padrão IFRS) ─────────────────────────────────────────────────
-
+# Contas IFRS
 CONTA_RECEITA_LIQUIDA = "3.01"
 CONTA_LUCRO_LIQUIDO   = "3.11"
 CONTA_FCO             = "6.01"
 
-# ─── normalização de nomes institucional ──────────────────────────────────────
+# ─── CACHE GLOBAL EM MEMÓRIA ────────────────────────────────────────────────
+_CADASTRO_CACHE = None
+_DEMO_CACHE = {} # Estrutura: { 'tipo_cdcvm': pd.DataFrame }
 
 def _normalizar_nome(nome: str) -> str:
-    if not nome:
-        return ""
-    
-    # 1. Remove acentos completamente (Transforma Ó em O, Ã em A, etc.)
+    if not nome: return ""
     nome = "".join(c for c in unicodedata.normalize('NFD', nome) if unicodedata.category(c) != 'Mn')
-    
     nome = nome.upper()
-    
-    # 2. Lista expandida de sufixos de mercado que devem ser limpos
-    sufixos = [
-        r"\b(ON|PN|PNA|PNB|NM|N1|N2|N3|MB|MA|EJ|EB|DR3|PFD|PREFERENCIAL|ORDINARIA)\b",
-        r"\bS\.?A\.?\b", r"\bS/A\b", r"\bCIA\.?\b",
-        r"\bSA\b", r"\bLTDA\b",
-    ]
-    for s in sufixos:
-        nome = re.sub(s, "", nome, flags=re.IGNORECASE)
-        
-    # 3. Limpa pontuações residuais como hifens de "S.A. - PETROBRAS"
-    nome = nome.replace("-", " ")
-    
-    return re.sub(r"\s+", " ", nome).strip()
-
-# ─── cadastro → CD_CVM ───────────────────────────────────────────────────────
-
-_cadastro_cache = None
+    sufixos = [r"\b(ON|PN|PNA|PNB|NM|N1|N2|N3|MB|MA|EJ|EB|DR3|PFD|PREFERENCIAL|ORDINARIA)\b", r"\bS\.?A\.?\b", r"\bS/A\b", r"\bCIA\.?\b", r"\bSA\b", r"\bLTDA\b"]
+    for s in sufixos: nome = re.sub(s, "", nome, flags=re.IGNORECASE)
+    return re.sub(r"\s+", " ", nome.replace("-", " ")).strip()
 
 def _carregar_cadastro():
-    global _cadastro_cache
-    if _cadastro_cache is not None:
-        return _cadastro_cache
+    global _CADASTRO_CACHE
+    if _CADASTRO_CACHE is not None: return _CADASTRO_CACHE
 
     path = DADOS_DIR / "cad_cia_aberta.csv"
+    if not path.exists():
+        logger.error("Arquivo de cadastro não encontrado.")
+        return pd.DataFrame()
 
-    if path.exists():
-        df = pd.read_csv(path, sep=";", dtype=str, encoding="utf-8")
-    else:
-        # fallback: tenta baixar direto (só funciona localmente)
-        logger.info("Arquivo de cadastro não encontrado em disco — tentando download...")
-        try:
-            r = requests.get(
-                "https://dados.cvm.gov.br/dados/CIA_ABERTA/CAD/DADOS/cad_cia_aberta.csv",
-                timeout=20
-            )
-            r.raise_for_status()
-            df = pd.read_csv(io.StringIO(r.content.decode("latin-1")), sep=";", dtype=str)
-            df = df[df["SIT"] == "ATIVO"].copy()
-            DADOS_DIR.mkdir(exist_ok=True)
-            df.to_csv(path, sep=";", index=False, encoding="utf-8")
-        except Exception as e:
-            logger.error(f"Não foi possível carregar o cadastro CVM: {e}")
-            return pd.DataFrame()
-
+    df = pd.read_csv(path, sep=";", dtype=str, encoding="utf-8")
     df["CD_CVM"] = pd.to_numeric(df["CD_CVM"], errors="coerce")
-    df["_NOME_NORM"]   = df["DENOM_SOCIAL"].fillna("").apply(_normalizar_nome)
+    df["_NOME_NORM"] = df["DENOM_SOCIAL"].fillna("").apply(_normalizar_nome)
     df["_COMERC_NORM"] = df["DENOM_COMERC"].fillna("").apply(_normalizar_nome)
-    _cadastro_cache = df
-    logger.info(f"Cadastro CVM carregado: {len(df)} empresas")
-    return df
-
+    _CADASTRO_CACHE = df
+    return _CADASTRO_CACHE
 
 def buscar_cd_cvm(nome_fundamentus: str):
-    try:
-        cadastro = _carregar_cadastro()
-        if cadastro.empty:
-            return None
-
-        nome_norm = _normalizar_nome(nome_fundamentus)
-
-        # 1. exato pelo nome social
-        m = cadastro[cadastro["_NOME_NORM"] == nome_norm]
-        if not m.empty:
-            return int(m.iloc[0]["CD_CVM"])
-
-        # 2. exato pelo nome comercial
-        m = cadastro[cadastro["_COMERC_NORM"] == nome_norm]
-        if not m.empty:
-            return int(m.iloc[0]["CD_CVM"])
-
-        # 3. parcial pela primeira palavra ≥4 chars
-        palavras = [p for p in nome_norm.split() if len(p) >= 4]
-        if palavras:
-            kw = palavras[0]
-            m = cadastro[
-                cadastro["_NOME_NORM"].str.contains(kw, na=False) |
-                cadastro["_COMERC_NORM"].str.contains(kw, na=False)
-            ]
-            if not m.empty:
-                return int(m.iloc[0]["CD_CVM"])
-
-        logger.warning(f"CD_CVM não encontrado para: '{nome_fundamentus}'")
-        return None
-    except Exception as e:
-        logger.error(f"Erro em buscar_cd_cvm: {e}")
-        return None
-
-# ─── leitura de demonstrações do disco ───────────────────────────────────────
+    cadastro = _carregar_cadastro()
+    if cadastro.empty: return None
+    nome_norm = _normalizar_nome(nome_fundamentus)
+    
+    for col in ["_NOME_NORM", "_COMERC_NORM"]:
+        m = cadastro[cadastro[col] == nome_norm]
+        if not m.empty: return int(m.iloc[0]["CD_CVM"])
+    
+    return None
 
 def _carregar_demo(tipo: str, cd_cvm: int) -> pd.DataFrame:
-    """
-    Carrega e filtra demonstrações do tipo especificado (ex: 'itr_dre').
-    Concatena todos os anos disponíveis em disco.
-    """
+    """Carrega apenas uma vez para o cache global."""
+    chave = f"{tipo}_{cd_cvm}"
+    if chave in _DEMO_CACHE: return _DEMO_CACHE[chave]
+
     frames = []
-    for path in sorted(DADOS_DIR.glob(f"{tipo}_*.csv")):
-        try:
-            df = pd.read_csv(path, sep=";", dtype=str, encoding="utf-8")
-            df_emp = df[df["CD_CVM"].astype(str).str.zfill(6) == str(cd_cvm).zfill(6)]
-            if not df_emp.empty:
-                frames.append(df_emp)
-        except Exception as e:
-            logger.warning(f"Erro ao ler {path.name}: {e}")
-
-    return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
-
+    # Nota: Carregamos apenas o arquivo necessário para este CD_CVM se ele ainda não estiver no cache
+    for path in DADOS_DIR.glob(f"{tipo}_*.csv"):
+        df = pd.read_csv(path, sep=";", dtype=str, encoding="utf-8")
+        df_emp = df[df["CD_CVM"].astype(str).str.zfill(6) == str(cd_cvm).zfill(6)]
+        if not df_emp.empty: frames.append(df_emp)
+    
+    _DEMO_CACHE[chave] = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+    return _DEMO_CACHE[chave]
 
 def _extrair_serie(df: pd.DataFrame, codigo_conta: str) -> pd.Series:
-    if df.empty:
-        return pd.Series(dtype=float)
+    if df.empty: return pd.Series(dtype=float)
     mask = df["CD_CONTA"].str.startswith(codigo_conta)
     sub = df[mask].copy()
-    if sub.empty:
-        return pd.Series(dtype=float)
+    if sub.empty: return pd.Series(dtype=float)
     sub["VL_NUM"] = pd.to_numeric(sub["VL_CONTA"], errors="coerce")
-    # respeita escala: MIL = valores em milhares, UNIDADE = valores em reais
     sub["_FATOR"] = sub["ESCALA_MOEDA"].apply(lambda e: 1000.0 if str(e).strip().upper() == "MIL" else 1.0)
-    sub["VL_NUM"] = sub["VL_NUM"] * sub["_FATOR"]  # converte tudo para R$ reais
+    sub["VL_NUM"] = sub["VL_NUM"] * sub["_FATOR"]
     sub["DT_FIM"] = pd.to_datetime(sub["DT_FIM_EXERC"], errors="coerce")
     return sub.groupby("DT_FIM")["VL_NUM"].sum().sort_index()
-
 # ─── dicionário de tradução corporativa ───────────────────────────────────────
 
 MAPA_NOMES_CVM = {

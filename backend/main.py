@@ -24,6 +24,7 @@ from valuation.crescimento import (
     calcular_dcf_duas_fases,
 )
 import os
+import json
 from dados.cvm_provider import buscar_saude_financeira_cvm
 from valuation.saude_financeira import calcular_saude_financeira, extrair_crescimento_cvm
 from dados.selic import buscar_selic_atual
@@ -65,7 +66,21 @@ def selic_atual():
         "selic_decimal": selic,
         "selic_pct":     round(selic * 100, 2),
     }
-
+#Api para analisar todas as empresas
+@app.get("/api/scanner/resultado")
+def get_snapshot():
+    caminho_arquivo = "dados/snapshot_mercado.json"
+    
+    # Verifica se o arquivo existe (caso o scanner ainda não tenha rodado)
+    if not os.path.exists(caminho_arquivo):
+        raise HTTPException(status_code=404, detail="Snapshot ainda não gerado. Aguarde o processamento.")
+    
+    try:
+        with open(caminho_arquivo, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Erro ao ler os dados do mercado.")
+    
 @app.get("/api/valuation/{ticker}")
 @app.get("/valuation/{ticker}")
 async def valuation(ticker: str):
