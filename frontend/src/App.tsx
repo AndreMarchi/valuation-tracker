@@ -130,12 +130,20 @@ const scoreColorSaude = (s: number) => {
   return 'text-red-600'
 }
 
-const carregarScanner = async () => {
-    const response = await fetch("/api/scanner/resultado");
-    const data = await response.json();
-    setAtivos(data.ativos); // Isso preencherá sua tabela instantaneamente
-    setDataAtualizacao(data.data_atualizacao);
-};
+useEffect(() => {
+    const carregarScanner = async () => {
+        try {
+            const response = await fetch("/api/scanner/resultado");
+            const data = await response.json();
+            setAtivos(data.ativos);
+            setDataAtualizacao(data.data_atualizacao);
+        } catch (e) {
+            console.error("Erro ao carregar dados do scanner:", e);
+        }
+    };
+
+    carregarScanner();
+}, []);
 
 const BarChart = ({ data, color }: { data: TrimestralItem[]; color: string }) => {
   if (!data || data.length === 0) return <p className="text-xs text-gray-400">Sem dados</p>
