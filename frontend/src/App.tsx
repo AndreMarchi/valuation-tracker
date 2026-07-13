@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { PeerGroupTable } from './components/PeerGroupTable'
 import axios from 'axios'
 import type {
@@ -130,21 +130,6 @@ const scoreColorSaude = (s: number) => {
   return 'text-red-600'
 }
 
-useEffect(() => {
-    const carregarScanner = async () => {
-        try {
-            const response = await fetch("/api/scanner/resultado");
-            const data = await response.json();
-            setAtivos(data.ativos);
-            setDataAtualizacao(data.data_atualizacao);
-        } catch (e) {
-            console.error("Erro ao carregar dados do scanner:", e);
-        }
-    };
-
-    carregarScanner();
-}, []);
-
 const BarChart = ({ data, color }: { data: TrimestralItem[]; color: string }) => {
   if (!data || data.length === 0) return <p className="text-xs text-gray-400">Sem dados</p>
   const max = Math.max(...data.map(d => Math.abs(d.valor)))
@@ -191,8 +176,6 @@ const SecaoSaudeFinanceira = ({ s }: { s: SaudeFinanceira | undefined }) => {
     s.qualidade_lucro >= 1.2  ? `${s.qualidade_lucro.toFixed(1)}x ✅` :
     s.qualidade_lucro >= 0.8  ? `${s.qualidade_lucro.toFixed(1)}x ⚠️` :
     `${s.qualidade_lucro.toFixed(1)}x ❌`
-
-
 
   return (
     <div>
@@ -519,7 +502,7 @@ const SecaoRisco = ({ r }: { r: Risco }) => (
   </div>
 )
 
-// ─── watchlist card ──────────────────────────────────────────────────────────
+// ─── watchlist card ----------------------------------------------------------
 
 const WatchlistCard = ({
   item,
@@ -607,7 +590,7 @@ const WatchlistCard = ({
   )
 }
 
-// ─── tela watchlist ──────────────────────────────────────────────────────────
+// ─── tela watchlist ----------------------------------------------------------
 
 const TelaWatchlist = ({
   watchlist,
@@ -682,7 +665,7 @@ const TelaWatchlist = ({
   )
 }
 
-// ─── resultado completo ──────────────────────────────────────────────────────
+// ─── resultado completo ------------------------------------------------------
 
 const ResultadoCompleto = ({
   resultado,
@@ -730,7 +713,6 @@ const ResultadoCompleto = ({
       {isInWatchlist ? '✓ Na Watchlist — clique para remover' : '+ Salvar na Watchlist'}
     </button>
 
-    {/* 👇 NOVO: PAINEL DE MOMENTUM / ALERTAS CRÍTICOS ANTI-VALUE TRAP 👇 */}
     {resultado.score.alertas_criticos && resultado.score.alertas_criticos.length > 0 && (
       <div className="space-y-1.5 p-3 rounded-xl border bg-gray-50 border-gray-200">
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Momentum & Riscos de Operação:</p>
@@ -761,7 +743,6 @@ const ResultadoCompleto = ({
         precoAtual={resultado.preco_atual}
         ticker={resultado.ticker}
         onProbRenovacaoChange={() => {
-          // Usa encadeamento opcional e passa apenas o ticker
           buscarAnalise?.(resultado.ticker);
         }}
       />
@@ -773,18 +754,13 @@ const ResultadoCompleto = ({
     
     {resultado.consenso && <SecaoConsenso c={resultado.consenso} />}
     
-    {/* INJEÇÃO DA TABELA DE CONCORRENTES SETORIAIS (PEER GROUP) ABAIXO DO CONSENSO */}
     {resultado?.ticker && (
       <PeerGroupTable 
         ticker={resultado.ticker}
         precoAtualMestre={resultado.preco_atual || 0}
-        
-        // O P/L e P/VP estão dentro da gaveta "multiplos"
         plMestre={resultado.multiplos?.pl?.atual || resultado.multiplos?.pl?.valor || 0}
         pvpMestre={resultado.multiplos?.pvp?.atual || resultado.multiplos?.pvp?.valor || 0}        
-        // O EV/EBITDA tem uma gaveta própria na raiz do seu JSON
         evEbitdaMestre={resultado.ev_ebitda?.ev_ebitda_atual || 0}
-        // O DY vem do cálculo do Método Bazin
         dyMestre={resultado.bazin?.dividend_yield || 0}
       />
     )}
@@ -794,7 +770,7 @@ const ResultadoCompleto = ({
   </div>
 )
 
-// ─── main ────────────────────────────────────────────────────────────────────
+// ─── main --------------------------------------------------------------------
 
 type Tela = 'busca' | 'watchlist'
 
@@ -807,6 +783,26 @@ export default function App() {
   const [watchlist, setWatchlist] = useState<WatchlistItem[]>(loadWatchlist)
   const [refreshingTicker, setRefreshingTicker] = useState<string | null>(null)
   const [refreshingAll, setRefreshingAll] = useState(false)
+  
+  // Estados movidos para dentro do componente App (resolvendo o erro do build)
+  const [ativos, setAtivos] = useState<any[]>([])
+  const [dataAtualizacao, setDataAtualizacao] = useState('')
+
+  // Chamada de scanner integrada corretamente dentro do escopo do componente
+  useEffect(() => {
+    const carregarScanner = async () => {
+      try {
+        const response = await fetch("/api/scanner/resultado");
+        const data = await response.json();
+        setAtivos(data.ativos ?? []);
+        setDataAtualizacao(data.data_atualizacao ?? '');
+      } catch (e) {
+        console.error("Erro ao carregar dados do scanner:", e);
+      }
+    };
+
+    carregarScanner();
+  }, []);
 
   useEffect(() => {
     saveWatchlist(watchlist)
@@ -903,6 +899,9 @@ export default function App() {
         <div className="mb-6 text-center">
           <h1 className="text-3xl font-bold text-blue-900">Valuation Tracker</h1>
           <p className="text-gray-500 mt-1">Análise fundamentalista de ações da B3</p>
+          {dataAtualizacao && (
+            <p className="text-[11px] text-gray-400 mt-1">Dados atualizados em: {formatDate(dataAtualizacao)}</p>
+          )}
         </div>
 
         <div className="flex gap-1 mb-6 bg-white rounded-xl p-1 shadow-sm border border-gray-100">
