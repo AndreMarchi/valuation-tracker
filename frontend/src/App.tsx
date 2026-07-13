@@ -784,17 +784,15 @@ export default function App() {
   const [refreshingTicker, setRefreshingTicker] = useState<string | null>(null)
   const [refreshingAll, setRefreshingAll] = useState(false)
   
-  // Estados movidos para dentro do componente App (resolvendo o erro do build)
-  const [ativos, setAtivos] = useState<any[]>([])
+  // Mantenha apenas o estado de atualização que é exibido no cabeçalho
   const [dataAtualizacao, setDataAtualizacao] = useState('')
 
-  // Chamada de scanner integrada corretamente dentro do escopo do componente
   useEffect(() => {
     const carregarScanner = async () => {
       try {
         const response = await fetch("/api/scanner/resultado");
         const data = await response.json();
-        setAtivos(data.ativos ?? []);
+        // Removemos o setAtivos daqui para evitar o aviso de variável não usada
         setDataAtualizacao(data.data_atualizacao ?? '');
       } catch (e) {
         console.error("Erro ao carregar dados do scanner:", e);
