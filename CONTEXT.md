@@ -63,7 +63,7 @@ backend/
     cad_cia_aberta.csv
     itr_dre_YYYY.csv / itr_dfc_YYYY.csv / itr_bpp_YYYY.csv
     dfp_dre_YYYY.csv / dfp_dfc_YYYY.csv / dfp_bpp_YYYY.csv
-  tests/                 ← 118 testes passando
+  tests/                 ← 144 testes passando
 frontend/
   src/
     App.tsx
@@ -95,6 +95,7 @@ railway.toml             ← deploy automático via GitHub push
 - **Botão "Atualizar tudo"** — atualiza todos os tickers da watchlist em paralelo
 - **Deploy no Railway** — URL pública, deploy automático a cada git push
 - **Saúde Financeira via CVM** — gráficos trimestrais de receita, lucro e FCO
+- **Alavancagem e descasamento cambial via CVM** — score de saúde financeira agora penaliza Dívida Bruta/EBITDA alta e descasamento cambial da dívida, com trava crítica (score ≤ 4.5) que não deixa os outros pilares diluírem um risco grave (ex: BEEF3/Minerva antes saía 6/10 sem alerta, hoje cai pra "Risco Elevado / Evitar")
 - Endpoints auxiliares: `/cache/clear`, `/selic`, `/api/*` (duplicados para produção)
 
 ## 📌 Decisões técnicas tomadas
@@ -119,6 +120,12 @@ railway.toml             ← deploy automático via GitHub push
 - **CVM**: mapeamento ticker → CD_CVM via `cad_cia_aberta.csv` + busca por nome normalizado
 - **CVM**: `CD_CVM` no CSV tem zeros à esquerda (ex: `009512`) — usar `.zfill(6)` no filtro
 - **Frontend gráficos CVM**: valores `>= 1000M` exibidos em B (bilhões)
+- **CVM: bug corrigido em `_extrair_serie()`** — usava `str.startswith(codigo_conta)` (somava conta-pai com contas-filhas, ex: 3.11 + 3.11.01 + 3.11.02) e `groupby().sum()` sem separar trimestre isolado de acumulado no exercício nem remover duplicatas de comparativos entre arquivos (ITR reporta o mesmo `DT_FIM_EXERC` como trimestre E como YTD). Isso inflava receita/lucro/FCO de praticamente todo ticker com dados ITR — corrigido para igualdade exata de conta + manter só a menor duração de período por `DT_FIM_EXERC` + dedup de valores exatos antes de agregar
+- **CVM: bug corrigido em `_normalizar_nome()`** — `\bS\.?A\.?\b` não fechava o `\b` final depois de um ponto (não é caractere de palavra), então "MINERVA S.A." virava "MINERVA ." em vez de "MINERVA", fazendo `buscar_cd_cvm` falhar silenciosamente para qualquer nome de `MAPA_NOMES_CVM` terminado em "S.A." — trocado por lookahead `(?=\s|$)`
+- **CVM: alavancagem usa Dívida BRUTA, não líquida** — a CVM não baixa o BPA (lado do Ativo do balanço, onde ficariam Caixa/Aplicações Financeiras — só o BPP/Passivo é baixado por `atualizar_cvm.py`). Dívida Bruta = Empréstimos+Financiamentos+Debêntures+Leasing (contas `2.01.04`+`2.02.01`), sempre ≥ dívida líquida, então o erro é sempre conservador (nunca esconde alavancagem). Para Dívida Líquida real seria preciso estender `atualizar_cvm.py` para também baixar `BPA_con` (~250-350MB novos CSVs)
+- **CVM: EBITDA = EBIT (conta `3.05`) + D&A TTM (conta `6.01.01.02`, primeira linha de add-back no FCO)** — não inclui depreciação de direito de uso (IFRS16) quando reportada em linha separada, o que subestima levemente o EBITDA (lado conservador do erro)
+- **CVM: composição cambial da dívida** vem de `2.01.04.01.01/.02` e `2.02.01.01.01/.02` (só a sub-linha "Empréstimos e Financiamentos", que discrimina moeda — Debêntures não vêm quebradas por moeda nessa taxonomia, mas no Brasil são quase sempre em reais). Empresas 100% financiadas via debênture (ex: CSED3) não têm esse dado — campo fica `None`, sem alerta falso
+- **CVM: composição cambial da RECEITA não existe em taxonomia estruturada da CVM** (só em notas explicativas de texto livre) — assumida 0% em moeda estrangeira por padrão; `OVERRIDE_PCT_RECEITA_MOEDA_ESTRANGEIRA` em `cvm_provider.py` permite popular manualmente por ticker quando houver dado publicamente confiável
 
 ## ⚠️ Problemas conhecidos
 
@@ -127,6 +134,8 @@ railway.toml             ← deploy automático via GitHub push
 - Brapi tem limitações no plano gratuito (praticamente 1 empresa por conta) — usado apenas como fallback
 - CVM bloqueia requests Python/servidor — só funciona via curl com User-Agent de browser
 - Dados CVM precisam ser atualizados manualmente 1x por trimestre via `atualizar_cvm.py`
+- CVM: só o BPP (Passivo) é baixado, não o BPA (Ativo) — por isso alavancagem usa Dívida Bruta, não Líquida (ver decisão técnica acima)
+- CVM: `MAPA_NOMES_CVM` cobre só os tickers problemáticos já mapeados manualmente — tickers fora do mapa dependem do nome vindo do provider (Fundamentus/etc) bater com a razão social oficial da CVM após normalização, o que falha silenciosamente (`disponivel: False`) para vários tickers ainda não mapeados
 
 ## 🗺️ Roadmap
 

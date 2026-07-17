@@ -20,6 +20,35 @@ DADOS_DIR = Path(__file__).parent.parent / "dados_cvm"
 CONTA_RECEITA_LIQUIDA = "3.01"
 CONTA_LUCRO_LIQUIDO   = "3.11"
 CONTA_FCO             = "6.01"
+CONTA_EBIT            = "3.05"  # Resultado Antes do Resultado Financeiro e dos Tributos
+
+# Depreciação/amortização — primeira linha de reconciliação do FCO (padrão
+# CPC 03/IAS 7: "Resultado do período" seguido por "Depreciações e
+# amortizações"). Não inclui depreciação de direito de uso (leasing IFRS16)
+# quando reportada em linha separada — subestima levemente o EBITDA em
+# empresas com muito leasing, o que é o lado conservador do erro (nunca
+# esconde alavancagem, no máximo superestima).
+CONTA_DEPRECIACAO_AMORTIZACAO = "6.01.01.02"
+
+# Empréstimos e Financiamentos + Debêntures + Leasing, circulante e não
+# circulante — usado como Dívida BRUTA (não líquida: a CVM não baixa o BPA,
+# lado do Ativo onde ficariam Caixa/Aplicações Financeiras — ver CONTEXT.md).
+CONTA_DIVIDA_CIRCULANTE     = "2.01.04"
+CONTA_DIVIDA_NAO_CIRCULANTE = "2.02.01"
+
+# Quebra por moeda da sub-linha "Empréstimos e Financiamentos" (exclui
+# Debêntures, que nesta taxonomia não vêm quebradas por moeda — no Brasil
+# debêntures são quase sempre em reais, então a omissão é razoável).
+CONTA_EMPRESTIMOS_MOEDA_NACIONAL_CIRC     = "2.01.04.01.01"
+CONTA_EMPRESTIMOS_MOEDA_ESTRANGEIRA_CIRC  = "2.01.04.01.02"
+CONTA_EMPRESTIMOS_MOEDA_NACIONAL_NCIRC    = "2.02.01.01.01"
+CONTA_EMPRESTIMOS_MOEDA_ESTRANGEIRA_NCIRC = "2.02.01.01.02"
+
+# A CVM não disponibiliza a composição cambial da RECEITA em taxonomia
+# estruturada (só em notas explicativas de texto livre). Assume-se 0% em
+# moeda estrangeira por padrão; popule aqui manualmente por ticker apenas
+# quando houver dado publicamente confiável (ex: release de resultados).
+OVERRIDE_PCT_RECEITA_MOEDA_ESTRANGEIRA: dict = {}
 
 # ─── CACHE GLOBAL EM MEMÓRIA ────────────────────────────────────────────────
 _CADASTRO_CACHE = None
@@ -29,7 +58,10 @@ def _normalizar_nome(nome: str) -> str:
     if not nome: return ""
     nome = "".join(c for c in unicodedata.normalize('NFD', nome) if unicodedata.category(c) != 'Mn')
     nome = nome.upper()
-    sufixos = [r"\b(ON|PN|PNA|PNB|NM|N1|N2|N3|MB|MA|EJ|EB|DR3|PFD|PREFERENCIAL|ORDINARIA)\b", r"\bS\.?A\.?\b", r"\bS/A\b", r"\bCIA\.?\b", r"\bSA\b", r"\bLTDA\b"]
+    # Nota: "S.A." e "CIA." usam lookahead (?=\s|$) em vez de \b no final —
+    # \b não fecha depois de um ponto (não é caractere de palavra), então
+    # "MINERVA S.A." ficava "MINERVA ." em vez de "MINERVA".
+    sufixos = [r"\b(ON|PN|PNA|PNB|NM|N1|N2|N3|MB|MA|EJ|EB|DR3|PFD|PREFERENCIAL|ORDINARIA)\b", r"\bS\.?A\.?(?=\s|$)", r"\bS/A\b", r"\bCIA\.?(?=\s|$)", r"\bSA\b", r"\bLTDA\b"]
     for s in sufixos: nome = re.sub(s, "", nome, flags=re.IGNORECASE)
     return re.sub(r"\s+", " ", nome.replace("-", " ")).strip()
 
@@ -76,15 +108,45 @@ def _carregar_demo(tipo: str, cd_cvm: int) -> pd.DataFrame:
     return _DEMO_CACHE[chave]
 
 def _extrair_serie(df: pd.DataFrame, codigo_conta: str) -> pd.Series:
+    """
+    Extrai a série trimestral de uma conta padronizada da CVM.
+
+    Duas armadilhas dos dados brutos exigem tratamento, ou os valores saem
+    inflados (às vezes dobrados):
+
+    1. `CD_CONTA` é hierárquico (ex: "3.11" tem filhos "3.11.01"/"3.11.02"
+       que somam o total do pai) — por isso usamos igualdade exata, nunca
+       prefixo, para não somar pai + filhos.
+    2. Cada filing ITR reporta o trimestre isolado E o acumulado no
+       exercício com o mesmo DT_FIM_EXERC (ex: 2025-09-30 aparece como
+       jul-set E como jan-set), e comparativos de anos anteriores
+       (ORDEM_EXERC="PENÚLTIMO") duplicam linhas já vistas no arquivo do
+       ano anterior. Por período, ficamos só com a menor duração (o
+       trimestre isolado, não o acumulado) e removemos duplicatas exatas
+       de valor antes de agregar.
+    """
     if df.empty: return pd.Series(dtype=float)
-    mask = df["CD_CONTA"].str.startswith(codigo_conta)
+    mask = df["CD_CONTA"] == codigo_conta
     sub = df[mask].copy()
     if sub.empty: return pd.Series(dtype=float)
     sub["VL_NUM"] = pd.to_numeric(sub["VL_CONTA"], errors="coerce")
     sub["_FATOR"] = sub["ESCALA_MOEDA"].apply(lambda e: 1000.0 if str(e).strip().upper() == "MIL" else 1.0)
     sub["VL_NUM"] = sub["VL_NUM"] * sub["_FATOR"]
     sub["DT_FIM"] = pd.to_datetime(sub["DT_FIM_EXERC"], errors="coerce")
-    return sub.groupby("DT_FIM")["VL_NUM"].sum().sort_index()
+
+    if "DT_INI_EXERC" in sub.columns:
+        sub["DT_INI"] = pd.to_datetime(sub["DT_INI_EXERC"], errors="coerce")
+        sub["_DIAS"] = (sub["DT_FIM"] - sub["DT_INI"]).dt.days
+    else:
+        # Contas de balanço patrimonial (BPP) não têm DT_INI_EXERC — são
+        # fotografias de um instante, não fluxos de um período.
+        sub["_DIAS"] = 0
+
+    dias_min = sub.groupby("DT_FIM")["_DIAS"].transform("min")
+    sub = sub[sub["_DIAS"] == dias_min]
+    sub = sub.drop_duplicates(subset=["DT_FIM", "VL_NUM"])
+
+    return sub.groupby("DT_FIM")["VL_NUM"].mean().sort_index()
 # ─── dicionário de tradução corporativa ───────────────────────────────────────
 
 MAPA_NOMES_CVM = {
@@ -134,6 +196,7 @@ MAPA_NOMES_CVM = {
     "JBSS3":  "JBS S.A.",
     "BEEF3":  "MINERVA S.A.",
     "MRFG3":  "MARFRIG GLOBAL FOODS S.A.",
+    "CSED3":  "CRUZEIRO DO SUL EDUCACIONAL S.A.",
 }
 
 # ─── função principal ─────────────────────────────────────────────────────────
@@ -218,6 +281,56 @@ def buscar_saude_financeira_cvm(ticker: str, nome_empresa: str = "") -> dict:
             if lucro_sum and lucro_sum != 0:
                 qualidade_lucro = round(fco_sum / lucro_sum, 2)
 
+        # ── Alavancagem (Dívida Bruta/EBITDA) e descasamento cambial ────────
+        # Dívida BRUTA, não líquida: a CVM não baixa o BPA (lado do Ativo,
+        # onde ficariam Caixa/Aplicações Financeiras) — ver CONTEXT.md.
+        # Dívida bruta é sempre >= dívida líquida, então este é o lado
+        # conservador do erro (nunca esconde alavancagem).
+        bpp = _carregar_demo("itr_bpp", cd_cvm)
+        if bpp.empty:
+            bpp = _carregar_demo("dfp_bpp", cd_cvm)
+
+        divida_bruta_ebitda = None
+        pct_divida_moeda_estrangeira = None
+        descasamento_cambial_pp = None
+
+        ebit = _extrair_serie(dre, CONTA_EBIT)
+        d_e_a = _extrair_serie(dfc, CONTA_DEPRECIACAO_AMORTIZACAO)
+
+        ebitda_ttm = None
+        if len(ebit) >= 4 and len(d_e_a) >= 4:
+            ebitda_ttm = float(ebit.tail(4).sum()) + float(d_e_a.tail(4).sum())
+
+        if not bpp.empty:
+            div_circ  = _extrair_serie(bpp, CONTA_DIVIDA_CIRCULANTE)
+            div_ncirc = _extrair_serie(bpp, CONTA_DIVIDA_NAO_CIRCULANTE)
+            if not div_circ.empty or not div_ncirc.empty:
+                divida_bruta = (
+                    (float(div_circ.iloc[-1]) if not div_circ.empty else 0.0)
+                    + (float(div_ncirc.iloc[-1]) if not div_ncirc.empty else 0.0)
+                )
+                if ebitda_ttm and ebitda_ttm > 0:
+                    divida_bruta_ebitda = round(divida_bruta / ebitda_ttm, 2)
+
+            def _ultimo_valor(codigo: str) -> float:
+                s = _extrair_serie(bpp, codigo)
+                return float(s.iloc[-1]) if not s.empty else 0.0
+
+            moeda_nacional = (
+                _ultimo_valor(CONTA_EMPRESTIMOS_MOEDA_NACIONAL_CIRC)
+                + _ultimo_valor(CONTA_EMPRESTIMOS_MOEDA_NACIONAL_NCIRC)
+            )
+            moeda_estrangeira = (
+                _ultimo_valor(CONTA_EMPRESTIMOS_MOEDA_ESTRANGEIRA_CIRC)
+                + _ultimo_valor(CONTA_EMPRESTIMOS_MOEDA_ESTRANGEIRA_NCIRC)
+            )
+            total_com_quebra_cambial = moeda_nacional + moeda_estrangeira
+
+            if total_com_quebra_cambial > 0:
+                pct_divida_moeda_estrangeira = round(moeda_estrangeira / total_com_quebra_cambial * 100, 1)
+                pct_receita_estrangeira = OVERRIDE_PCT_RECEITA_MOEDA_ESTRANGEIRA.get(ticker_busca, 0.0)
+                descasamento_cambial_pp = round(pct_divida_moeda_estrangeira - pct_receita_estrangeira, 1)
+
         return {
             "disponivel": True,
             "cd_cvm": cd_cvm,
@@ -227,6 +340,9 @@ def buscar_saude_financeira_cvm(ticker: str, nome_empresa: str = "") -> dict:
             "margens_pct": margens,
             "tendencia_receita": tendencia_receita,
             "qualidade_lucro": qualidade_lucro,
+            "divida_bruta_ebitda": divida_bruta_ebitda,
+            "pct_divida_moeda_estrangeira": pct_divida_moeda_estrangeira,
+            "descasamento_cambial_pp": descasamento_cambial_pp,
         }
 
     except Exception as e:

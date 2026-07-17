@@ -156,6 +156,100 @@ class TestCalcularSaudeFinanceira:
         assert resultado["disponivel"] is True
 
 
+# ─── alavancagem e descasamento cambial ───────────────────────────────────────
+
+class TestAlavancagemEDescasamentoCambial:
+
+    def test_alavancagem_alta_gera_alerta_e_aplica_cap(self):
+        # Pilares saudáveis em tudo — só a alavancagem trava o score, prova
+        # que a alavancagem crítica não pode ser diluída pela média.
+        dados = _dados_completos(
+            tendencia_receita="crescendo",
+            qualidade_lucro=1.5,
+            margens_pct=[20.0] * 6,
+            divida_bruta_ebitda=5.0,
+        )
+        resultado = calcular_saude_financeira(dados)
+        assert resultado["disponivel"] is True
+        assert resultado["score"] <= 4.5
+        assert any("alavancagem" in a.lower() for a in resultado["alertas"])
+
+    def test_descasamento_cambial_alto_gera_alerta_e_aplica_cap(self):
+        dados = _dados_completos(
+            tendencia_receita="crescendo",
+            qualidade_lucro=1.5,
+            margens_pct=[20.0] * 6,
+            descasamento_cambial_pp=70.0,
+        )
+        resultado = calcular_saude_financeira(dados)
+        assert resultado["disponivel"] is True
+        assert resultado["score"] <= 4.5
+        assert any("descasamento" in a.lower() for a in resultado["alertas"])
+
+    def test_alavancagem_e_descasamento_none_nao_alteram_score(self):
+        base_kwargs = dict(tendencia_receita="crescendo", qualidade_lucro=1.0, margens_pct=[10.0] * 4)
+        sem_campos = _dados_completos(**base_kwargs)
+        com_none = _dados_completos(**base_kwargs, divida_bruta_ebitda=None, descasamento_cambial_pp=None)
+
+        resultado_sem = calcular_saude_financeira(sem_campos)
+        resultado_none = calcular_saude_financeira(com_none)
+
+        assert resultado_none["disponivel"] is True
+        assert resultado_none["score"] == resultado_sem["score"]
+        assert resultado_none["alertas"] == resultado_sem["alertas"]
+
+    def test_baixa_alavancagem_sem_descasamento_nao_penaliza(self):
+        dados = _dados_completos(
+            tendencia_receita="estável",
+            qualidade_lucro=1.0,
+            margens_pct=[10.0] * 4,
+            divida_bruta_ebitda=0.8,
+            descasamento_cambial_pp=0.0,
+        )
+        resultado = calcular_saude_financeira(dados)
+        assert resultado["disponivel"] is True
+        assert not any(
+            "alavancagem" in a.lower() or "descasamento" in a.lower()
+            for a in resultado["alertas"]
+        )
+        assert any("baixa alavancagem" in d.lower() for d in resultado["destaques"])
+
+    def test_alavancagem_elevada_penaliza_sem_ativar_cap(self):
+        # Faixa 2.5x-4x: penaliza mas não é "crítica" — não deve travar o score em 4.5
+        # a menos que os outros pilares já estejam ruins o bastante por conta própria.
+        dados = _dados_completos(
+            tendencia_receita="crescendo",
+            qualidade_lucro=1.5,
+            margens_pct=[20.0] * 6,
+            divida_bruta_ebitda=3.0,
+        )
+        resultado = calcular_saude_financeira(dados)
+        assert any("alavancagem elevada" in a.lower() for a in resultado["alertas"])
+        assert resultado["score"] > 4.5
+
+    def test_descasamento_moderado_penaliza_sem_ativar_cap(self):
+        dados = _dados_completos(
+            tendencia_receita="crescendo",
+            qualidade_lucro=1.5,
+            margens_pct=[20.0] * 6,
+            descasamento_cambial_pp=25.0,
+        )
+        resultado = calcular_saude_financeira(dados)
+        assert any("descasamento cambial moderado" in a.lower() for a in resultado["alertas"])
+        assert resultado["score"] > 4.5
+
+    def test_campos_de_alavancagem_presentes_no_retorno(self):
+        dados = _dados_completos(
+            divida_bruta_ebitda=1.6,
+            pct_divida_moeda_estrangeira=None,
+            descasamento_cambial_pp=None,
+        )
+        resultado = calcular_saude_financeira(dados)
+        assert resultado["divida_bruta_ebitda"] == 1.6
+        assert resultado["pct_divida_moeda_estrangeira"] is None
+        assert resultado["descasamento_cambial_pp"] is None
+
+
 # ─── extrair_crescimento_cvm ─────────────────────────────────────────────────
 
 class TestExtrairCrescimentoCvm:
