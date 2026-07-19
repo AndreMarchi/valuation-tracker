@@ -1,9 +1,10 @@
 # backend/main.py
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from typing import Optional
 from dados.provider import buscar_dados
+from scanner.trabalhador import executar_scan, scan_em_andamento
 from valuation.graham   import calcular_graham
 from valuation.bazin    import calcular_bazin
 from valuation.multiplos import calcular_multiplos
@@ -27,6 +28,7 @@ import os
 import json
 from dados.cvm_provider import buscar_saude_financeira_cvm
 from valuation.saude_financeira import calcular_saude_financeira, extrair_crescimento_cvm
+from valuation.fcfe_valuation import calcular_valuation_fcfe
 from dados.selic import buscar_selic_atual
 from valuation.dcf_concessao import (
     calcular_dcf_concessao,
@@ -68,6 +70,7 @@ def selic_atual():
     }
 #Api para analisar todas as empresas
 @app.get("/api/scanner/resultado")
+@app.get("/scanner/resultado")
 def get_snapshot():
     caminho_arquivo = "dados/snapshot_mercado.json"
     
@@ -80,7 +83,16 @@ def get_snapshot():
             return json.load(f)
     except Exception as e:
         raise HTTPException(status_code=500, detail="Erro ao ler os dados do mercado.")
-    
+
+@app.post("/api/scanner/disparar")
+@app.post("/scanner/disparar")
+def disparar_scan(background_tasks: BackgroundTasks):
+    """Dispara a varredura da B3 em background. Ignora chamadas concorrentes."""
+    if scan_em_andamento():
+        return {"status": "ja_em_andamento"}
+    background_tasks.add_task(executar_scan)
+    return {"status": "varredura_iniciada"}
+
 @app.get("/api/valuation/{ticker}")
 @app.get("/valuation/{ticker}")
 async def valuation(ticker: str):
@@ -284,6 +296,22 @@ async def valuation(ticker: str):
         preco_atual=preco,
     )
 
+    # --- FCFE (equity DCF via CVM) — mesma premissa de crescimento do DCF
+    # Duas Fases acima (crescimento_fase1/crescimento_fase2), pra os dois
+    # valuations lado a lado serem comparáveis. Ke vem do CAPM (taxa_capm),
+    # não da WACC (taxa_desconto) — o FCFE já é líquido dos efeitos de
+    # dívida, desconta a custo de capital PRÓPRIO, não a WACC. Ver CONTEXT.md.
+    fcfe = calcular_valuation_fcfe(
+        ticker=ticker_upper,
+        nome_empresa=dados.get("nome", ""),
+        setor=setor,
+        ke=taxa_capm,
+        taxa_crescimento_explicito=min(crescimento_5a, 0.30),
+        g_perpetuo=0.04,
+        anos_explicitos=5,
+        num_acoes=dados.get("num_acoes", 0) or 0,
+    )
+
     crescimento_info = {
         "fase":          fase_crescimento,
         "crescimento_5a": round(crescimento_5a * 100, 1),
@@ -363,6 +391,7 @@ async def valuation(ticker: str):
         "crescimento": crescimento_info,
         "consenso":  consenso_info,
         "saude_financeira": saude_financeira,
+        "fcfe": fcfe,
     }
 
     # Injeção da nova inteligência: Drivers de Valuation determinísticos

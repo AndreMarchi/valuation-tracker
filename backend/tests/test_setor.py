@@ -4,7 +4,8 @@ from valuation.setor import (
     aplicar_restricoes_setor,
     get_configuracao_setor,
     obter_pesos_setoriais,
-    buscar_concorrentes_por_subsetor
+    buscar_concorrentes_por_subsetor,
+    CONFIGURACAO_PADRAO,
 )
 
 # Mocks base históricos que o seu arquivo de teste utiliza
@@ -93,3 +94,25 @@ def test_holding_invalida_graham_pl_dcf():
     assert g["classificacao"] == "Não aplicável"
     assert m["pl"]["classificacao"] == "Não aplicável"
     assert d["classificacao"] == "Não aplicável"
+
+
+# ── regressão: string vazia é substring de qualquer coisa em Python ────────
+# ("" in "bancos" é True) — mesma vulnerabilidade encontrada e corrigida em
+# fcfe_valuation.py::eh_setor_bancario_ou_segurador() durante a Fase 3 do
+# FCFE (ver CONTEXT.md). Sem o guard, um setor vazio/ausente casava
+# incorretamente com a primeira chave de CONFIGURACAO_SETORES
+# ("Intermediários Financeiros"), aplicando restrições de banco a um ticker
+# sem nenhuma informação de setor.
+
+def test_setor_vazio_nao_cai_em_classificacao_especifica():
+    config = get_configuracao_setor("")
+    assert config["metodos_validos"] == CONFIGURACAO_PADRAO["metodos_validos"]
+    assert config["metodos_invalidos"] == CONFIGURACAO_PADRAO["metodos_invalidos"]
+    assert config["metricas_ideais"] == CONFIGURACAO_PADRAO["metricas_ideais"]
+    assert "dcf" not in config["metodos_invalidos"]
+
+
+def test_setor_none_nao_cai_em_classificacao_especifica():
+    config = get_configuracao_setor(None)
+    assert config["metodos_validos"] == CONFIGURACAO_PADRAO["metodos_validos"]
+    assert config["metodos_invalidos"] == CONFIGURACAO_PADRAO["metodos_invalidos"]

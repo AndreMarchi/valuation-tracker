@@ -137,17 +137,23 @@ def get_configuracao_setor(nome_setor: str, ticker: str = "") -> dict:
     }
 
     # 1. Varre o mapa estático global por correspondência parcial de strings
+    # Guard pra setor_limpo vazio: string vazia é substring de qualquer coisa
+    # em Python ("" in "bancos" é True), então sem esse guard um setor
+    # vazio/ausente casaria incorretamente com a primeira chave do dict
+    # (mesma vulnerabilidade encontrada e corrigida em
+    # fcfe_valuation.py::eh_setor_bancario_ou_segurador() — ver CONTEXT.md).
     encontrou_setor = False
-    for chave, dados in CONFIGURACAO_SETORES.items():
-        if chave.lower() in setor_limpo or setor_limpo in chave.lower():
-            config.update({
-                "metodos_validos": list(dados.get("metodos_validos", [])),
-                "metodos_invalidos": list(dados.get("metodos_invalidos", [])),
-                "justificativas": dict(dados.get("justificativas", {})),
-                "metricas_ideais": list(dados.get("metricas_ideais", []))
-            })
-            encontrou_setor = True
-            break
+    if setor_limpo:
+        for chave, dados in CONFIGURACAO_SETORES.items():
+            if chave.lower() in setor_limpo or setor_limpo in chave.lower():
+                config.update({
+                    "metodos_validos": list(dados.get("metodos_validos", [])),
+                    "metodos_invalidos": list(dados.get("metodos_invalidos", [])),
+                    "justificativas": dict(dados.get("justificativas", {})),
+                    "metricas_ideais": list(dados.get("metricas_ideais", []))
+                })
+                encontrou_setor = True
+                break
 
     # 2. Fallbacks dinâmicos para correspondências parciais exigidas pelos testes
     if not encontrou_setor:

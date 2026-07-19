@@ -12,6 +12,8 @@ import type {
 } from './types'
 import { ValuationDrivers } from './components/ValuationDrivers'
 import ConcessaoSection from "./components/sections/ConcessaoSection"
+import FcfeSection from "./components/sections/FcfeSection"
+import ScannerScreen from "./components/ScannerScreen"
 
 // ─── tipos watchlist ────────────────────────────────────────────────────────
 
@@ -737,6 +739,7 @@ const ResultadoCompleto = ({
       <ValuationDrivers drivers={resultado.drivers} />
     )}
     {resultado.dcf?.cenarios && <SecaoCenariosDCF cenarios={resultado.dcf.cenarios} />}
+    <FcfeSection fcfe={resultado.fcfe} precoAtual={resultado.preco_atual} />
     {resultado?.concessao?.aplicavel && (
       <ConcessaoSection
         concessao={resultado.concessao}
@@ -772,7 +775,7 @@ const ResultadoCompleto = ({
 
 // ─── main --------------------------------------------------------------------
 
-type Tela = 'busca' | 'watchlist'
+type Tela = 'busca' | 'watchlist' | 'scanner'
 
 export default function App() {
   const [tela, setTela] = useState<Tela>('busca')
@@ -890,9 +893,15 @@ export default function App() {
     setTela('busca')
   }
 
+  const selecionarTickerScanner = async (t: string) => {
+    setTicker(t)
+    setTela('busca')
+    await buscar(t)
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-xl mx-auto">
+      <div className={`mx-auto transition-all ${tela === 'scanner' ? 'max-w-4xl' : 'max-w-xl'}`}>
 
         <div className="mb-6 text-center">
           <h1 className="text-3xl font-bold text-blue-900">Valuation Tracker</h1>
@@ -918,6 +927,14 @@ export default function App() {
             }`}
           >
             📋 Watchlist {watchlist.length > 0 && <span className="ml-1 bg-blue-100 text-blue-700 text-xs px-1.5 py-0.5 rounded-full">{watchlist.length}</span>}
+          </button>
+          <button
+            onClick={() => setTela('scanner')}
+            className={`flex-1 py-2 text-sm font-semibold rounded-lg transition ${
+              tela === 'scanner' ? 'bg-blue-700 text-white' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            🔎 Scanner B3
           </button>
         </div>
 
@@ -967,6 +984,10 @@ export default function App() {
             refreshingTicker={refreshingTicker}
             refreshingAll={refreshingAll}
           />
+        )}
+
+        {tela === 'scanner' && (
+          <ScannerScreen onSelecionarTicker={selecionarTickerScanner} />
         )}
 
       </div>

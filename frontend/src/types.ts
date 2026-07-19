@@ -123,6 +123,43 @@ export interface AlertaHistorico {
   descricao: string
 }
 
+// ── FCFE (Fluxo de Caixa Livre do Acionista, via dados CVM) ─────────────────
+
+export interface FcfeAnoBase {
+  lucro_liquido: number
+  reinvestimento_liquido: number
+  delta_divida_liquida: number
+  fcfe: number
+  alerta: string | null
+}
+
+export interface FcfeProjecao {
+  fcfe_projetados: number[]
+  valor_presente_fcfe_explicito: number
+  valor_terminal: number | null
+  valor_presente_valor_terminal: number | null
+  valor_justo_equity: number | null
+  valor_justo_por_acao: number | null
+  alerta: string | null
+}
+
+export interface FcfePremissas {
+  ke: number
+  taxa_crescimento_explicito: number
+  g_perpetuo: number
+  anos_explicitos: number
+}
+
+export interface Fcfe {
+  disponivel: boolean
+  erro?: string
+  cd_cvm?: number
+  fcfe_ano_base?: FcfeAnoBase
+  projecao?: FcfeProjecao | null
+  premissas?: FcfePremissas
+  inputs_parciais?: Record<string, number | null>
+}
+
 // ── Saúde Financeira (Fase 2.5 — dados CVM) ─────────────────────────────────
 
 export interface TrimestralItem {
@@ -144,6 +181,50 @@ export interface SaudeFinanceira {
   alertas?: string[]
   destaques?: string[]
   cd_cvm?: number
+}
+
+// ── Scanner B3 (varredura de mercado) ───────────────────────────────────────
+
+export interface ScannerAtivo {
+  ticker: string
+  nome: string
+  setor: string
+  subsetor: string
+  preco_atual: number
+  preco_justo_medio: number | null
+  margem_seguranca: number | null
+  score_atratividade: number
+  classificacao: string
+  pl: number
+  pvp: number
+  dividend_yield: number
+  roe: number
+  divida_ebitda: number
+  liquidez_2m: number
+  liquidez_ok: boolean | null
+  saude_financeira_disponivel: boolean
+  saude_financeira_score: number | null
+  alerta_valor_trap: boolean
+  fonte: string
+}
+
+export interface ScannerSetorGrupo {
+  setor: string
+  perfil: string
+  ativos: ScannerAtivo[]
+}
+
+export interface ScannerErro {
+  ticker: string
+  motivo: string
+}
+
+export interface ScannerSnapshot {
+  data_atualizacao: string
+  total_ativos_analisados: number
+  total_erros: number
+  setores: ScannerSetorGrupo[]
+  erros: ScannerErro[]
 }
 
 export interface ValuationResult {
@@ -169,6 +250,7 @@ export interface ValuationResult {
     metricas_ideais: Record<string, any>
   }
   saude_financeira?: SaudeFinanceira
+  fcfe?: Fcfe
   drivers?: {
     positivos: string[];
     negativos: string[];
