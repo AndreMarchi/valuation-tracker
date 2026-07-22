@@ -8,14 +8,31 @@ def calcular_dcf(
     taxa_crescimento_perpetuidade: float,
     num_acoes: float,
     preco_atual: float,
+    divida_liquida: float = 0.0,
 ) -> dict:
     """
     Calcula o valor intrínseco de uma ação pelo método DCF (Fluxo de Caixa Descontado)
     e gera uma Matriz de Sensibilidade bidimensional.
+
+    `fluxo_caixa_atual` é baseado em NOPAT (ver valuation/nopat.py) — exclui
+    juros de propósito, é o fluxo correto pra descontar à WACC e chegar no
+    valor da EMPRESA inteira (Enterprise Value = dívida + patrimônio), não
+    direto no valor do equity. `divida_liquida` é subtraída do EV ANTES de
+    dividir por `num_acoes`, pra chegar no Equity Value por ação — o número
+    que de fato é comparável ao `preco_atual` (preço de uma ação, i.e.
+    equity). Sem essa subtração, `valor_intrinseco` era Enterprise Value por
+    ação sendo comparado com preço de equity — bug estrutural que inflava o
+    valor justo proporcionalmente à alavancagem de cada empresa (BEEF3,
+    Dívida Líquida/EBIT ~3,5x, era o caso mais distorcido — ver CONTEXT.md).
+
+    IMPORTANTE — unidades: `divida_liquida` precisa vir na MESMA escala que
+    `fluxo_caixa_atual`/`num_acoes` (R$ milhões, já divididos por 1_000_000
+    pelos call sites em main.py/scanner/trabalhador.py) — nunca em R$ absolutos.
+    `divida_liquida=0.0` (default) preserva exatamente o comportamento antigo.
     """
 
     def _calcular_valor(taxa_cresc: float, taxa_desc: float) -> float:
-        # Trava de segurança: O WACC nunca pode ser menor ou igual ao crescimento na perpetuidade, 
+        # Trava de segurança: O WACC nunca pode ser menor ou igual ao crescimento na perpetuidade,
         # senão a fórmula matemática entra em divisão por zero ou gera valores negativos irreais.
         if taxa_desc <= taxa_crescimento_perpetuidade:
             return 0.0
@@ -33,9 +50,14 @@ def calcular_dcf(
         valor_terminal = fluxo_terminal / (taxa_desc - taxa_crescimento_perpetuidade)
         valor_terminal_presente = valor_terminal / (1 + taxa_desc) ** anos_projecao
 
-        valor_total = valor_presente + valor_terminal_presente
-        
-        return valor_total / num_acoes if num_acoes > 0 else 0.0
+        valor_total = valor_presente + valor_terminal_presente  # Enterprise Value (dívida + patrimônio)
+
+        # EV -> Equity Value: subtrai a dívida líquida ANTES de dividir por
+        # ação, senão o resultado mistura o que pertence aos credores com o
+        # que pertence aos acionistas (ver docstring da função).
+        valor_equity = valor_total - divida_liquida
+
+        return valor_equity / num_acoes if num_acoes > 0 else 0.0
 
     # 1. Três cenários originais (Mantidos para compatibilidade com a interface atual)
     valor_base       = _calcular_valor(taxa_crescimento, taxa_desconto)

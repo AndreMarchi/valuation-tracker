@@ -39,7 +39,8 @@ def buscar_dados_acao_yf(ticker: str) -> dict:
     if _cache_valido(ticker_upper):
         return _cache[ticker_upper]["dados"]
 
-    tentativas = 3
+    tentativas = 2
+    espera_base_segundos = 5
     for tentativa in range(tentativas):
         try:
             ticker_formatado = _formatar_ticker_b3(ticker_upper)
@@ -78,10 +79,12 @@ def buscar_dados_acao_yf(ticker: str) -> dict:
             num_acoes = info.get('sharesOutstanding') or _extrair_dado_seguro(dre, "Diluted Average Shares") or 1
 
             # ─── EXTRAÇÃO DE RISCO E TAMANHO (CAPM DINÂMICO) ─────────────────
+            # None sinaliza dado genuinamente ausente — não confundir com um
+            # beta que a fonte reportou como exatamente 1.0 (ver CONTEXT.md).
             beta_ativo = info.get('beta')
             if beta_ativo is None or math.isnan(beta_ativo):
-                beta_ativo = 1.0
-                
+                beta_ativo = None
+
             valor_mercado = info.get('marketCap')
             if not valor_mercado and num_acoes > 0:
                 valor_mercado = preco * num_acoes
@@ -113,6 +116,7 @@ def buscar_dados_acao_yf(ticker: str) -> dict:
                 "dividend_yield":   round(dividend_yield * 100, 2),
                 "fluxo_caixa":      caixa_livre,
                 "fco_recente":      fco,
+                "patrim_liq":       patrimonio_liq,
                 "num_acoes":        num_acoes,
                 "divida_liquida":   divida_total - _extrair_dado_seguro(balanco, "Cash And Cash Equivalents"),
                 "ebit_12m":         ebit,
@@ -120,7 +124,7 @@ def buscar_dados_acao_yf(ticker: str) -> dict:
                 "roe":              round((lucro_liquido / patrimonio_liq) * 100, 2) if patrimonio_liq > 0 else 0,
                 
                 # Novas chaves injetadas para o CAPM
-                "beta":             round(float(beta_ativo), 2),
+                "beta":             round(float(beta_ativo), 2) if beta_ativo is not None else None,
                 "valor_mercado":    float(valor_mercado),
             }
 
@@ -136,7 +140,7 @@ def buscar_dados_acao_yf(ticker: str) -> dict:
         except Exception as e:
             if "Rate" in str(e) or "429" in str(e):
                 if tentativa < tentativas - 1:
-                    espera = (tentativa + 1) * 10
+                    espera = espera_base_segundos * (tentativa + 1)
                     print(f"Rate limit — aguardando {espera}s...")
                     time.sleep(espera)
                     continue

@@ -14,7 +14,10 @@ def analisar_endividamento(
         score_atual: Score fundamentalista atual
 
     Returns:
-        Dicionário com análise de endividamento e score ajustado
+        Dicionário com análise de endividamento e score ajustado.
+        `classificacao` é o nível de RISCO DE ALAVANCAGEM ("Crítico"/
+        "Alto"/"Moderado"/"Saudável") — não confundir com um veredito de
+        atratividade de valuation tipo "Cara"/"Descontada".
     """
 
     alertas    = []
@@ -82,14 +85,27 @@ def analisar_endividamento(
 
     score_ajustado = round(max(0.0, score_atual - penalizacao), 1)
 
-    if score_ajustado >= 8:
-        classificacao = "Muito Atrativa"
-    elif score_ajustado >= 6:
-        classificacao = "Atrativa"
-    elif score_ajustado >= 4:
-        classificacao = "Neutra"
+    # Classificação em vocabulário de RISCO DE ALAVANCAGEM (Crítico/Alto/
+    # Moderado/Saudável), não de atratividade de valuation ("Muito
+    # Atrativa"/"Cara / Evitar" — vocabulário de score_ajustado, usado
+    # antes por engano). Mesmos limiares que já definem as penalizações/
+    # alertas acima — o pior nível entre Dívida/EBIT e Dívida/Patrimônio,
+    # já que qualquer um dos dois sinalizando risco alto já é motivo de
+    # alerta (ver CONTEXT.md).
+    ORDEM_SEVERIDADE = ["Saudável", "Moderado", "Alto", "Crítico"]
+
+    if div_ebit > 5:
+        nivel_ebit = "Crítico"
+    elif div_ebit > 3:
+        nivel_ebit = "Alto"
+    elif div_ebit > 2:
+        nivel_ebit = "Moderado"
     else:
-        classificacao = "Cara / Evitar"
+        nivel_ebit = "Saudável"
+
+    nivel_patrim = "Alto" if div_patrim > 2 else "Saudável"
+
+    classificacao = max(nivel_ebit, nivel_patrim, key=ORDEM_SEVERIDADE.index)
 
     return {
         "div_liquida_ebit":   round(div_ebit, 2),

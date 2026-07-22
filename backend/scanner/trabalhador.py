@@ -31,7 +31,7 @@ from valuation.multiplos import calcular_multiplos
 from valuation.dcf import calcular_dcf
 from valuation.score import calcular_score
 from valuation.saude_financeira import calcular_saude_financeira, extrair_crescimento_cvm
-from valuation.capm import calcular_capm
+from valuation.capm import calcular_capm, resolver_beta
 from valuation.wacc import calcular_wacc
 from valuation.nopat import calcular_fcl_via_nopat
 from valuation.risco import analisar_risco
@@ -46,7 +46,7 @@ MAX_WORKERS = 6
 
 SETORES_CICLICOS = {
     "Transporte Aéreo", "Transporte",
-    "Alimentos", "Mineração", "Siderurgia e Siderurgia e Metalurgia",
+    "Alimentos", "Mineração", "Siderurgia e Metalurgia",
 }
 
 _lock = threading.Lock()
@@ -252,7 +252,12 @@ def avaliar_ticker(ticker: str, linha_bulk=None, cadastro: dict = None) -> dict:
 
     # CAPM + WACC
     selic_val = buscar_selic_atual()
-    capm = calcular_capm(setor=setor, selic_atual=selic_val, beta_ativo=dados.get("beta", 1.0))
+    capm = calcular_capm(
+        setor=setor,
+        selic_atual=selic_val,
+        beta_ativo=resolver_beta(dados.get("beta"), setor),
+        valor_mercado=dados.get("valor_mercado", 0) or 0,
+    )
     taxa_capm = capm.get("taxa_desconto", 0.12)
     dados_wacc = dict(dados)
     dados_wacc["selic"] = selic_val
@@ -277,6 +282,7 @@ def avaliar_ticker(ticker: str, linha_bulk=None, cadastro: dict = None) -> dict:
             taxa_crescimento_perpetuidade=0.03,
             num_acoes=acoes,
             preco_atual=preco,
+            divida_liquida=(dados.get("div_liquida", 0) or 0) / 1_000_000,
         )
     else:
         dcf = {
@@ -286,7 +292,7 @@ def avaliar_ticker(ticker: str, linha_bulk=None, cadastro: dict = None) -> dict:
             "cenarios": None,
         }
 
-    graham, bazin, multiplos, dcf, _config_setor = aplicar_restricoes_setor(
+    graham, bazin, multiplos, dcf, _ev_ebitda, config_setor = aplicar_restricoes_setor(
         setor=setor, graham=graham, bazin=bazin, multiplos=multiplos, dcf=dcf, ticker=ticker_upper,
     )
 
@@ -305,12 +311,31 @@ def avaliar_ticker(ticker: str, linha_bulk=None, cadastro: dict = None) -> dict:
 
     # Travas de risco/governança e endividamento (sem rede, baratas)
     risco = analisar_risco(ticker=ticker_upper, setor=setor, score_atual=score.get("score", 0))
-    endividamento = analisar_endividamento(
-        div_liquida=dados.get("div_liquida", 0) or 0,
-        ebit_12m=dados.get("ebit_12m", 0) or 0,
-        patrim_liq=dados.get("patrliq", dados.get("fluxo_caixa", 0)) or 0,
-        score_atual=score.get("score", 0),
-    )
+
+    # Dívida Líquida/EBIT não se aplica a banco/seguradora — mesma razão de
+    # Graham/DCF/EV-EBITDA (ver valuation/setor.py e CONTEXT.md). Sem essa
+    # restrição, ebit_12m=0 caía no ramo "else: div_ebit=0" de
+    # analisar_endividamento(), mostrando "0,0x · sem alertas" como se
+    # fosse ausência real de dívida. score_ajustado sai IGUAL ao score de
+    # entrada — o min() do score_final abaixo não pode ser puxado pra baixo
+    # (nem indevidamente "premiado") por uma métrica que não se aplica.
+    if "endividamento" in config_setor.get("metodos_invalidos", []):
+        endividamento = {
+            "classificacao": "Não aplicável",
+            "erro": config_setor.get("justificativas", {}).get("endividamento"),
+            "div_liquida_ebit": None,
+            "div_liquida_patrim": None,
+            "alertas": [],
+            "penalizacao": 0.0,
+            "score_ajustado": score.get("score", 0),
+        }
+    else:
+        endividamento = analisar_endividamento(
+            div_liquida=dados.get("div_liquida", 0) or 0,
+            ebit_12m=dados.get("ebit_12m", 0) or 0,
+            patrim_liq=dados.get("patrim_liq", 0) or 0,
+            score_atual=score.get("score", 0),
+        )
 
     # NOTA: main.py hoje calcula risco e endividamento a partir do MESMO
     # score original (não encadeados) e não expõe uma fórmula única de

@@ -13,6 +13,9 @@ import type {
 import { ValuationDrivers } from './components/ValuationDrivers'
 import ConcessaoSection from "./components/sections/ConcessaoSection"
 import FcfeSection from "./components/sections/FcfeSection"
+import CenariosSensibilidade from "./components/sections/CenariosSensibilidade"
+import SotpSection from "./components/sections/SotpSection"
+import ScorecardQualitativoSection from "./components/sections/ScorecardQualitativo"
 import ScannerScreen from "./components/ScannerScreen"
 
 // ─── tipos watchlist ────────────────────────────────────────────────────────
@@ -306,7 +309,7 @@ const SecaoEvEbitda = ({ ev }: { ev: ValuationResult['ev_ebitda'] }) => {
       <SectionLabel>EV/EBITDA — método Kobori</SectionLabel>
       <div className="grid grid-cols-3 gap-2 mb-2">
         <MetricCard label="EV/EBITDA atual" value={`${ev.ev_ebitda_atual}x`} />
-        <MetricCard label="Média setorial" value={`${ev.ev_ebitda_medio}x`} highlight="blue" />
+        <MetricCard label="Média setorial" value={ev.ev_ebitda_setor != null ? `${ev.ev_ebitda_setor}x` : '—'} highlight="blue" />
         <MetricCard label="Preço justo" value={ev.preco_justo ? `R$ ${ev.preco_justo.toFixed(2)}` : '—'} />
       </div>
       <MethodRow nome="Classificação EV/EBITDA" classificacao={ev.classificacao} />
@@ -405,6 +408,16 @@ const SecaoCapm = ({ capm }: { capm: any }) => (
 
 const SecaoEndividamento = ({ e }: { e: Endividamento }) => {
   if (!e) return null
+  if (e.classificacao === 'Não aplicável') {
+    return (
+      <div>
+        <SectionLabel>Endividamento</SectionLabel>
+        <p className="text-xs text-gray-400 bg-gray-50 rounded-lg px-3 py-2">
+          {e.erro ?? 'Métrica não aplicável para este setor.'}
+        </p>
+      </div>
+    )
+  }
   const alertColor =
     e.classificacao === 'Crítico' ? 'bg-red-50 border-red-200 text-red-700' :
     e.classificacao === 'Alto' ? 'bg-yellow-50 border-yellow-200 text-yellow-700' :
@@ -415,8 +428,8 @@ const SecaoEndividamento = ({ e }: { e: Endividamento }) => {
       <div className="grid grid-cols-2 gap-2 mb-2">
         <MetricCard
           label="Dívida / EBIT"
-          value={fmt(e.div_ebit, '', 'x')}
-          highlight={e.div_ebit != null ? (e.div_ebit > 5 ? 'red' : e.div_ebit > 3 ? 'amber' : 'green') : undefined}
+          value={fmt(e.div_liquida_ebit, '', 'x')}
+          highlight={e.div_liquida_ebit != null ? (e.div_liquida_ebit > 5 ? 'red' : e.div_liquida_ebit > 3 ? 'amber' : 'green') : undefined}
         />
         <MetricCard
           label="Classificação"
@@ -739,6 +752,8 @@ const ResultadoCompleto = ({
       <ValuationDrivers drivers={resultado.drivers} />
     )}
     {resultado.dcf?.cenarios && <SecaoCenariosDCF cenarios={resultado.dcf.cenarios} />}
+    <CenariosSensibilidade ticker={resultado.ticker} precoAtual={resultado.preco_atual} />
+    <SotpSection ticker={resultado.ticker} precoAtual={resultado.preco_atual} />
     <FcfeSection fcfe={resultado.fcfe} precoAtual={resultado.preco_atual} />
     {resultado?.concessao?.aplicavel && (
       <ConcessaoSection
@@ -756,6 +771,9 @@ const ResultadoCompleto = ({
     {resultado.endividamento && <SecaoEndividamento e={resultado.endividamento} />}
     
     {resultado.consenso && <SecaoConsenso c={resultado.consenso} />}
+    {resultado?.score && (
+      <ScorecardQualitativoSection ticker={resultado.ticker} scoreBase={resultado.score.score} />
+    )}
     
     {resultado?.ticker && (
       <PeerGroupTable 

@@ -73,6 +73,7 @@ def buscar_dados_acao_fundamentus(ticker: str) -> dict:
         "dividendo_anual": dividendo_anual,
         "dividend_yield": round(dividend_yield * 100, 2),
         "fluxo_caixa": fcl,
+        "patrim_liq": patrim_liq,
         "num_acoes": num_acoes,
         "roe": round(parse_pct(dados.get('ROE', 0)) * 100, 2),
         "divida_ebitda": divida_ebitda,

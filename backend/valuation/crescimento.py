@@ -164,9 +164,23 @@ def calcular_dcf_duas_fases(
     crescimento_fase1: float,
     anos_fase1: int,
     crescimento_fase2: float,
-    taxa_desconto: float,
+    ke: float,
     preco_atual: float,
 ) -> dict:
+    """
+    `ke`: custo de capital PRÓPRIO (CAPM), não a WACC — `lucro_por_acao`
+    (LPA) já é um fluxo de EQUITY (pós-juros, pós-impostos, já líquido do
+    que pertence aos credores), então precisa ser descontado ao Ke, nunca
+    à WACC (que mistura dívida mais barata via tax shield e, numa empresa
+    endividada, é sempre menor que o Ke — descontar equity à WACC infla o
+    valor justo). Nome explícito (`ke`, não `taxa_desconto`) de propósito:
+    o nome genérico é o que permitiu esse bug passar despercebido antes
+    (mesmo nome usado em outros lugares do código pra WACC) — mesmo
+    precedente de `valuation/fcfe_valuation.py::calcular_valuation_fcfe()`.
+    Bug real, quantificado pra BEEF3 antes da correção: descontar à WACC
+    em vez do Ke inflava o valor_intrínseco em +59,3% (R$11,87 vs R$7,45
+    correto) — ver CONTEXT.md.
+    """
 
     if lucro_por_acao <= 0:
         return {
@@ -182,10 +196,10 @@ def calcular_dcf_duas_fases(
         lpa = lucro_por_acao
         for ano in range(1, anos_fase1 + 1):
             lpa *= (1 + cresc_f1)
-            vp  += lpa / (1 + taxa_desconto) ** ano
+            vp  += lpa / (1 + ke) ** ano
         lpa_terminal   = lpa * (1 + crescimento_fase2)
-        valor_terminal = lpa_terminal / (taxa_desconto - crescimento_fase2)
-        vp_terminal    = valor_terminal / (1 + taxa_desconto) ** anos_fase1
+        valor_terminal = lpa_terminal / (ke - crescimento_fase2)
+        vp_terminal    = valor_terminal / (1 + ke) ** anos_fase1
         return vp + vp_terminal
 
     valor_base       = _calcular(crescimento_fase1)

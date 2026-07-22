@@ -45,11 +45,43 @@ CONTA_EMPRESTIMOS_MOEDA_ESTRANGEIRA_CIRC  = "2.01.04.01.02"
 CONTA_EMPRESTIMOS_MOEDA_NACIONAL_NCIRC    = "2.02.01.01.01"
 CONTA_EMPRESTIMOS_MOEDA_ESTRANGEIRA_NCIRC = "2.02.01.01.02"
 
+# ─── BPA (Ativo) — usado pelo Valor de Liquidação (valor_liquidacao.py) ────
+# `atualizar_cvm.py` passou a baixar/extrair BPA_con a partir desta tarefa
+# (antes só o BPP era extraído do ZIP, embora o BPA já estivesse lá dentro —
+# ver CONTEXT.md). Contas confirmadas com ST_CONTA_FIXA="S" (padronizadas,
+# mesma confiabilidade já estabelecida no projeto pras contas de BPP como
+# CONTA_DIVIDA_CIRCULANTE/CONTA_PATRIMONIO_LIQUIDO acima) — validado contra
+# o BPA real da Minerva/BEEF3 (CD_CVM 020931, ITR 2026T1) antes de fixar os
+# códigos.
+CONTA_ATIVO_TOTAL                        = "1"
+CONTA_CAIXA_EQUIVALENTES                 = "1.01.01"
+CONTA_APLICACOES_FINANCEIRAS_CIRCULANTE  = "1.01.02"
+CONTA_CONTAS_A_RECEBER_CIRCULANTE        = "1.01.03"
+CONTA_ESTOQUES                           = "1.01.04"
+CONTA_IMOBILIZADO                        = "1.02.03"
+CONTA_INTANGIVEL                         = "1.02.04"
+
+# Passivo TOTAL exigível (todas as obrigações — fornecedores, tributos,
+# provisões, dívida financeira etc. — não só a Dívida Bruta financeira já
+# usada em CONTA_DIVIDA_CIRCULANTE/CONTA_DIVIDA_NAO_CIRCULANTE acima).
+# Passivo Circulante + Passivo Não Circulante == Passivo Total ("2") menos
+# o Patrimônio Líquido ("2.03") — identidade contábil confirmada contra a
+# Minerva (2 == 2.01+2.02+2.03 == 1, Ativo Total, no mesmo período).
+CONTA_PASSIVO_CIRCULANTE     = "2.01"
+CONTA_PASSIVO_NAO_CIRCULANTE = "2.02"
+
 # A CVM não disponibiliza a composição cambial da RECEITA em taxonomia
 # estruturada (só em notas explicativas de texto livre). Assume-se 0% em
 # moeda estrangeira por padrão; popule aqui manualmente por ticker apenas
 # quando houver dado publicamente confiável (ex: release de resultados).
 OVERRIDE_PCT_RECEITA_MOEDA_ESTRANGEIRA: dict = {}
+
+# Patrimônio Líquido Consolidado — parte do próprio arquivo BPP (a CVM
+# combina Passivo + PL no mesmo arquivo "Balanço Patrimonial Passivo", só o
+# lado do Ativo/BPA que não é baixado — ver CONTA_DIVIDA_CIRCULANTE acima).
+# Usado junto com a Dívida Bruta como proxy de "capital investido" quando
+# não há Ativo Imobilizado disponível — ver buscar_capital_investido_proxy_cvm().
+CONTA_PATRIMONIO_LIQUIDO = "2.03"
 
 # "Variações nos Ativos e Passivos" — segundo dos 3 sub-blocos padronizados
 # da reconciliação de Caixa Líquido das Atividades Operacionais (junto com
@@ -755,6 +787,258 @@ def buscar_saude_financeira_cvm(ticker: str, nome_empresa: str = "") -> dict:
 
     except Exception as e:
         logger.error(f"Erro em buscar_saude_financeira_cvm: {e}")
+        return {"disponivel": False, "erro": str(e)}
+
+
+def buscar_capital_investido_proxy_cvm(ticker: str, nome_empresa: str = "") -> dict:
+    """
+    Proxy de "Ativo Imobilizado líquido" via CVM, usado pelo DCF Concessão
+    (valuation/dcf_concessao.py) — a CVM não baixa o BPA (lado do Ativo do
+    balanço, onde ficaria o Imobilizado de verdade; só o BPP — Passivo +
+    Patrimônio Líquido — é baixado, ver CONTA_DIVIDA_CIRCULANTE acima).
+
+    Proxy: Capital Investido = Dívida Bruta + Patrimônio Líquido. Pela
+    identidade contábil (Ativo Total = Passivo + PL), isso É o Ativo Total
+    — não especificamente o Imobilizado, mas pra uma concessionária de
+    energia/infraestrutura (o único tipo de empresa em CONCESSOES_CONHECIDAS
+    hoje) o Imobilizado domina o Ativo (pouco estoque, caixa/recebíveis
+    proporcionalmente pequenos) — é uma superestimativa leve, do lado
+    otimista pro cenário de liquidação do DCF Concessão. Documentado como
+    proxy explícito, não um valor de balanço real — quem consome isso deve
+    marcar como estimativa.
+
+    Retorna `disponivel: False` (não um valor de zero, enganoso) quando:
+      - a empresa não é encontrada na CVM;
+      - Dívida Bruta E Patrimônio Líquido vêm ambos zerados — confirmado
+        que isso acontece por empresa reportar o BPP inteiro zerado em
+        alguns casos reais (ex: GEPA4/Rio Paranapanema Energia SA, CD_CVM
+        18368 — TODAS as ~520 linhas do BPP consolidado, ITR e DFP, desde
+        2023, vêm com VL_CONTA=0; a DRE do mesmo ticker também zera a
+        partir de 2024T1, sugerindo mudança na forma de reporte à CVM não
+        relacionada a este código — ver CONTEXT.md).
+    """
+    ticker_busca = ticker.upper().strip()
+    razao_social_exata = MAPA_NOMES_CVM.get(ticker_busca, nome_empresa or ticker_busca)
+
+    try:
+        if not DADOS_DIR.exists() or not any(DADOS_DIR.iterdir()):
+            return {"disponivel": False, "erro": "Dados CVM não encontrados. Execute backend/scripts/atualizar_cvm.py"}
+
+        cd_cvm = buscar_cd_cvm(razao_social_exata)
+        if cd_cvm is None:
+            return {"disponivel": False, "erro": f"Empresa não encontrada na CVM: {razao_social_exata}"}
+
+        bpp = _carregar_demo("itr_bpp", cd_cvm)
+        if bpp.empty:
+            bpp = _carregar_demo("dfp_bpp", cd_cvm)
+        if bpp.empty:
+            return {"disponivel": False, "cd_cvm": cd_cvm, "erro": "BPP indisponível pra este ticker"}
+
+        def _ultimo_valor(codigo: str) -> float:
+            s = _extrair_serie(bpp, codigo)
+            return float(s.iloc[-1]) if not s.empty else 0.0
+
+        divida_bruta = _ultimo_valor(CONTA_DIVIDA_CIRCULANTE) + _ultimo_valor(CONTA_DIVIDA_NAO_CIRCULANTE)
+        patrimonio_liquido = _ultimo_valor(CONTA_PATRIMONIO_LIQUIDO)
+        capital_investido = divida_bruta + patrimonio_liquido
+
+        if capital_investido <= 0:
+            return {
+                "disponivel": False,
+                "cd_cvm": cd_cvm,
+                "erro": "Dívida Bruta e Patrimônio Líquido vieram zerados no BPP — dado da CVM indisponível/inconsistente pra este ticker",
+            }
+
+        return {"disponivel": True, "cd_cvm": cd_cvm, "valor": capital_investido, "eh_proxy": True}
+
+    except Exception as e:
+        logger.error(f"Erro em buscar_capital_investido_proxy_cvm: {e}")
+        return {"disponivel": False, "erro": str(e)}
+
+
+def buscar_ativos_para_liquidacao_cvm(ticker: str, nome_empresa: str = "") -> dict:
+    """
+    Ativos (por classe) e Passivo Total via BPA/BPP da CVM, usado pelo
+    Valor de Liquidação (valuation/valor_liquidacao.py). Ao contrário de
+    buscar_capital_investido_proxy_cvm() (que usa um PROXY de Ativo Total
+    porque o BPA não era baixado), esta função lê o BPA_con de verdade —
+    `atualizar_cvm.py` passou a extraí-lo nesta tarefa (ver CONTEXT.md).
+
+    Classes retornadas (todas em R$ absolutos, valor mais recente
+    disponível) — só as 6 citadas no pedido original, cada uma com
+    ST_CONTA_FIXA="S" (posição padronizada, validado contra o BPA real da
+    Minerva/BEEF3 antes de fixar os códigos, mesmo nível de confiança já
+    estabelecido pras contas de BPP como CONTA_DIVIDA_CIRCULANTE):
+      - caixa_equivalentes        (1.01.01)
+      - aplicacoes_financeiras    (1.01.02, só a parcela CIRCULANTE)
+      - contas_a_receber          (1.01.03, só a parcela CIRCULANTE)
+      - estoques                  (1.01.04)
+      - imobilizado               (1.02.03)
+      - intangivel                (1.02.04)
+
+    Deliberadamente NÃO soma todo o Ativo Não Circulante (Investimentos,
+    Ativo Realizável a Longo Prazo, Ativos Biológicos, Tributos
+    Diferidos etc.) — essas classes não têm uma convenção de haircut de
+    liquidação citada no pedido original, e incluí-las exigiria inventar
+    um percentual sem base. Ficam de fora do "Ativo ajustado" (mesmo
+    espírito do "net-net working capital" de Graham: só conta o que tem
+    convenção de haircut definida) — o que torna o piso de liquidação
+    MAIS conservador, nunca menos. `ativo_total_bpa` (conta "1", Ativo
+    Total real) é retornado à parte só como referência de cobertura (ex:
+    o frontend pode mostrar "X% do Ativo Total coberto pelas classes com
+    haircut definido").
+
+    `passivo_total` = Passivo Circulante (2.01) + Passivo Não Circulante
+    (2.02) — TODAS as obrigações exigíveis (fornecedores, tributos,
+    provisões, dívida financeira etc.), não só a Dívida Bruta financeira
+    de CONTA_DIVIDA_CIRCULANTE/CONTA_DIVIDA_NAO_CIRCULANTE (usada em
+    outras partes do projeto). É o número certo para subtrair do Ativo
+    ajustado num cálculo de liquidação — o acionista só recebe o que
+    sobra depois de TODOS os credores serem pagos, não só os financeiros.
+
+    Retorna `disponivel: False` (nunca um valor de zero enganoso) quando a
+    empresa não é encontrada, o BPA/BPP não existem pra ela, ou quando
+    Ativo Total e Passivo Total vêm ambos zerados (mesmo sintoma real já
+    documentado em buscar_capital_investido_proxy_cvm — ex: GEPA4).
+    """
+    ticker_busca = ticker.upper().strip()
+    razao_social_exata = MAPA_NOMES_CVM.get(ticker_busca, nome_empresa or ticker_busca)
+
+    try:
+        if not DADOS_DIR.exists() or not any(DADOS_DIR.iterdir()):
+            return {"disponivel": False, "erro": "Dados CVM não encontrados. Execute backend/scripts/atualizar_cvm.py"}
+
+        cd_cvm = buscar_cd_cvm(razao_social_exata)
+        if cd_cvm is None:
+            return {"disponivel": False, "erro": f"Empresa não encontrada na CVM: {razao_social_exata}"}
+
+        bpa = _carregar_demo("itr_bpa", cd_cvm)
+        if bpa.empty:
+            bpa = _carregar_demo("dfp_bpa", cd_cvm)
+        if bpa.empty:
+            return {
+                "disponivel": False, "cd_cvm": cd_cvm,
+                "erro": "BPA indisponível pra este ticker — rode backend/scripts/atualizar_cvm.py",
+            }
+
+        bpp = _carregar_demo("itr_bpp", cd_cvm)
+        if bpp.empty:
+            bpp = _carregar_demo("dfp_bpp", cd_cvm)
+        if bpp.empty:
+            return {"disponivel": False, "cd_cvm": cd_cvm, "erro": "BPP indisponível pra este ticker"}
+
+        def _ultimo_valor(df: pd.DataFrame, codigo: str) -> float:
+            s = _extrair_serie(df, codigo)
+            return float(s.iloc[-1]) if not s.empty else 0.0
+
+        ativo_total = _ultimo_valor(bpa, CONTA_ATIVO_TOTAL)
+        passivo_total = _ultimo_valor(bpp, CONTA_PASSIVO_CIRCULANTE) + _ultimo_valor(bpp, CONTA_PASSIVO_NAO_CIRCULANTE)
+
+        if ativo_total <= 0 and passivo_total <= 0:
+            return {
+                "disponivel": False, "cd_cvm": cd_cvm,
+                "erro": "Ativo Total e Passivo Total vieram zerados no BPA/BPP — dado da CVM indisponível/inconsistente pra este ticker",
+            }
+
+        return {
+            "disponivel": True,
+            "cd_cvm": cd_cvm,
+            "caixa_equivalentes": _ultimo_valor(bpa, CONTA_CAIXA_EQUIVALENTES),
+            "aplicacoes_financeiras": _ultimo_valor(bpa, CONTA_APLICACOES_FINANCEIRAS_CIRCULANTE),
+            "contas_a_receber": _ultimo_valor(bpa, CONTA_CONTAS_A_RECEBER_CIRCULANTE),
+            "estoques": _ultimo_valor(bpa, CONTA_ESTOQUES),
+            "imobilizado": _ultimo_valor(bpa, CONTA_IMOBILIZADO),
+            "intangivel": _ultimo_valor(bpa, CONTA_INTANGIVEL),
+            "ativo_total_bpa": ativo_total,
+            "passivo_total": passivo_total,
+        }
+
+    except Exception as e:
+        logger.error(f"Erro em buscar_ativos_para_liquidacao_cvm: {e}")
+        return {"disponivel": False, "erro": str(e)}
+
+
+def buscar_crescimento_lucro_anual_cvm(ticker: str, nome_empresa: str = "") -> dict:
+    """
+    CAGR de lucro líquido anual via CVM (DFP, exercícios completos) — usado
+    pelo DCF Duas Fases (valuation/crescimento.py::calcular_dcf_duas_fases())
+    como alternativa ao crescimento de RECEITA que era usado antes pra
+    projetar o LPA (lucro por ação, um fluxo de lucro, não de receita — ver
+    CONTEXT.md). Não existe um campo de crescimento de lucro pronto nem no
+    pacote `fundamentus` (só `Cres_Rec_5a`, de receita) nem em
+    `saude_financeira.py::extrair_crescimento_cvm()` (também de receita, e
+    limitado a 6 trimestres — insuficiente pro comparativo YoY que essa
+    função já faz).
+
+    Retorna `disponivel: False` (nunca um número inventado) quando:
+      - a empresa não é encontrada na CVM ou tem menos de 2 exercícios
+        anuais completos de lucro líquido;
+      - QUALQUER exercício do período disponível teve prejuízo (lucro <= 0)
+        — CAGR entre um prejuízo e um lucro (ou vice-versa) não é
+        matematicamente definido de forma útil (a base seria negativa) e
+        um CAGR calculado só entre os dois extremos, ignorando um prejuízo
+        no meio, pode subestimar dramaticamente a volatilidade real —
+        confirmado com a própria BEEF3: FY2023 lucro R$396mi, FY2024
+        PREJUÍZO de R$1,56bi, FY2025 lucro R$848mi — um CAGR ponta-a-ponta
+        (2023->2025) dessa série daria ~+46% ao ano, escondendo o prejuízo
+        no meio e superestimando o crescimento real de forma perigosa se
+        usado numa projeção de 5 anos.
+
+    Quando `disponivel: True`, o CAGR retornado já vem clampado numa faixa
+    conservadora (-5% a 30%) — mesma ordem de grandeza dos limites já
+    usados em outros lugares do pipeline de crescimento (main.py,
+    valuation/crescimento.py).
+    """
+    ticker_busca = ticker.upper().strip()
+    razao_social_exata = MAPA_NOMES_CVM.get(ticker_busca, nome_empresa or ticker_busca)
+
+    try:
+        if not DADOS_DIR.exists() or not any(DADOS_DIR.iterdir()):
+            return {"disponivel": False, "erro": "Dados CVM não encontrados. Execute backend/scripts/atualizar_cvm.py"}
+
+        cd_cvm = buscar_cd_cvm(razao_social_exata)
+        if cd_cvm is None:
+            return {"disponivel": False, "erro": f"Empresa não encontrada na CVM: {razao_social_exata}"}
+
+        dfp_dre = _carregar_demo("dfp_dre", cd_cvm)
+        if dfp_dre.empty:
+            return {"disponivel": False, "cd_cvm": cd_cvm, "erro": "DFP (DRE anual) indisponível pra este ticker"}
+
+        serie_lucro_anual = _extrair_serie(dfp_dre, CONTA_LUCRO_LIQUIDO)
+        if len(serie_lucro_anual) < 2:
+            return {
+                "disponivel": False,
+                "cd_cvm": cd_cvm,
+                "erro": f"Só {len(serie_lucro_anual)} exercício(s) anual(is) de lucro líquido disponível — precisa de ao menos 2",
+            }
+
+        valores = [float(v) for v in serie_lucro_anual.values]
+        if any(v <= 0 for v in valores):
+            return {
+                "disponivel": False,
+                "cd_cvm": cd_cvm,
+                "erro": "Prejuízo em pelo menos um exercício do período disponível — CAGR de lucro não é confiável nesse caso",
+                "lucros_anuais": valores,
+            }
+
+        anos = [dt.year for dt in serie_lucro_anual.index]
+        num_anos = anos[-1] - anos[0]
+        if num_anos <= 0:
+            return {"disponivel": False, "cd_cvm": cd_cvm, "erro": "Exercícios disponíveis não cobrem um intervalo de anos válido"}
+
+        cagr = (valores[-1] / valores[0]) ** (1 / num_anos) - 1
+        cagr_clampado = max(-0.05, min(cagr, 0.30))
+
+        return {
+            "disponivel": True,
+            "cd_cvm": cd_cvm,
+            "cagr": round(cagr_clampado, 4),
+            "anos_considerados": anos,
+            "lucros_anuais": valores,
+        }
+
+    except Exception as e:
+        logger.error(f"Erro em buscar_crescimento_lucro_anual_cvm: {e}")
         return {"disponivel": False, "erro": str(e)}
 
 

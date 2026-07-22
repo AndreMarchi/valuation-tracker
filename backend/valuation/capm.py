@@ -23,6 +23,23 @@ BETA_POR_SETOR = {
 }
 BETA_PADRAO = 1.0  # Caso o setor não esteja explicitamente mapeado
 
+
+def resolver_beta(beta_bruto, setor: str) -> float:
+    """
+    Resolve o beta final a ser usado no CAPM. BETA_POR_SETOR só entra como
+    fallback quando o dado realmente não veio da fonte (beta_bruto is None
+    — ver dados/provider.py, yfinance_provider.py, yquery_provider.py, que
+    agora retornam None nesse caso em vez de um 1.0 fixo indistinguível de
+    dado real). Nunca sobrescreve um valor real, mesmo que pareça
+    "estranho" (ex: beta de 0.26 da BEEF3, confirmado como dado genuíno do
+    Yahoo, não uma falha de extração — ver CONTEXT.md) ou seja exatamente
+    1.0 vindo da própria fonte.
+    """
+    if beta_bruto is not None:
+        return beta_bruto
+    return BETA_POR_SETOR.get(setor, BETA_PADRAO)
+
+
 # backend/valuation/capm.py
 
 def calcular_capm(setor: str, selic_atual: float, beta_ativo: float = 1.0, valor_mercado: float = 0.0) -> dict:

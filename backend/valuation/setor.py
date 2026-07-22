@@ -4,6 +4,8 @@ import pandas as pd
 import os
 import json
 
+from valuation.multiplos import classificacao_agregada_multiplos
+
 # ============================================================================
 # 1. CARREGAMENTO DA BASE JSON LOCAL
 # ============================================================================
@@ -31,28 +33,34 @@ BASE_EMPRESAS_JSON = carregar_base_setores()
 CONFIGURACAO_SETORES = {
     "Intermediários Financeiros": {
         "metodos_validos":   ["bazin", "pl", "pvp"],
-        "metodos_invalidos": ["graham", "dcf"],
+        "metodos_invalidos": ["graham", "dcf", "ev_ebitda", "endividamento"],
         "justificativas": {
             "graham": "Graham não se aplica a bancos — VPA inclui carteira de crédito, distorcendo o resultado.",
             "dcf":    "DCF clássico não se aplica a bancos — lucro líquido não equivale a fluxo de caixa livre.",
+            "ev_ebitda": "EV/EBITDA não se aplica a bancos — EBITDA não é uma métrica operacional limpa quando juros são o núcleo da receita/despesa, e Enterprise Value pressupõe separar dívida financeira de operação, o que não existe pra esse tipo de negócio.",
+            "endividamento": "Dívida Líquida/EBIT não se aplica a bancos — o EBIT operacional não é um conceito limpo pra esse tipo de negócio (mesma razão de Graham/DCF/EV-EBITDA), então a métrica de alavancagem baseada nele não é confiável.",
         },
         "metricas_ideais": ["P/L", "P/VP", "Dividend Yield", "ROE"],
     },
     "Bancos": {
         "metodos_validos":   ["bazin", "pl", "pvp"],
-        "metodos_invalidos": ["graham", "dcf"],
+        "metodos_invalidos": ["graham", "dcf", "ev_ebitda", "endividamento"],
         "justificativas": {
             "graham": "Graham não se aplica a bancos.",
             "dcf":    "DCF clássico não se aplica a bancos.",
+            "ev_ebitda": "EV/EBITDA não se aplica a bancos — EBITDA não é uma métrica operacional limpa quando juros são o núcleo da receita/despesa, e Enterprise Value pressupõe separar dívida financeira de operação, o que não existe pra esse tipo de negócio.",
+            "endividamento": "Dívida Líquida/EBIT não se aplica a bancos — o EBIT operacional não é um conceito limpo pra esse tipo de negócio (mesma razão de Graham/DCF/EV-EBITDA), então a métrica de alavancagem baseada nele não é confiável.",
         },
         "metricas_ideais": ["P/L", "P/VP", "Dividend Yield", "ROE"],
     },
     "Seguradoras": {
         "metodos_validos":   ["bazin", "pl", "pvp"],
-        "metodos_invalidos": ["graham", "dcf"],
+        "metodos_invalidos": ["graham", "dcf", "ev_ebitda", "endividamento"],
         "justificativas": {
             "graham": "Graham não se aplica a seguradoras.",
             "dcf":    "DCF não se aplica a seguradoras.",
+            "ev_ebitda": "EV/EBITDA não se aplica a seguradoras — pela mesma razão dos bancos: EBITDA não é uma métrica operacional limpa e Enterprise Value pressupõe separar dívida financeira de operação, o que não existe pra esse tipo de negócio.",
+            "endividamento": "Dívida Líquida/EBIT não se aplica a seguradoras — pela mesma razão dos bancos: o EBIT operacional não é um conceito limpo pra esse tipo de negócio.",
         },
         "metricas_ideais": ["P/L", "P/VP", "Combined Ratio", "ROE"],
     },
@@ -193,7 +201,7 @@ def get_configuracao_setor(nome_setor: str, ticker: str = "") -> dict:
     return config
 
 
-def aplicar_restricoes_setor(setor: str, graham: dict, bazin: dict, multiplos: dict, dcf: dict, ticker: str = "") -> tuple:
+def aplicar_restricoes_setor(setor: str, graham: dict, bazin: dict, multiplos: dict, dcf: dict, ev_ebitda: dict = None, ticker: str = "") -> tuple:
     # Correção da assinatura da chamada interna adicionando o parâmetro opcional 'ticker'
     config = get_configuracao_setor(setor, ticker)
     invalidos = config.get("metodos_invalidos", [])
@@ -209,10 +217,21 @@ def aplicar_restricoes_setor(setor: str, graham: dict, bazin: dict, multiplos: d
     if "pvp" in invalidos:
         multiplos["pvp"]["classificacao"] = "Não aplicável"
         multiplos["pvp"]["erro"] = justificativas.get("pvp")
+    if "pl" in invalidos or "pvp" in invalidos:
+        # Recalcula a classificação agregada (usada pelo pilar
+        # "patrimonial_multiplos" da Matriz de Consenso) — se não recalcular
+        # aqui, ela fica presa ao valor calculado ANTES da restrição de
+        # setor zerar pl/pvp (ex: setor "Tecnologia" invalida P/VP), ficando
+        # desatualizada em relação ao que os sub-campos pl/pvp mostram.
+        multiplos["classificacao"] = classificacao_agregada_multiplos(
+            multiplos["pl"]["classificacao"], multiplos["pvp"]["classificacao"]
+        )
     if "dcf" in invalidos:
         dcf = {**dcf, "classificacao": "Não aplicável", "erro": justificativas.get("dcf"), "valor_intrinseco": None}
+    if "ev_ebitda" in invalidos and ev_ebitda is not None:
+        ev_ebitda = {**ev_ebitda, "classificacao": "Não aplicável", "erro": justificativas.get("ev_ebitda"), "preco_justo": None}
 
-    return graham, bazin, multiplos, dcf, config
+    return graham, bazin, multiplos, dcf, ev_ebitda, config
 
 
 def obter_pesos_setoriais(subsetor: str) -> dict:

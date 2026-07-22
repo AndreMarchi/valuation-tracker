@@ -21,11 +21,20 @@ EMPRESAS_ESTATAIS = {
 }
 
 # Setores com risco regulatório alto
+# "Bancos" e "Intermediários Financeiros" ficam juntos de propósito (mesmo
+# padrão defensivo de valuation/setor.py, valuation/capm.py e
+# valuation/ev_ebitda.py) — o setor real retornado por buscar_dados() pra
+# bancos é "Intermediários Financeiros" (confirmado com ITUB4/BBAS3/BBDC4/
+# SANB11), não "Bancos" (esse é o valor de industria/subsetor). Sem essa
+# chave, is_regulado nunca disparava pra bancos não-estatais (ITUB4/BBDC4),
+# perdendo a penalização de 1.0 ponto que o set já pretendia aplicar. Ver
+# CONTEXT.md.
 SETORES_REGULADOS = {
     "Petróleo e Gás Integrado",
     "Energia Elétrica",
     "Saneamento",
     "Bancos",
+    "Intermediários Financeiros",
     "Telecomunicações",
 }
 

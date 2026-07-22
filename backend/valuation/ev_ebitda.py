@@ -63,6 +63,7 @@ def calcular_ev_ebitda(
     return {
         "ev_ebitda_atual": round(ev_ebitda_atual, 2),
         "ev_ebitda_alvo_blend": round(multiplo_alvo, 2),
+        "ev_ebitda_setor": round(ev_ebitda_setor, 2) if ev_ebitda_setor > 0 else None,
         "preco_justo": round(preco_justo, 2),
         "classificacao": classificacao
     }

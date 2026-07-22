@@ -1,5 +1,5 @@
 import pytest
-from valuation.wacc import calcular_wacc
+from valuation.wacc import calcular_wacc, calcular_spread_cambial, PREMIO_RISCO_CAMBIAL_PLENO
 
 def test_wacc_empresa_sem_divida():
     """Se a empresa não tem dívidas, o WACC deve ser igual à taxa CAPM."""
@@ -60,3 +60,64 @@ def test_wacc_fallback_dados_zerados():
     
     wacc = calcular_wacc(dados_mock, taxa_capm=0.16)
     assert wacc == 0.12
+
+
+# ─── spread cambial no Kd (dívida em moeda estrangeira) ────────────────────
+
+def test_spread_cambial_zero_sem_dado():
+    """None (dado indisponível) não deve penalizar — spread 0."""
+    assert calcular_spread_cambial(None) == 0.0
+
+
+def test_spread_cambial_zero_quando_pct_zero():
+    """0% de dívida em moeda estrangeira -> spread 0."""
+    assert calcular_spread_cambial(0.0) == 0.0
+
+
+def test_spread_cambial_proporcional_ao_percentual():
+    """Spread cresce linearmente com a fração da dívida exposta."""
+    assert calcular_spread_cambial(100.0) == pytest.approx(PREMIO_RISCO_CAMBIAL_PLENO)
+    assert calcular_spread_cambial(50.0) == pytest.approx(PREMIO_RISCO_CAMBIAL_PLENO / 2)
+    assert calcular_spread_cambial(90.0) == pytest.approx(PREMIO_RISCO_CAMBIAL_PLENO * 0.9)
+
+
+def test_wacc_sem_dado_cambial_e_identico_ao_comportamento_anterior():
+    """calcular_wacc() sem o novo parâmetro (ou com None) deve dar exatamente
+    o mesmo resultado de antes desta mudança — não pode quebrar quem já
+    chama a função sem o argumento novo."""
+    dados_mock = {
+        "preco_atual": 20.00,
+        "num_acoes": 500000,
+        "div_liquida": 10000000,
+        "selic": 0.145,
+    }
+    taxa_capm = 0.16
+
+    wacc_sem_argumento = calcular_wacc(dados_mock, taxa_capm)
+    wacc_com_none_explicito = calcular_wacc(dados_mock, taxa_capm, pct_divida_moeda_estrangeira=None)
+
+    assert wacc_sem_argumento == pytest.approx(0.13775)  # mesmo valor do teste de equilíbrio acima
+    assert wacc_com_none_explicito == pytest.approx(wacc_sem_argumento)
+
+
+def test_wacc_com_divida_cambial_alta_fica_maior_que_sem_cambio():
+    """Dívida majoritariamente em moeda estrangeira -> Kd maior -> WACC maior
+    que o mesmo cenário sem exposição cambial, com valores conferíveis à mão."""
+    dados_mock = {
+        "preco_atual": 20.00,
+        "num_acoes": 500000,  # Equity = 10.000.000
+        "div_liquida": 10000000,  # Dívida = 10.000.000 (peso 50/50)
+        "selic": 0.145,
+    }
+    taxa_capm = 0.16
+
+    wacc_sem_cambio = calcular_wacc(dados_mock, taxa_capm, pct_divida_moeda_estrangeira=0.0)
+    wacc_com_cambio = calcular_wacc(dados_mock, taxa_capm, pct_divida_moeda_estrangeira=90.0)
+
+    # Racional (90% em moeda estrangeira):
+    # spread_cambial = 0.9 * 2.5% = 2.25%
+    # Kd = 14.5% + 3% + 2.25% = 19.75% -> pós-imposto = 19.75% * (1-0.34) = 13.035%
+    # WACC = (0.5 * 16%) + (0.5 * 13.035%) = 8% + 6.5175% = 14.5175%
+    assert wacc_com_cambio == pytest.approx(0.145175)
+    assert wacc_com_cambio > wacc_sem_cambio
+    assert wacc_sem_cambio == pytest.approx(0.13775)  # idêntico ao cenário sem ajuste cambial

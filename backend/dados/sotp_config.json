@@ -1,0 +1,28 @@
+{
+  "_aviso": "Configuração manual de segmentos para o SOTP (Soma das Partes) — ver sotp.py. Nenhum provider do projeto reporta dados por segmento/unidade de negócio, então este arquivo precisa ser populado manualmente por ticker (mesmo espírito do CONCESSOES_CONHECIDAS em valuation/dcf_concessao.py). O exemplo abaixo (SIMH3/Simpar) usa valores de EBITDA/múltiplo ILUSTRATIVOS para demonstrar o mecanismo ponta a ponta — NÃO são os números reais/auditados da empresa. Substitua pelos valores reais (releases trimestrais, notas explicativas por segmento) antes de usar para decisão de investimento.",
+  "SIMH3": {
+    "segmentos": [
+      {
+        "nome": "Vamos (locação de caminhões e máquinas)",
+        "metodo": "ev_ebitda",
+        "ebitda": 3000.0,
+        "multiplo_ev_ebitda": 7.0
+      },
+      {
+        "nome": "Movida (aluguel de carros e gestão de frotas)",
+        "metodo": "ev_ebitda",
+        "ebitda": 2500.0,
+        "multiplo_ev_ebitda": 6.0
+      },
+      {
+        "nome": "JSL (logística)",
+        "metodo": "ev_ebitda",
+        "ebitda": 1800.0,
+        "multiplo_ev_ebitda": 6.5
+      }
+    ],
+    "divida_liquida_consolidada": 15000.0,
+    "num_acoes": 300.0,
+    "desconto_holding_pct": 0.15
+  }
+}

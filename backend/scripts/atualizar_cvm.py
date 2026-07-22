@@ -30,11 +30,16 @@ ANOS = [ANO_ATUAL - 2, ANO_ATUAL - 1, ANO_ATUAL]
 
 URL_CADASTRO = "https://dados.cvm.gov.br/dados/CIA_ABERTA/CAD/DADOS/cad_cia_aberta.csv"
 
-# CSVs que queremos extrair de cada ZIP
+# CSVs que queremos extrair de cada ZIP. BPA_con (Ativo) adicionado pra
+# viabilizar o Valor de Liquidação (haircuts por classe de ativo — caixa,
+# contas a receber, estoques, imobilizado, intangível) — antes só o BPP
+# (Passivo+PL) era extraído, apesar do ZIP da CVM já conter o BPA_con
+# (só não estava sendo lido). Ver CONTEXT.md.
 CSVS_NECESSARIOS = {
     "DRE_con": "dre",
     "DFC_MI_con": "dfc",
     "BPP_con": "bpp",
+    "BPA_con": "bpa",
 }
 
 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -132,11 +137,16 @@ def main():
             url = f"https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC/{tipo.upper()}/DADOS/{tipo}_cia_aberta_{ano}.zip"
             zip_path = DADOS_DIR / f"_{tipo}_{ano}.zip"
 
-            # verifica se já extraímos os CSVs deste ano
-            csvs_existentes = list(DADOS_DIR.glob(f"{tipo}_*_{ano}.csv"))
-            if csvs_existentes and all(arquivo_recente(f, dias=7) for f in csvs_existentes):
-                print(f"  {tipo.upper()} {ano}: já extraído ({len(csvs_existentes)} arquivos), pulando")
-                pulados += len(csvs_existentes)
+            # Verifica se TODOS os CSVs esperados deste ano já existem e
+            # estão recentes — checar por chave exata (não um glob genérico
+            # "{tipo}_*_{ano}.csv"), senão adicionar um novo tipo em
+            # CSVS_NECESSARIOS (ex: BPA_con) nunca dispararia um novo
+            # download pra anos que já tinham DRE/DFC/BPP extraídos
+            # (o glob batia neles e "pulava" mesmo faltando o BPA).
+            csvs_esperados = [DADOS_DIR / f"{tipo}_{chave}_{ano}.csv" for chave in CSVS_NECESSARIOS.values()]
+            if all(arquivo_recente(f, dias=7) for f in csvs_esperados):
+                print(f"  {tipo.upper()} {ano}: já extraído ({len(csvs_esperados)} arquivos), pulando")
+                pulados += len(csvs_esperados)
                 continue
 
             if curl_download(url, zip_path):

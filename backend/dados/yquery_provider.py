@@ -84,9 +84,11 @@ def buscar_dados_acao_yq(ticker: str) -> dict:
     dividendo_anual = round(preco * dividend_yield, 2) if dividend_yield else 0
 
     # ─── EXTRAÇÃO DE RISCO E TAMANHO (CAPM DINÂMICO) ─────────────────
+    # None sinaliza dado genuinamente ausente — não confundir com um beta
+    # que a fonte reportou como exatamente 1.0 (ver CONTEXT.md).
     beta_ativo = summary.get('beta') or summary.get('fiveYearBeta')
     if beta_ativo is None or math.isnan(beta_ativo):
-        beta_ativo = 1.0
+        beta_ativo = None
 
     valor_mercado = price_data.get('marketCap') or summary.get('marketCap')
     if not valor_mercado and num_acoes > 0:
@@ -119,6 +121,7 @@ def buscar_dados_acao_yq(ticker: str) -> dict:
         "dividend_yield":   round(dividend_yield * 100, 2),
         "fluxo_caixa":      caixa_livre,
         "fco_recente":      fco,
+        "patrim_liq":       patrimonio_liq,
         "num_acoes":        num_acoes,
         "divida_liquida":   divida_total - caixa_eq,
         "ebit_12m":         ebit,
@@ -126,7 +129,7 @@ def buscar_dados_acao_yq(ticker: str) -> dict:
         "roe":              round((lucro_liquido / patrimonio_liq) * 100, 2) if patrimonio_liq > 0 else 0,
         
         # Novas chaves injetadas para o CAPM
-        "beta":             round(float(beta_ativo), 2),
+        "beta":             round(float(beta_ativo), 2) if beta_ativo is not None else None,
         "valor_mercado":    float(valor_mercado),
     }
 
